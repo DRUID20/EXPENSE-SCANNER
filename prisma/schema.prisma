@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      String   @default("EMPLOYEE") // ADMIN, MANAGER, EMPLOYEE
+  avatar    String?
+  department String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  expenses         Expense[]
+  approvedExpenses Expense[] @relation("ApprovedBy")
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  amount      Float
+  currency    String   @default("USD")
+  category    String
+  vendor      String?
+  date        DateTime
+  status      String   @default("DRAFT") // DRAFT, PENDING, APPROVED, REJECTED
+  receiptUrl  String?
+  receiptData String?  // JSON blob from AI extraction
+  notes       String?
+  rejectionReason String?
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+
+  approvedById String?
+  approvedBy   User?    @relation("ApprovedBy", fields: [approvedById], references: [id])
+  approvedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
