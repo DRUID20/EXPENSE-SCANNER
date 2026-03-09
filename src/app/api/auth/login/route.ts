@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       role: user.role,
       firstName: user.firstName,
       lastName: user.lastName,
+      branchId: user.branchId,
     });
 
     const response = NextResponse.json({

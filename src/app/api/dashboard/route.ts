@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/auth";
+import { getSession, buildExpenseWhere } from "@/lib/auth";
 
 export async function GET() {
   try {
@@ -9,16 +9,7 @@ export async function GET() {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    let where: Record<string, unknown> = {};
-    if (session.role === "EMPLOYEE") {
-      where = { userId: session.userId };
-    } else if (session.role === "MANAGER") {
-      const currentUser = await prisma.user.findUnique({ where: { id: session.userId }, select: { branchId: true } });
-      if (currentUser?.branchId) {
-        where = { user: { branchId: currentUser.branchId } };
-      }
-    }
-    // ADMIN (Super User) sees all branches
+    const where = buildExpenseWhere(session);
 
     const [totalExpenses, pendingCount, approvedCount, rejectedCount, draftCount, recentExpenses, categoryTotals, pendingApprovals, thisMonthTotal] =
       await Promise.all([

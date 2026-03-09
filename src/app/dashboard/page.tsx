@@ -114,9 +114,10 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchAll() {
       try {
-        const [dashRes, analyticsRes] = await Promise.all([
+        const [dashRes, analyticsRes, pendingRes] = await Promise.all([
           fetch("/api/dashboard"),
           canApprove ? fetch("/api/analytics?months=2") : Promise.resolve(null),
+          canApprove ? fetch("/api/expenses?status=PENDING&limit=5") : Promise.resolve(null),
         ]);
 
         const dashData = await dashRes.json();
@@ -127,11 +128,9 @@ export default function DashboardPage() {
           setAnalytics(aData);
         }
 
-        // Fetch pending approvals for managers/admins
-        if (canApprove) {
-          const pendingRes = await fetch("/api/expenses?status=PENDING&limit=5");
+        if (pendingRes && pendingRes.ok) {
           const pendingData = await pendingRes.json();
-          if (pendingRes.ok) setPendingApprovals(pendingData.expenses);
+          setPendingApprovals(pendingData.expenses);
         }
       } catch (err) {
         console.error("Dashboard fetch error:", err);

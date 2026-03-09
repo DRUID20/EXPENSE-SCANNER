@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/auth";
+import { getSession, buildExpenseWhere } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,20 +12,11 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const period = searchParams.get("period") || "6months";
 
-    let where: Record<string, unknown> = {};
-    if (session.role === "EMPLOYEE") {
-      where = { userId: session.userId };
-    } else if (session.role === "MANAGER") {
-      const currentUser = await prisma.user.findUnique({ where: { id: session.userId }, select: { branchId: true } });
-      if (currentUser?.branchId) {
-        where = { user: { branchId: currentUser.branchId } };
-      }
-    }
-    // ADMIN (Super User) sees all branches
+    const where = buildExpenseWhere(session);
 
     // Calculate date range
     const now = new Date();
-    let startDate = new Date();
+    const startDate = new Date();
     switch (period) {
       case "1month":
         startDate.setMonth(now.getMonth() - 1);
@@ -45,7 +36,10 @@ export async function GET(req: NextRequest) {
 
     const dateWhere = { ...where, date: { gte: startDate } };
 
-    // Parallel queries for analytics
+    // Determine if we need top spenders data
+    const needTopSpenders = session.role !== "EMPLOYEE";
+
+    // Parallel queries for analytics - all in one batch including user names
     const [
       totalStats,
       categoryBreakdown,
@@ -53,15 +47,15 @@ export async function GET(req: NextRequest) {
       statusCounts,
       topSpenders,
       recentActivity,
+      // Pre-fetch all users if we need top spenders (avoids sequential N+1)
+      allSpenderUsers,
     ] = await Promise.all([
-      // Total stats
       prisma.expense.aggregate({
         where: dateWhere,
         _sum: { amount: true },
         _avg: { amount: true },
         _count: true,
       }),
-      // Category breakdown
       prisma.expense.groupBy({
         by: ["category"],
         where: dateWhere,
@@ -69,21 +63,19 @@ export async function GET(req: NextRequest) {
         _count: true,
         orderBy: { _sum: { amount: "desc" } },
       }),
-      // All expenses in range for monthly aggregation
+      // Fetch only needed fields for monthly aggregation
       prisma.expense.findMany({
         where: dateWhere,
-        select: { amount: true, date: true, status: true, category: true },
+        select: { amount: true, date: true, status: true },
         orderBy: { date: "asc" },
       }),
-      // Status counts
       prisma.expense.groupBy({
         by: ["status"],
         where: dateWhere,
         _count: true,
         _sum: { amount: true },
       }),
-      // Top spenders (admin/manager only)
-      session.role !== "EMPLOYEE"
+      needTopSpenders
         ? prisma.expense.groupBy({
             by: ["userId"],
             where: dateWhere,
@@ -93,7 +85,6 @@ export async function GET(req: NextRequest) {
             take: 10,
           })
         : Promise.resolve([]),
-      // Recent activity
       prisma.expense.findMany({
         where: dateWhere,
         orderBy: { updatedAt: "desc" },
@@ -102,11 +93,18 @@ export async function GET(req: NextRequest) {
           user: { select: { firstName: true, lastName: true } },
         },
       }),
+      // Pre-fetch user names in parallel (not after) - avoids sequential roundtrip
+      needTopSpenders
+        ? prisma.user.findMany({
+            where: { isActive: true },
+            select: { id: true, firstName: true, lastName: true },
+          })
+        : Promise.resolve([]),
     ]);
 
-    // Aggregate monthly data
+    // Aggregate monthly data in-memory (lightweight - just amount/status/date)
     const monthlyData: Record<string, { month: string; amount: number; count: number; approved: number; rejected: number }> = {};
-    allExpensesInRange.forEach((e) => {
+    for (const e of allExpensesInRange) {
       const d = new Date(e.date);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       if (!monthlyData[key]) {
@@ -116,19 +114,14 @@ export async function GET(req: NextRequest) {
       monthlyData[key].count += 1;
       if (e.status === "APPROVED") monthlyData[key].approved += e.amount;
       if (e.status === "REJECTED") monthlyData[key].rejected += e.amount;
-    });
+    }
 
     const monthlyTrend = Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
 
-    // Resolve top spenders with user names
+    // Resolve top spenders with pre-fetched user names
     let topSpendersWithNames: Array<{ userId: string; firstName: string; lastName: string; total: number; count: number }> = [];
     if (Array.isArray(topSpenders) && topSpenders.length > 0) {
-      const userIds = topSpenders.map((s) => s.userId);
-      const users = await prisma.user.findMany({
-        where: { id: { in: userIds } },
-        select: { id: true, firstName: true, lastName: true },
-      });
-      const userMap = Object.fromEntries(users.map((u) => [u.id, u]));
+      const userMap = Object.fromEntries(allSpenderUsers.map((u) => [u.id, u]));
       topSpendersWithNames = topSpenders.map((s) => ({
         userId: s.userId,
         firstName: userMap[s.userId]?.firstName || "Unknown",

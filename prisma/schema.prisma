@@ -75,6 +75,11 @@ model Expense {
   @@index([date])
   @@index([userId, status])
   @@index([category])
+  @@index([status, date])
+  @@index([userId, date])
+  @@index([userId, amount, date])
+  @@index([approvedById])
+  @@index([createdAt])
 }
 
 model PasswordResetToken {

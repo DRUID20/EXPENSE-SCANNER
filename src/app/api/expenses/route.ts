@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/auth";
+import { getSession, buildExpenseWhere } from "@/lib/auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { existsSync } from "fs";
@@ -55,17 +55,9 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = buildExpenseWhere(session);
     const branchFilter = searchParams.get("branchId");
 
-    if (session.role === "EMPLOYEE") {
-      where.userId = session.userId;
-    } else if (session.role === "MANAGER") {
-      const currentUser = await prisma.user.findUnique({ where: { id: session.userId }, select: { branchId: true } });
-      if (currentUser?.branchId) {
-        where.user = { branchId: currentUser.branchId };
-      }
-    }
     if (session.role === "ADMIN" && branchFilter && branchFilter !== "ALL") {
       where.user = { branchId: branchFilter };
     }
@@ -161,11 +153,16 @@ export async function POST(req: NextRequest) {
 
     const parsedAmount = parseFloat(amount);
 
-    // Spending policy enforcement
-    const policies = await prisma.spendingPolicy.findMany({
-      where: { isActive: true },
-    });
+    // Fetch policies and user limit in parallel
+    const [policies, currentUser] = await Promise.all([
+      prisma.spendingPolicy.findMany({ where: { isActive: true } }),
+      prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { spendingLimit: true, branchId: true },
+      }),
+    ]);
 
+    // Spending policy enforcement
     for (const policy of policies) {
       const categoryMatch = !policy.category || policy.category === category;
       const roleMatch = !policy.role || policy.role === session.role;
@@ -182,12 +179,6 @@ export async function POST(req: NextRequest) {
         );
       }
     }
-
-    // Check user's personal spending limit
-    const currentUser = await prisma.user.findUnique({
-      where: { id: session.userId },
-      select: { spendingLimit: true, branchId: true },
-    });
 
     if (currentUser?.spendingLimit && parsedAmount > currentUser.spendingLimit) {
       return NextResponse.json(

@@ -12,6 +12,7 @@ export interface JWTPayload {
   role: string;
   firstName: string;
   lastName: string;
+  branchId?: string | null;
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -39,6 +40,20 @@ export async function getSession(): Promise<JWTPayload | null> {
   const token = cookieStore.get(TOKEN_NAME)?.value;
   if (!token) return null;
   return verifyToken(token);
+}
+
+/**
+ * Build the expense where clause based on user role, without extra DB queries.
+ * EMPLOYEE: only their expenses. MANAGER: their branch. ADMIN: all.
+ */
+export function buildExpenseWhere(session: JWTPayload): Record<string, unknown> {
+  if (session.role === "EMPLOYEE") {
+    return { userId: session.userId };
+  }
+  if (session.role === "MANAGER" && session.branchId) {
+    return { user: { branchId: session.branchId } };
+  }
+  return {};
 }
 
 export async function getCurrentUser() {
