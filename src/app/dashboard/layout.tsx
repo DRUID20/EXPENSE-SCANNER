@@ -6,6 +6,9 @@ import { useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Navbar } from "@/components/layout/Navbar";
 import { motion } from "framer-motion";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
+import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
 
 export default function DashboardLayout({
   children,
@@ -40,6 +43,8 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-background">
+      <ServiceWorkerRegistration />
+      <OfflineIndicator />
       <Sidebar />
       <div className="lg:pl-[280px] transition-all duration-300">
         <Navbar />
@@ -52,6 +57,7 @@ export default function DashboardLayout({
           {children}
         </motion.main>
       </div>
+      <InstallPrompt />
     </div>
   );
 }

@@ -7,16 +7,72 @@
   "background_color": "#0b1121",
   "theme_color": "#f97316",
   "orientation": "portrait-primary",
+  "categories": ["business", "finance"],
+  "scope": "/",
+  "id": "/dashboard",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "/icons/icon-72.svg",
+      "sizes": "72x72",
+      "type": "image/svg+xml"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icons/icon-96.svg",
+      "sizes": "96x96",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-128.svg",
+      "sizes": "128x128",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-144.svg",
+      "sizes": "144x144",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-152.svg",
+      "sizes": "152x152",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-384.svg",
+      "sizes": "384x384",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-512.svg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Scan Receipt",
+      "short_name": "Scan",
+      "url": "/dashboard/scan",
+      "description": "Scan a new receipt with AI"
+    },
+    {
+      "name": "New Expense",
+      "short_name": "New",
+      "url": "/dashboard/expenses/new",
+      "description": "Add a new expense manually"
+    },
+    {
+      "name": "Approvals",
+      "short_name": "Approve",
+      "url": "/dashboard/approvals",
+      "description": "Review pending expense approvals"
     }
   ]
 }

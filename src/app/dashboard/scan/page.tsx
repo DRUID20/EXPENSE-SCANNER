@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -21,8 +21,18 @@ import {
   Store,
   FileText,
   Receipt,
+  WifiOff,
+  CloudOff,
+  Trash2,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import {
+  isOnline,
+  saveOfflineReceipt,
+  getOfflineReceipts,
+  deleteOfflineReceipt,
+  addToSyncQueue,
+} from "@/lib/pwa";
 
 interface ScanResult {
   vendor: string | null;
@@ -53,6 +63,43 @@ export default function ScanPage() {
   const [stage, setStage] = useState<ScanStage>("upload");
   const [preview, setPreview] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [online, setOnline] = useState(true);
+  const [offlineReceipts, setOfflineReceipts] = useState<Array<{ id: string; imageData: string; fileName: string; timestamp: number }>>([]);
+
+  useEffect(() => {
+    setOnline(isOnline());
+    const handleOnline = () => setOnline(true);
+    const handleOffline = () => setOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    // Load offline receipts
+    getOfflineReceipts().then(setOfflineReceipts);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  const handleSaveOffline = async (file: File) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const imageData = e.target?.result as string;
+      setPreview(imageData);
+      await saveOfflineReceipt({ imageData, fileName: file.name });
+      const receipts = await getOfflineReceipts();
+      setOfflineReceipts(receipts);
+      setStage("upload"); // Stay on upload stage, show saved message
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDeleteOfflineReceipt = async (id: string) => {
+    await deleteOfflineReceipt(id);
+    const receipts = await getOfflineReceipts();
+    setOfflineReceipts(receipts);
+  };
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
@@ -69,6 +116,12 @@ export default function ScanPage() {
     if (file.size > 10 * 1024 * 1024) {
       setError("File too large. Maximum size is 10MB.");
       setStage("error");
+      return;
+    }
+
+    // If offline, save for later
+    if (!navigator.onLine) {
+      await handleSaveOffline(file);
       return;
     }
 
@@ -278,6 +331,58 @@ export default function ScanPage() {
                 </div>
               </div>
             </div>
+
+            {/* Offline notice */}
+            {!online && (
+              <div className="p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+                    <WifiOff className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                      You&apos;re Offline
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      You can still capture receipts! Photos will be saved locally and scanned automatically when you reconnect.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Offline receipts queue */}
+            {offlineReceipts.length > 0 && (
+              <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <CloudOff className="w-4 h-4 text-amber-500" />
+                  Saved Receipts ({offlineReceipts.length})
+                  {online && <span className="text-xs text-green-500 font-normal ml-2">Ready to sync</span>}
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {offlineReceipts.map((receipt) => (
+                    <div key={receipt.id} className="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                      <img
+                        src={receipt.imageData}
+                        alt="Saved receipt"
+                        className="w-full h-24 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <button
+                          onClick={() => handleDeleteOfflineReceipt(receipt.id)}
+                          className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center text-white"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="px-2 py-1.5 bg-gray-50 dark:bg-gray-800">
+                        <p className="text-[10px] text-gray-500 truncate">{receipt.fileName}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
 
