@@ -1,7 +1,8 @@
 "use client";
 
-import { Bell, Search, Menu } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { NotificationBell } from "@/components/ui/NotificationBell";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -59,14 +60,7 @@ export function Navbar() {
         </motion.div>
 
         {/* Notifications */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="relative w-10 h-10 rounded-xl flex items-center justify-center text-gray-500 hover:text-orange-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        >
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-orange-500 rounded-full" />
-        </motion.button>
+        <NotificationBell />
 
         {/* Theme Toggle */}
         <ThemeToggle />

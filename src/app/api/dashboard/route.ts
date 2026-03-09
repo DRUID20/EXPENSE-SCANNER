@@ -11,7 +11,7 @@ export async function GET() {
 
     const where = session.role === "EMPLOYEE" ? { userId: session.userId } : {};
 
-    const [totalExpenses, pendingCount, approvedCount, rejectedCount, recentExpenses, categoryTotals] =
+    const [totalExpenses, pendingCount, approvedCount, rejectedCount, draftCount, recentExpenses, categoryTotals, pendingApprovals, thisMonthTotal] =
       await Promise.all([
         prisma.expense.aggregate({
           where,
@@ -20,6 +20,7 @@ export async function GET() {
         prisma.expense.count({ where: { ...where, status: "PENDING" } }),
         prisma.expense.count({ where: { ...where, status: "APPROVED" } }),
         prisma.expense.count({ where: { ...where, status: "REJECTED" } }),
+        prisma.expense.count({ where: { ...where, status: "DRAFT" } }),
         prisma.expense.findMany({
           where,
           orderBy: { createdAt: "desc" },
@@ -37,6 +38,18 @@ export async function GET() {
           orderBy: { _sum: { amount: "desc" } },
           take: 6,
         }),
+        session.role !== "EMPLOYEE"
+          ? prisma.expense.count({ where: { status: "PENDING" } })
+          : Promise.resolve(0),
+        prisma.expense.aggregate({
+          where: {
+            ...where,
+            date: {
+              gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+            },
+          },
+          _sum: { amount: true },
+        }),
       ]);
 
     return NextResponse.json({
@@ -45,7 +58,10 @@ export async function GET() {
         pendingCount,
         approvedCount,
         rejectedCount,
+        draftCount,
+        thisMonthTotal: thisMonthTotal._sum.amount || 0,
       },
+      pendingApprovals,
       recentExpenses,
       categoryTotals: categoryTotals.map((c) => ({
         category: c.category,

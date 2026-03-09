@@ -13,12 +13,15 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status");
     const category = searchParams.get("category");
     const search = searchParams.get("search");
+    const sortBy = searchParams.get("sortBy") || "createdAt";
+    const sortOrder = (searchParams.get("sortOrder") || "desc") as "asc" | "desc";
+    const dateFrom = searchParams.get("dateFrom");
+    const dateTo = searchParams.get("dateTo");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
     const where: Record<string, unknown> = {};
 
-    // Employees see only their own expenses; Admins/Managers see all
     if (session.role === "EMPLOYEE") {
       where.userId = session.userId;
     }
@@ -39,6 +42,15 @@ export async function GET(req: NextRequest) {
       ];
     }
 
+    if (dateFrom || dateTo) {
+      where.date = {};
+      if (dateFrom) (where.date as Record<string, unknown>).gte = new Date(dateFrom);
+      if (dateTo) (where.date as Record<string, unknown>).lte = new Date(dateTo);
+    }
+
+    const validSortFields = ["createdAt", "amount", "date", "title", "status"];
+    const orderField = validSortFields.includes(sortBy) ? sortBy : "createdAt";
+
     const [expenses, total] = await Promise.all([
       prisma.expense.findMany({
         where,
@@ -47,7 +59,7 @@ export async function GET(req: NextRequest) {
             select: { id: true, firstName: true, lastName: true, email: true, role: true },
           },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { [orderField]: sortOrder },
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -107,6 +119,36 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    // Create audit log
+    await prisma.auditLog.create({
+      data: {
+        action: "CREATE",
+        entity: "EXPENSE",
+        entityId: expense.id,
+        details: JSON.stringify({ title, amount, category }),
+        userId: session.userId,
+      },
+    });
+
+    // If submitted, notify managers
+    if (status === "PENDING") {
+      const managers = await prisma.user.findMany({
+        where: { role: { in: ["MANAGER", "ADMIN"] }, isActive: true },
+        select: { id: true },
+      });
+      if (managers.length > 0) {
+        await prisma.notification.createMany({
+          data: managers.map((m) => ({
+            type: "EXPENSE_SUBMITTED",
+            title: "New Expense Submitted",
+            message: `${session.firstName} ${session.lastName} submitted "${title}" for $${parseFloat(amount).toFixed(2)}`,
+            userId: m.id,
+            linkUrl: `/dashboard/expenses/${expense.id}`,
+          })),
+        });
+      }
+    }
 
     return NextResponse.json({ expense }, { status: 201 });
   } catch (error) {

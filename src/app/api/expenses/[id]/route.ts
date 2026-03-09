@@ -83,6 +83,30 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         },
       });
 
+      // Audit log
+      await prisma.auditLog.create({
+        data: {
+          action: body.status === "APPROVED" ? "APPROVE" : "REJECT",
+          entity: "EXPENSE",
+          entityId: id,
+          details: JSON.stringify({ title: expense.title, amount: expense.amount }),
+          userId: session.userId,
+        },
+      });
+
+      // Notify expense owner
+      await prisma.notification.create({
+        data: {
+          type: body.status === "APPROVED" ? "EXPENSE_APPROVED" : "EXPENSE_REJECTED",
+          title: body.status === "APPROVED" ? "Expense Approved" : "Expense Rejected",
+          message: body.status === "APPROVED"
+            ? `Your expense "${expense.title}" has been approved`
+            : `Your expense "${expense.title}" has been rejected${body.rejectionReason ? `: ${body.rejectionReason}` : ""}`,
+          userId: expense.userId,
+          linkUrl: `/dashboard/expenses/${id}`,
+        },
+      });
+
       return NextResponse.json({ expense: updated });
     }
 
@@ -142,6 +166,16 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     await prisma.expense.delete({ where: { id } });
+
+    await prisma.auditLog.create({
+      data: {
+        action: "DELETE",
+        entity: "EXPENSE",
+        entityId: id,
+        details: JSON.stringify({ title: expense.title, amount: expense.amount }),
+        userId: session.userId,
+      },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
