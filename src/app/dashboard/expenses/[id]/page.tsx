@@ -316,7 +316,7 @@ export default function ExpenseDetailPage() {
                     onChange={(e) => setRejectionReason(e.target.value)}
                     placeholder="Reason for rejection..."
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+                    className="w-full px-4 py-3 rounded-xl input-premium text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
                   />
                   <div className="flex gap-2">
                     <motion.button

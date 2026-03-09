@@ -222,6 +222,25 @@ select {
   background-image: none;
 }
 
+/* Premium input/select */
+.input-premium {
+  background: var(--subtle);
+  border: 1px solid var(--card-border);
+  font-size: 0.875rem;
+  color: var(--foreground);
+  transition: all 0.15s ease;
+}
+
+.input-premium:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.input-premium::placeholder {
+  color: var(--muted);
+}
+
 /* Smooth focus ring */
 *:focus-visible {
   outline: 2px solid var(--accent);

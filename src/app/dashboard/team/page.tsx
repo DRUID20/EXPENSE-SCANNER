@@ -352,20 +352,20 @@ export default function TeamPage() {
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <div className="relative">
-                        <select value={u.role} onChange={(e) => handleUpdateUser(u.id, { role: e.target.value })} className="h-8 pl-3 pr-7 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
+                        <select value={u.role} onChange={(e) => handleUpdateUser(u.id, { role: e.target.value })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
                           {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                         </select>
                         <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
                       </div>
                       <div className="relative">
-                        <select value={u.branchId || ""} onChange={(e) => handleUpdateUser(u.id, { branchId: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
+                        <select value={u.branchId || ""} onChange={(e) => handleUpdateUser(u.id, { branchId: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
                           <option value="">No Branch</option>
                           {branches.filter(b => b.isActive).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                         </select>
                         <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
                       </div>
                       <div className="relative">
-                        <select value={u.department || ""} onChange={(e) => handleUpdateUser(u.id, { department: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
+                        <select value={u.department || ""} onChange={(e) => handleUpdateUser(u.id, { department: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
                           <option value="">No Dept</option>
                           {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
                         </select>

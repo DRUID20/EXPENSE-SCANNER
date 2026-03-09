@@ -154,7 +154,7 @@ export default function NewExpensePage() {
             <select
               value={form.currency}
               onChange={(e) => updateForm("currency", e.target.value)}
-              className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none"
+              className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white text-sm transition-all appearance-none"
             >
               <option value="UGX">UGX</option>
               <option value="USD">USD</option>
@@ -173,7 +173,7 @@ export default function NewExpensePage() {
               type="date"
               value={form.date}
               onChange={(e) => updateForm("date", e.target.value)}
-              className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white text-sm transition-all"
             />
           </div>
         </div>
@@ -188,7 +188,7 @@ export default function NewExpensePage() {
             <select
               value={form.category}
               onChange={(e) => updateForm("category", e.target.value)}
-              className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none"
+              className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white text-sm transition-all appearance-none"
             >
               <option value="">Select category...</option>
               {CATEGORIES.map((cat) => (

@@ -131,7 +131,7 @@ export default function ForgotPasswordPage() {
 
             {resetUrl && (
               <div className="mb-6">
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2 p-3 rounded-xl input-premium">
                   <p className="text-xs text-gray-600 dark:text-gray-400 truncate flex-1">{resetUrl}</p>
                   <button
                     onClick={copyLink}
