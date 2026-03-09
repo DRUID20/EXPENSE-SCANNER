@@ -98,7 +98,10 @@ export async function GET(req: NextRequest) {
 
     const where: Record<string, unknown> = {
       ...buildExpenseWhere(session),
-      receiptPath: { not: null },
+      OR: [
+        { receiptPath: { not: null } },
+        { receiptUrl: { not: null } },
+      ],
     };
 
     if (category && category !== "ALL") {
@@ -113,6 +116,7 @@ export async function GET(req: NextRequest) {
         category: true,
         date: true,
         receiptPath: true,
+        receiptUrl: true,
         vendor: true,
       },
       orderBy: { date: "desc" },
@@ -126,13 +130,30 @@ export async function GET(req: NextRequest) {
     const publicDir = path.join(process.cwd(), "public");
 
     for (const expense of expenses) {
-      if (!expense.receiptPath) continue;
-      const filePath = path.join(publicDir, expense.receiptPath);
-      if (!existsSync(filePath)) continue;
-
       try {
-        const data = await readFile(filePath);
-        const ext = path.extname(expense.receiptPath);
+        let data: Buffer | null = null;
+        let ext = ".jpg";
+
+        // Try reading from disk first
+        if (expense.receiptPath) {
+          const filePath = path.join(publicDir, expense.receiptPath);
+          if (existsSync(filePath)) {
+            data = await readFile(filePath);
+            ext = path.extname(expense.receiptPath);
+          }
+        }
+
+        // Fall back to base64 receiptUrl
+        if (!data && expense.receiptUrl) {
+          const matches = expense.receiptUrl.match(/^data:image\/(jpeg|png|webp|gif);base64,(.+)$/);
+          if (matches) {
+            data = Buffer.from(matches[2], "base64");
+            ext = `.${matches[1] === "jpeg" ? "jpg" : matches[1]}`;
+          }
+        }
+
+        if (!data) continue;
+
         const dateStr = new Date(expense.date).toISOString().split("T")[0];
         const safeName = (expense.title || "receipt").replace(/[^a-zA-Z0-9-_ ]/g, "").slice(0, 40);
         const fileName = `${dateStr}_${safeName}${ext}`;
