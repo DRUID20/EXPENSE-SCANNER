@@ -214,10 +214,10 @@ export default function TeamPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Team Management</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Team Management</h1>
+          <p className="text-[13px] text-gray-400 mt-0.5">
             Manage users, policies, and view audit logs
           </p>
         </div>
@@ -226,7 +226,7 @@ export default function TeamPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowInvite(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold text-sm shadow-lg shadow-orange-500/25"
+            className="flex items-center gap-2 px-5 py-2.5 btn-primary text-sm"
           >
             <UserPlus className="w-4 h-4" />
             Add User
@@ -237,7 +237,7 @@ export default function TeamPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowPolicy(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold text-sm shadow-lg shadow-orange-500/25"
+            className="flex items-center gap-2 px-5 py-2.5 btn-primary text-sm"
           >
             <Plus className="w-4 h-4" />
             Add Policy
@@ -275,7 +275,7 @@ export default function TeamPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5"
+                  className="premium-card p-3.5 lg:p-5"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white font-bold flex-shrink-0">
@@ -366,7 +366,7 @@ export default function TeamPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
-                className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5"
+                className="premium-card p-3.5 lg:p-5"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950 flex items-center justify-center flex-shrink-0">
@@ -410,7 +410,7 @@ export default function TeamPage() {
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.02 }}
-                className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#111318] border border-black/[0.06] dark:border-white/[0.06]"
               >
                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Clock className="w-4 h-4 text-gray-400" />
@@ -451,7 +451,7 @@ export default function TeamPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
             onClick={() => setShowInvite(false)}
           >
             <motion.div
@@ -459,7 +459,7 @@ export default function TeamPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 shadow-2xl"
+              className="w-full max-w-md premium-card p-5 lg:p-6 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Add New User</h3>
@@ -473,13 +473,13 @@ export default function TeamPage() {
                     placeholder="First Name *"
                     value={inviteForm.firstName}
                     onChange={(e) => setInviteForm({ ...inviteForm, firstName: e.target.value })}
-                    className="h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                   />
                   <input
                     placeholder="Last Name *"
                     value={inviteForm.lastName}
                     onChange={(e) => setInviteForm({ ...inviteForm, lastName: e.target.value })}
-                    className="h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                   />
                 </div>
                 <input
@@ -487,27 +487,27 @@ export default function TeamPage() {
                   placeholder="Email *"
                   value={inviteForm.email}
                   onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
-                  className="w-full h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                 />
                 <input
                   type="password"
                   placeholder="Password *"
                   value={inviteForm.password}
                   onChange={(e) => setInviteForm({ ...inviteForm, password: e.target.value })}
-                  className="w-full h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <select
                     value={inviteForm.role}
                     onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}
-                    className="h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400"
                   >
                     {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                   </select>
                   <select
                     value={inviteForm.department}
                     onChange={(e) => setInviteForm({ ...inviteForm, department: e.target.value })}
-                    className="h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400"
                   >
                     <option value="">No Department</option>
                     {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
@@ -518,12 +518,12 @@ export default function TeamPage() {
                   placeholder="Spending Limit (optional)"
                   value={inviteForm.spendingLimit}
                   onChange={(e) => setInviteForm({ ...inviteForm, spendingLimit: e.target.value })}
-                  className="w-full h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                 />
                 <button
                   onClick={handleInvite}
                   disabled={saving}
-                  className="w-full h-10 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold text-sm shadow-lg shadow-orange-500/25 disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full h-10 btn-primary text-sm disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
                   {saving ? "Creating..." : "Create User"}
@@ -541,7 +541,7 @@ export default function TeamPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
             onClick={() => setShowPolicy(false)}
           >
             <motion.div
@@ -549,7 +549,7 @@ export default function TeamPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 shadow-2xl"
+              className="w-full max-w-md premium-card p-5 lg:p-6 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Create Spending Policy</h3>
@@ -562,20 +562,20 @@ export default function TeamPage() {
                   placeholder="Policy Name *"
                   value={policyForm.name}
                   onChange={(e) => setPolicyForm({ ...policyForm, name: e.target.value })}
-                  className="w-full h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                 />
                 <input
                   type="number"
                   placeholder="Max Amount *"
                   value={policyForm.maxAmount}
                   onChange={(e) => setPolicyForm({ ...policyForm, maxAmount: e.target.value })}
-                  className="w-full h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <select
                     value={policyForm.category}
                     onChange={(e) => setPolicyForm({ ...policyForm, category: e.target.value })}
-                    className="h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400"
                   >
                     <option value="">All Categories</option>
                     {["Fuel & Gas", "Equipment", "Travel", "Supplies", "Meals", "Transportation", "Utilities", "Maintenance", "Office", "Other"].map((c) => (
@@ -585,7 +585,7 @@ export default function TeamPage() {
                   <select
                     value={policyForm.role}
                     onChange={(e) => setPolicyForm({ ...policyForm, role: e.target.value })}
-                    className="h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400"
                   >
                     <option value="">All Roles</option>
                     {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
@@ -603,7 +603,7 @@ export default function TeamPage() {
                 <button
                   onClick={handleCreatePolicy}
                   disabled={saving}
-                  className="w-full h-10 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold text-sm shadow-lg shadow-orange-500/25 disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full h-10 btn-primary text-sm disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
                   {saving ? "Creating..." : "Create Policy"}

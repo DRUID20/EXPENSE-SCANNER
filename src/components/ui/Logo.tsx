@@ -12,7 +12,7 @@ export function Logo({ collapsed = false }: { collapsed?: boolean }) {
     >
       {/* Flame/Energy Icon */}
       <div className="relative">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-orange-500/30">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-sm">
           <svg
             width="24"
             height="24"
@@ -44,7 +44,7 @@ export function Logo({ collapsed = false }: { collapsed?: boolean }) {
             </defs>
           </svg>
         </div>
-        <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white dark:border-gray-900 animate-pulse" />
+        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white dark:border-[#111318]" />
       </div>
 
       {!collapsed && (
@@ -53,11 +53,11 @@ export function Logo({ collapsed = false }: { collapsed?: boolean }) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h1 className="text-lg font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent leading-tight">
+          <h1 className="text-base font-bold text-gray-900 dark:text-white leading-tight tracking-tight">
             GASCO
           </h1>
-          <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 tracking-[0.2em] uppercase -mt-0.5">
-            ExpenseTracker
+          <p className="text-[10px] font-medium text-gray-400 tracking-[0.15em] uppercase -mt-0.5">
+            Expenses
           </p>
         </motion.div>
       )}

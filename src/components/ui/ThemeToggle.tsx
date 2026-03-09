@@ -19,11 +19,11 @@ export function ThemeToggle() {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="relative w-14 h-7 rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+      className="relative w-12 h-6 rounded-full bg-gray-200 dark:bg-white/[0.08] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:ring-offset-0"
     >
       <motion.div
-        className="absolute top-0.5 w-6 h-6 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center"
-        animate={{ left: isDark ? "calc(100% - 26px)" : "2px" }}
+        className="absolute top-0.5 w-5 h-5 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center"
+        animate={{ left: isDark ? "calc(100% - 22px)" : "2px" }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       >
         {isDark ? (

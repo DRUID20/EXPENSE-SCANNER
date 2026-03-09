@@ -14,14 +14,14 @@ export default function SettingsPage() {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-4xl mx-auto"
     >
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
+      <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">Settings</h1>
+      <p className="text-[13px] text-gray-400 mb-6">
         Manage your account and preferences
       </p>
 
       <div className="space-y-6">
         {/* Profile Card */}
-        <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6">
+        <div className="premium-card p-4 lg:p-6">
           <div className="flex items-center gap-2 mb-6">
             <User className="w-5 h-5 text-orange-500" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Profile</h3>
@@ -51,7 +51,7 @@ export default function SettingsPage() {
         ].map((section) => (
           <div
             key={section.title}
-            className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6"
+            className="premium-card p-4 lg:p-6"
           >
             <div className="flex items-center gap-2 mb-2">
               <section.icon className="w-5 h-5 text-orange-500" />

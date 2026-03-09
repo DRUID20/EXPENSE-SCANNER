@@ -69,36 +69,36 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#0a0b0f]">
         <div className="absolute inset-0">
-          <div className="absolute top-32 right-20 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-32 left-20 w-72 h-72 bg-amber-500/15 rounded-full blur-3xl animate-pulse [animation-delay:3s]" />
+          <div className="absolute top-32 right-20 w-80 h-80 bg-orange-500/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-32 left-20 w-72 h-72 bg-amber-500/5 rounded-full blur-[120px]" />
         </div>
 
-        <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 opacity-[0.03]">
           <div className="h-full w-full" style={{
-            backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-            backgroundSize: "60px 60px"
+            backgroundImage: "radial-gradient(rgba(255,255,255,0.5) 1px, transparent 1px)",
+            backgroundSize: "32px 32px"
           }} />
         </div>
 
-        <div className="relative z-10 flex flex-col justify-center px-16">
+        <div className="relative z-10 flex flex-col justify-center px-12 xl:px-16">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
           >
-            <div className="flex items-center gap-3 mb-12">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-400 flex items-center justify-center shadow-2xl shadow-orange-500/40">
-                <Zap className="w-7 h-7 text-white" />
+            <div className="flex items-center gap-3 mb-14">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                <Zap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">GASCO</h1>
-                <p className="text-xs text-orange-400 tracking-[0.3em] font-semibold">ENERGY</p>
+                <h1 className="text-xl font-bold text-white tracking-tight">GASCO</h1>
+                <p className="text-[10px] text-orange-400/80 tracking-[0.3em] font-medium">ENERGY</p>
               </div>
             </div>
 
-            <h2 className="text-5xl font-bold text-white leading-tight mb-6">
+            <h2 className="text-4xl xl:text-5xl font-bold text-white leading-[1.15] mb-5 tracking-tight">
               Join Your
               <br />
               <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
@@ -106,8 +106,8 @@ export default function RegisterPage() {
               </span>
             </h2>
 
-            <p className="text-lg text-gray-400 max-w-md leading-relaxed mb-10">
-              Get started with intelligent expense management. Scan, submit, and track expenses effortlessly.
+            <p className="text-base text-gray-500 max-w-sm leading-relaxed mb-10">
+              Get started with intelligent expense management. Scan, submit, and track effortlessly.
             </p>
 
             {/* Steps */}
@@ -122,12 +122,12 @@ export default function RegisterPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + i * 0.15 }}
-                  className="flex items-center gap-4"
+                  className="flex items-center gap-3"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 font-bold text-sm">
+                  <div className="w-9 h-9 rounded-lg bg-orange-500/10 border border-orange-500/15 flex items-center justify-center text-orange-400 font-bold text-xs">
                     {item.step}
                   </div>
-                  <span className="text-gray-300">{item.text}</span>
+                  <span className="text-[14px] text-gray-400">{item.text}</span>
                 </motion.div>
               ))}
             </div>
@@ -136,12 +136,12 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Panel - Register Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white dark:bg-gray-950">
+      <div className="flex-1 flex items-center justify-center px-6 py-8 bg-white dark:bg-[#08090d]">
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-md"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-[400px]"
         >
           <div className="lg:hidden flex items-center gap-3 mb-8">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
@@ -185,7 +185,7 @@ export default function RegisterPage() {
                     onChange={(e) => updateForm("firstName", e.target.value)}
                     placeholder="John"
                     required
-                    className="w-full h-11 pl-10 pr-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                    className="w-full h-11 pl-10 pr-3 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -201,7 +201,7 @@ export default function RegisterPage() {
                     onChange={(e) => updateForm("lastName", e.target.value)}
                     placeholder="Doe"
                     required
-                    className="w-full h-11 pl-10 pr-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                    className="w-full h-11 pl-10 pr-3 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -220,7 +220,7 @@ export default function RegisterPage() {
                   onChange={(e) => updateForm("email", e.target.value)}
                   placeholder="you@gascoenergy.com"
                   required
-                  className="w-full h-11 pl-10 pr-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  className="w-full h-11 pl-10 pr-3 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                 />
               </div>
             </div>
@@ -280,7 +280,7 @@ export default function RegisterPage() {
                   onChange={(e) => updateForm("password", e.target.value)}
                   placeholder="Min. 8 characters"
                   required
-                  className="w-full h-11 pl-10 pr-10 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  className="w-full h-11 pl-10 pr-10 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                 />
                 <button
                   type="button"
@@ -305,7 +305,7 @@ export default function RegisterPage() {
                   onChange={(e) => updateForm("confirmPassword", e.target.value)}
                   placeholder="Repeat your password"
                   required
-                  className="w-full h-11 pl-10 pr-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  className="w-full h-11 pl-10 pr-3 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                 />
               </div>
             </div>
@@ -316,7 +316,7 @@ export default function RegisterPage() {
               whileTap={{ scale: 0.99 }}
               type="submit"
               disabled={loading}
-              className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-shadow flex items-center justify-center gap-2 disabled:opacity-60 mt-6"
+              className="w-full h-11 btn-primary flex items-center justify-center gap-2 text-sm disabled:opacity-60 mt-4"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

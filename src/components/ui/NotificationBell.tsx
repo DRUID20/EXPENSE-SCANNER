@@ -94,9 +94,9 @@ export function NotificationBell() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen(!open)}
-        className="relative w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+        className="relative w-9 h-9 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06] flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors"
       >
-        <Bell className="w-5 h-5" />
+        <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
           <motion.span
             initial={{ scale: 0 }}
@@ -114,7 +114,7 @@ export function NotificationBell() {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute right-0 top-12 w-80 max-h-96 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-2xl overflow-hidden z-50"
+            className="absolute right-0 top-11 w-80 max-h-96 rounded-2xl bg-white dark:bg-[#111318] border border-black/[0.06] dark:border-white/[0.06] shadow-xl shadow-black/[0.08] overflow-hidden z-50"
           >
             <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
               <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Notifications</h4>

@@ -87,19 +87,18 @@ export default function NewExpensePage() {
       className="max-w-3xl mx-auto"
     >
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex items-center gap-3 mb-6">
         <Link href="/dashboard/expenses">
           <motion.button
-            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="w-10 h-10 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:text-orange-500 transition-colors"
+            className="w-9 h-9 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
           </motion.button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">New Expense</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">New Expense</h1>
+          <p className="text-[13px] text-gray-400 mt-0.5">
             Enter expense details manually
           </p>
         </div>
@@ -115,7 +114,7 @@ export default function NewExpensePage() {
         </motion.div>
       )}
 
-      <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 space-y-5">
+      <div className="premium-card p-4 lg:p-6 space-y-4 lg:space-y-5">
         {/* Title */}
         <div>
           <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -127,7 +126,7 @@ export default function NewExpensePage() {
             value={form.title}
             onChange={(e) => updateForm("title", e.target.value)}
             placeholder="e.g., Office supplies from Staples"
-            className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+            className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
           />
         </div>
 
@@ -145,7 +144,7 @@ export default function NewExpensePage() {
               value={form.amount}
               onChange={(e) => updateForm("amount", e.target.value)}
               placeholder="0.00"
-              className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+              className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
             />
           </div>
           <div>
@@ -208,7 +207,7 @@ export default function NewExpensePage() {
               value={form.vendor}
               onChange={(e) => updateForm("vendor", e.target.value)}
               placeholder="e.g., Staples, Shell, etc."
-              className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+              className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
             />
           </div>
         </div>
@@ -224,7 +223,7 @@ export default function NewExpensePage() {
             onChange={(e) => updateForm("description", e.target.value)}
             placeholder="Brief description of the expense..."
             rows={3}
-            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none"
+            className="w-full px-4 py-3 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400 resize-none"
           />
         </div>
 
@@ -238,27 +237,25 @@ export default function NewExpensePage() {
             onChange={(e) => updateForm("notes", e.target.value)}
             placeholder="Additional notes for the approver..."
             rows={2}
-            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none"
+            className="w-full px-4 py-3 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400 resize-none"
           />
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex gap-3 pt-4 border-t border-black/[0.04] dark:border-white/[0.04]">
           <motion.button
-            whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
             onClick={() => handleSubmit("DRAFT")}
             disabled={submitting}
-            className="flex-1 h-12 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold text-sm hover:border-orange-300 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+            className="flex-1 h-11 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] text-gray-700 dark:text-gray-300 font-medium text-sm hover:border-orange-300 dark:hover:border-orange-500/30 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
           >
             Save as Draft
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
             onClick={() => handleSubmit("PENDING")}
             disabled={submitting}
-            className="flex-1 h-12 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold text-sm shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-shadow flex items-center justify-center gap-2 disabled:opacity-60"
+            className="flex-1 h-11 btn-primary flex items-center justify-center gap-2 text-sm disabled:opacity-60"
           >
             {submitting ? (
               <Loader2 className="w-4 h-4 animate-spin" />

@@ -171,13 +171,13 @@ export default function ExpenseDetailPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:text-orange-500 transition-colors"
+              className="w-9 h-9 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </motion.button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{expense.title}</h1>
+            <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{expense.title}</h1>
             <div className="flex items-center gap-2 mt-1">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${status.bgColor} ${status.color}`}>
                 <StatusIcon className="w-3.5 h-3.5" />
@@ -198,7 +198,7 @@ export default function ExpenseDetailPage() {
               whileTap={{ scale: 0.98 }}
               onClick={() => handleStatusUpdate("PENDING")}
               disabled={actionLoading}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold text-sm shadow-lg shadow-orange-500/25 disabled:opacity-60"
+              className="flex items-center gap-2 px-4 py-2.5 btn-primary text-sm disabled:opacity-60"
             >
               <Send className="w-4 h-4" />
               Submit for Approval
@@ -210,7 +210,7 @@ export default function ExpenseDetailPage() {
               whileTap={{ scale: 0.98 }}
               onClick={handleDelete}
               disabled={actionLoading}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 text-red-500 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-colors disabled:opacity-60"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-white/[0.04] border border-red-200/50 dark:border-red-800/30 text-red-500 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors disabled:opacity-60"
             >
               <Trash2 className="w-4 h-4" />
               Delete
@@ -223,7 +223,7 @@ export default function ExpenseDetailPage() {
         {/* Main Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Expense details card */}
-          <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6">
+          <div className="premium-card p-4 lg:p-6">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5 text-orange-500" />
               Expense Details
@@ -255,7 +255,7 @@ export default function ExpenseDetailPage() {
 
           {/* Line Items from AI scan */}
           {parsedReceiptData?.lineItems && parsedReceiptData.lineItems.length > 0 && (
-            <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6">
+            <div className="premium-card p-4 lg:p-6">
               <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
                 Line Items (AI Extracted)
               </h3>
@@ -305,7 +305,7 @@ export default function ExpenseDetailPage() {
 
           {/* Approval actions for managers/admins */}
           {canApprove && (
-            <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6">
+            <div className="premium-card p-4 lg:p-6">
               <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Review Decision</h3>
 
               {showRejectForm ? (
@@ -352,7 +352,7 @@ export default function ExpenseDetailPage() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowRejectForm(true)}
                     disabled={actionLoading}
-                    className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 text-red-500 font-semibold text-sm disabled:opacity-60"
+                    className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-white dark:bg-white/[0.04] border border-red-200 dark:border-red-500/20 text-red-500 font-medium text-sm disabled:opacity-60"
                   >
                     <XCircle className="w-4 h-4" />
                     Reject
@@ -381,7 +381,7 @@ export default function ExpenseDetailPage() {
         <div className="space-y-6">
           {/* Receipt Image */}
           {expense.receiptUrl && (
-            <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4">
+            <div className="premium-card p-4">
               <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                 <Receipt className="w-4 h-4 text-orange-500" />
                 Receipt
@@ -395,7 +395,7 @@ export default function ExpenseDetailPage() {
           )}
 
           {/* Submitted by */}
-          <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4">
+          <div className="premium-card p-4">
             <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               <User className="w-4 h-4 text-orange-500" />
               Submitted By

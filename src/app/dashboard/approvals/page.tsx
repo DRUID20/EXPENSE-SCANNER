@@ -186,10 +186,10 @@ export default function ApprovalsPage() {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-7xl mx-auto"
     >
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Approvals</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Approvals</h1>
+          <p className="text-[13px] text-gray-400 mt-0.5">
             Review and approve expense submissions ({total} total)
           </p>
         </div>
@@ -202,14 +202,14 @@ export default function ApprovalsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search..."
-              className="h-10 pl-9 pr-4 w-48 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="input-premium h-10 pl-9 pr-4 w-48"
             />
           </div>
           <div className="relative">
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="h-10 pl-4 pr-8 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none cursor-pointer"
+              className="input-premium h-10 pl-4 pr-8 appearance-none cursor-pointer"
             >
               <option value="PENDING">Pending</option>
               <option value="APPROVED">Approved</option>
@@ -276,7 +276,7 @@ export default function ApprovalsPage() {
           <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
         </div>
       ) : expenses.length === 0 ? (
-        <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-16">
+        <div className="premium-card p-10 lg:p-16">
           <div className="flex flex-col items-center justify-center text-center">
             <div className="w-20 h-20 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
               <ClipboardCheck className="w-10 h-10 text-gray-300 dark:text-gray-600" />
@@ -323,10 +323,10 @@ export default function ApprovalsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -100 }}
                     transition={{ delay: i * 0.03 }}
-                    className={`rounded-2xl bg-white dark:bg-gray-900 border p-5 transition-colors ${
+                    className={`premium-card p-3 lg:p-5 transition-colors ${
                       isSelected
-                        ? "border-orange-300 dark:border-orange-700 bg-orange-50/50 dark:bg-orange-950/20"
-                        : "border-gray-200 dark:border-gray-800"
+                        ? "!border-orange-300 dark:!border-orange-700 !bg-orange-50/50 dark:!bg-orange-950/20"
+                        : ""
                     }`}
                   >
                     <div className="flex items-center gap-4">
@@ -451,7 +451,7 @@ export default function ApprovalsPage() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="w-9 h-9 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:text-orange-500 transition-colors disabled:opacity-40"
+                  className="w-9 h-9 rounded-lg premium-card flex items-center justify-center text-gray-500 hover:text-orange-500 transition-colors disabled:opacity-40"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </motion.button>
@@ -475,8 +475,8 @@ export default function ApprovalsPage() {
                       onClick={() => setPage(pageNum)}
                       className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
                         page === pageNum
-                          ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25"
-                          : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:text-orange-500"
+                          ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-sm"
+                          : "premium-card text-gray-600 dark:text-gray-400 hover:text-orange-500"
                       }`}
                     >
                       {pageNum}
@@ -489,7 +489,7 @@ export default function ApprovalsPage() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="w-9 h-9 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:text-orange-500 transition-colors disabled:opacity-40"
+                  className="w-9 h-9 rounded-lg premium-card flex items-center justify-center text-gray-500 hover:text-orange-500 transition-colors disabled:opacity-40"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </motion.button>
@@ -506,7 +506,7 @@ export default function ApprovalsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={() => { setRejectTarget(null); setRejectionReason(""); }}
           >
             <motion.div
@@ -514,7 +514,7 @@ export default function ApprovalsPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 shadow-2xl"
+              className="w-full max-w-md premium-card p-5 lg:p-6 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -539,14 +539,14 @@ export default function ApprovalsPage() {
                 placeholder="e.g., Missing receipt, exceeds budget, incorrect category..."
                 rows={3}
                 autoFocus
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none mb-4"
+                className="input-premium w-full px-4 py-3 resize-none mb-4 focus:!ring-red-500"
               />
 
               <div className="flex gap-3">
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={handleRejectConfirm}
-                  className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-red-500 text-white font-semibold text-sm hover:bg-red-600 transition-colors"
+                  className="btn-primary flex-1 flex items-center justify-center gap-2 h-11 !bg-red-500 hover:!bg-red-600"
                 >
                   <XCircle className="w-4 h-4" />
                   Confirm Rejection
@@ -554,7 +554,7 @@ export default function ApprovalsPage() {
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={() => { setRejectTarget(null); setRejectionReason(""); }}
-                  className="flex-1 h-11 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="flex-1 h-11 rounded-xl bg-gray-100 dark:bg-[#111318] border border-black/[0.06] dark:border-white/[0.06] text-gray-600 dark:text-gray-400 font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
                 >
                   Cancel
                 </motion.button>

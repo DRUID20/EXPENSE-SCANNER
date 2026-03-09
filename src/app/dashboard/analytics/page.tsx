@@ -158,10 +158,10 @@ export default function AnalyticsPage() {
       className="max-w-7xl mx-auto space-y-6"
     >
       {/* Header */}
-      <motion.div variants={itemVariants} className="flex items-center justify-between">
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Analytics</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Analytics</h1>
+          <p className="text-[13px] text-gray-400 mt-0.5">
             {user?.role === "ADMIN"
               ? "Company-wide spending insights"
               : user?.role === "MANAGER"
@@ -174,7 +174,7 @@ export default function AnalyticsPage() {
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
-              className="h-10 pl-4 pr-8 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none cursor-pointer"
+              className="h-10 pl-4 pr-8 rounded-xl input-premium text-gray-600 dark:text-gray-400 appearance-none cursor-pointer"
             >
               <option value="1month">Last Month</option>
               <option value="3months">Last 3 Months</option>
@@ -187,7 +187,7 @@ export default function AnalyticsPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold text-sm shadow-lg shadow-orange-500/25"
+            className="flex items-center gap-2 px-4 py-2.5 btn-primary text-sm"
           >
             <Download className="w-4 h-4" />
             Export Report
@@ -196,7 +196,7 @@ export default function AnalyticsPage() {
       </motion.div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
         {[
           { title: "Total Spending", value: formatCurrency(data.summary.totalAmount), icon: DollarSign, gradient: "from-orange-500 to-amber-500", shadow: "shadow-orange-500/20" },
           { title: "Average Expense", value: formatCurrency(data.summary.avgAmount), icon: TrendingUp, gradient: "from-blue-500 to-cyan-500", shadow: "shadow-blue-500/20" },
@@ -206,7 +206,7 @@ export default function AnalyticsPage() {
             key={stat.title}
             variants={itemVariants}
             whileHover={{ y: -4, transition: { duration: 0.2 } }}
-            className={`relative overflow-hidden rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5 shadow-sm ${stat.shadow}`}
+            className={`relative overflow-hidden premium-card p-4 lg:p-5 shadow-sm ${stat.shadow}`}
           >
             <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-5 rounded-full -translate-y-8 translate-x-8`} />
             <div className="flex items-start justify-between relative">
@@ -227,7 +227,7 @@ export default function AnalyticsPage() {
         {/* Monthly Spending Trend */}
         <motion.div
           variants={itemVariants}
-          className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6"
+          className="premium-card p-4 lg:p-6"
         >
           <div className="flex items-center gap-2 mb-6">
             <Calendar className="w-5 h-5 text-orange-500" />
@@ -261,7 +261,7 @@ export default function AnalyticsPage() {
         {/* Category Breakdown - Pie Chart */}
         <motion.div
           variants={itemVariants}
-          className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6"
+          className="premium-card p-4 lg:p-6"
         >
           <div className="flex items-center gap-2 mb-6">
             <PieChartIcon className="w-5 h-5 text-orange-500" />
@@ -306,7 +306,7 @@ export default function AnalyticsPage() {
         {/* Category Bar Chart */}
         <motion.div
           variants={itemVariants}
-          className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6"
+          className="premium-card p-4 lg:p-6"
         >
           <div className="flex items-center gap-2 mb-6">
             <BarChart3 className="w-5 h-5 text-orange-500" />
@@ -340,7 +340,7 @@ export default function AnalyticsPage() {
           className="space-y-6"
         >
           {/* Status Breakdown */}
-          <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6">
+          <div className="premium-card p-4 lg:p-6">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Status Breakdown</h3>
             <div className="grid grid-cols-2 gap-3">
               {data.statusBreakdown.map((s) => (
@@ -361,7 +361,7 @@ export default function AnalyticsPage() {
 
           {/* Top Spenders (Admin/Manager only) */}
           {user?.role !== "EMPLOYEE" && data.topSpenders.length > 0 && (
-            <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6">
+            <div className="premium-card p-4 lg:p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Users className="w-5 h-5 text-orange-500" />
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Top Spenders</h3>

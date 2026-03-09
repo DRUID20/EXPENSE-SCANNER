@@ -165,8 +165,8 @@ export default function ScanPage() {
     >
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Scan Receipt</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <h1 className="text-xl lg:text-2xl tracking-tight font-bold text-gray-900 dark:text-white">Scan Receipt</h1>
+          <p className="text-[13px] text-gray-400 mt-0.5">
             Upload or capture a receipt and let Claude AI extract the details
           </p>
         </div>
@@ -177,7 +177,7 @@ export default function ScanPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={resetScan}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 hover:border-orange-300 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl premium-card text-sm text-gray-600 dark:text-gray-400 hover:border-orange-300 transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
             New Scan
@@ -193,7 +193,7 @@ export default function ScanPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
+            className="space-y-4 lg:space-y-6"
           >
             {/* Drop Zone */}
             <div
@@ -204,10 +204,10 @@ export default function ScanPage() {
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`relative p-12 rounded-2xl border-2 border-dashed transition-all cursor-pointer min-h-[350px] flex flex-col items-center justify-center text-center ${
+              className={`relative p-6 lg:p-12 rounded-2xl border-2 border-dashed transition-all cursor-pointer min-h-[250px] lg:min-h-[350px] flex flex-col items-center justify-center text-center ${
                 isDragging
                   ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20"
-                  : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-orange-400 dark:hover:border-orange-600"
+                  : "border-black/[0.06] dark:border-white/[0.06] bg-white dark:bg-[#111318] hover:border-orange-400 dark:hover:border-orange-600"
               }`}
             >
               <input
@@ -220,7 +220,7 @@ export default function ScanPage() {
 
               <motion.div
                 animate={isDragging ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
-                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center mb-6 shadow-xl shadow-orange-500/20"
+                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center mb-6 shadow-sm"
               >
                 {isDragging ? (
                   <ImageIcon className="w-10 h-10 text-white" />
@@ -229,7 +229,7 @@ export default function ScanPage() {
                 )}
               </motion.div>
 
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight mb-2">
                 {isDragging ? "Drop your receipt here" : "Upload a receipt"}
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md">
@@ -263,7 +263,7 @@ export default function ScanPage() {
             </div>
 
             {/* AI Info */}
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 border border-orange-200 dark:border-orange-800">
+            <div className="p-5 premium-card border-orange-200/50 dark:border-orange-500/10 bg-orange-50/30 dark:bg-orange-950/10">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center flex-shrink-0">
                   <Sparkles className="w-5 h-5 text-white" />
@@ -288,11 +288,11 @@ export default function ScanPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-12"
+            className="premium-card p-8 lg:p-12"
           >
             <div className="flex flex-col items-center text-center">
               {preview && (
-                <div className="w-48 h-48 rounded-2xl overflow-hidden mb-8 shadow-lg relative">
+                <div className="w-48 h-48 rounded-2xl overflow-hidden mb-8 shadow-sm relative">
                   <img src={preview} alt="Receipt" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -304,7 +304,7 @@ export default function ScanPage() {
               )}
 
               <Loader2 className="w-8 h-8 text-orange-500 animate-spin mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight mb-2">
                 Scanning your receipt...
               </h3>
               <p className="text-gray-500 dark:text-gray-400 max-w-md">
@@ -328,7 +328,7 @@ export default function ScanPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
+            className="space-y-4 lg:space-y-6"
           >
             {/* Success banner */}
             <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
@@ -338,10 +338,10 @@ export default function ScanPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
               {/* Receipt Preview */}
               <div className="lg:col-span-1">
-                <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 sticky top-24">
+                <div className="premium-card p-4 sticky top-24">
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                     <Receipt className="w-4 h-4 text-orange-500" />
                     Receipt Image
@@ -359,13 +359,13 @@ export default function ScanPage() {
               {/* Extracted Data */}
               <div className="lg:col-span-2 space-y-4">
                 {/* Main info */}
-                <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6">
+                <div className="premium-card p-4 lg:p-6">
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-orange-500" />
                     Extracted Details
                   </h4>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InfoField
                       icon={<Store className="w-4 h-4" />}
                       label="Vendor"
@@ -419,7 +419,7 @@ export default function ScanPage() {
 
                 {/* Line Items */}
                 {scanResult.lineItems && scanResult.lineItems.length > 0 && (
-                  <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6">
+                  <div className="premium-card p-4 lg:p-6">
                     <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
                       Line Items
                     </h4>
@@ -485,7 +485,7 @@ export default function ScanPage() {
                     whileTap={{ scale: 0.99 }}
                     onClick={() => handleCreateExpense("DRAFT")}
                     disabled={submitting}
-                    className="flex-1 h-12 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold text-sm hover:border-orange-300 dark:hover:border-orange-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                    className="flex-1 h-12 rounded-xl premium-card text-gray-700 dark:text-gray-300 font-semibold text-sm hover:border-orange-300 dark:hover:border-orange-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
                   >
                     Save as Draft
                   </motion.button>
@@ -494,7 +494,7 @@ export default function ScanPage() {
                     whileTap={{ scale: 0.99 }}
                     onClick={() => handleCreateExpense("PENDING")}
                     disabled={submitting}
-                    className="flex-1 h-12 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold text-sm shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-shadow flex items-center justify-center gap-2 disabled:opacity-60"
+                    className="flex-1 h-12 rounded-xl btn-primary text-sm flex items-center justify-center gap-2 disabled:opacity-60"
                   >
                     {submitting ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -518,13 +518,13 @@ export default function ScanPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-12"
+            className="premium-card p-8 lg:p-12"
           >
             <div className="flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-2xl bg-red-100 dark:bg-red-950 flex items-center justify-center mb-4">
                 <AlertCircle className="w-8 h-8 text-red-500" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight mb-2">
                 Scan Failed
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md">{error}</p>
@@ -533,7 +533,7 @@ export default function ScanPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={resetScan}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold text-sm shadow-lg shadow-orange-500/25"
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl btn-primary text-sm"
                 >
                   <RotateCcw className="w-4 h-4" />
                   Try Again
@@ -542,7 +542,7 @@ export default function ScanPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => router.push("/dashboard/expenses/new")}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 font-medium"
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl premium-card text-sm text-gray-600 dark:text-gray-400 font-medium"
                 >
                   Enter Manually
                 </motion.button>
@@ -567,7 +567,7 @@ function InfoField({
   highlight?: boolean;
 }) {
   return (
-    <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+    <div className="p-3 rounded-xl bg-gray-50/80 dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06]">
       <div className="flex items-center gap-1.5 mb-1">
         <span className="text-gray-400">{icon}</span>
         <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">{label}</span>
