@@ -4,7 +4,7 @@ import { verifyPassword, generateToken } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const { email, password, rememberMe = true } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       firstName: user.firstName,
       lastName: user.lastName,
       branchId: user.branchId,
-    });
+    }, rememberMe);
 
     const response = NextResponse.json({
       user: {
@@ -55,11 +55,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const isSecure = req.headers.get("x-forwarded-proto") === "https" || req.nextUrl.protocol === "https:";
+    const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24;
+
     response.cookies.set("expense-tracker-token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isSecure,
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge,
       path: "/",
     });
 

@@ -23,8 +23,8 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   return bcrypt.compare(password, hash);
 }
 
-export function generateToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+export function generateToken(payload: JWTPayload, rememberMe = true): string {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: rememberMe ? "30d" : "1d" });
 }
 
 export function verifyToken(token: string): JWTPayload | null {
