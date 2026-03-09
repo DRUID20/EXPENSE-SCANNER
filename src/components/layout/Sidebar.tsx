@@ -65,14 +65,14 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
       <motion.aside
         animate={{ width: collapsed ? 76 : 264 }}
         transition={{ type: "spring", stiffness: 400, damping: 35 }}
-        className="hidden lg:flex fixed left-0 top-0 h-screen bg-white/80 dark:bg-[#111318]/80 backdrop-blur-xl border-r border-black/[0.06] dark:border-white/[0.06] z-40 flex-col"
+        className="hidden lg:flex fixed left-0 top-0 h-screen bg-white/80 dark:bg-[#072419]/80 backdrop-blur-xl border-r border-black/[0.06] dark:border-white/[0.06] z-40 flex-col"
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4">
           <Logo collapsed={collapsed} />
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="w-7 h-7 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors"
+            className="w-7 h-7 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center text-gray-400 hover:text-emerald-500 transition-colors"
           >
             {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
           </button>
@@ -88,7 +88,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 group relative",
                     isActive
-                      ? "bg-orange-500 text-white shadow-md shadow-orange-500/20"
+                      ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
                       : "text-gray-500 dark:text-gray-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white"
                   )}
                 >
@@ -114,7 +114,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
         {/* User Profile */}
         <div className="border-t border-black/[0.06] dark:border-white/[0.06] p-3">
           <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0">
               {user ? getInitials(user.firstName, user.lastName) : "??"}
             </div>
             {!collapsed && (
@@ -157,7 +157,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 400, damping: 35 }}
-              className="lg:hidden fixed left-0 top-0 h-screen w-[280px] bg-white dark:bg-[#111318] z-50 flex flex-col shadow-2xl"
+              className="lg:hidden fixed left-0 top-0 h-screen w-[280px] bg-white dark:bg-[#072419] z-50 flex flex-col shadow-2xl"
             >
               {/* Header */}
               <div className="h-16 flex items-center justify-between px-4">
@@ -180,7 +180,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
                         className={cn(
                           "flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-150",
                           isActive
-                            ? "bg-orange-500 text-white shadow-md shadow-orange-500/20"
+                            ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
                             : "text-gray-500 dark:text-gray-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white"
                         )}
                       >
@@ -195,7 +195,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
               {/* User Profile */}
               <div className="border-t border-black/[0.06] dark:border-white/[0.06] p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0">
                     {user ? getInitials(user.firstName, user.lastName) : "??"}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -218,7 +218,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
       </AnimatePresence>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-[#111318]/90 backdrop-blur-xl border-t border-black/[0.06] dark:border-white/[0.06] pb-safe">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-[#072419]/90 backdrop-blur-xl border-t border-black/[0.06] dark:border-white/[0.06] pb-safe">
         <div className="flex items-center justify-around px-2 h-16">
           {filteredMobileNav.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -227,10 +227,10 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
             if (isPrimary) {
               return (
                 <Link key={item.name} href={item.href} className="flex flex-col items-center -mt-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
                     <item.icon className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-[10px] font-semibold text-orange-500 mt-0.5">{item.name}</span>
+                  <span className="text-[10px] font-semibold text-emerald-500 mt-0.5">{item.name}</span>
                 </Link>
               );
             }
@@ -239,18 +239,18 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
               <Link key={item.name} href={item.href} className="flex flex-col items-center gap-0.5 py-1.5 min-w-[3.5rem]">
                 <item.icon className={cn(
                   "w-5 h-5 transition-colors",
-                  isActive ? "text-orange-500" : "text-gray-400 dark:text-gray-500"
+                  isActive ? "text-emerald-500" : "text-gray-400 dark:text-gray-500"
                 )} />
                 <span className={cn(
                   "text-[10px] font-medium transition-colors",
-                  isActive ? "text-orange-500" : "text-gray-400 dark:text-gray-500"
+                  isActive ? "text-emerald-500" : "text-gray-400 dark:text-gray-500"
                 )}>
                   {item.name}
                 </span>
                 {isActive && (
                   <motion.div
                     layoutId="bottomNavIndicator"
-                    className="absolute top-0 w-8 h-0.5 bg-orange-500 rounded-full"
+                    className="absolute top-0 w-8 h-0.5 bg-emerald-500 rounded-full"
                   />
                 )}
               </Link>

@@ -54,7 +54,7 @@ function ResetPasswordForm() {
       <div className="text-center">
         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Invalid Reset Link</h3>
         <p className="text-gray-400 mb-6">This reset link is invalid or has expired.</p>
-        <Link href="/login" className="text-orange-500 hover:text-orange-600 font-semibold text-sm">
+        <Link href="/login" className="text-emerald-500 hover:text-emerald-600 font-semibold text-sm">
           Back to sign in
         </Link>
       </div>
@@ -155,7 +155,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-10 bg-white dark:bg-[#08090d]">
+    <div className="min-h-screen flex items-center justify-center px-6 py-10 bg-white dark:bg-[#061B09]">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -163,16 +163,16 @@ export default function ResetPasswordPage() {
         className="w-full max-w-[400px]"
       >
         <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-gray-900 dark:text-white">GASCO</h1>
-            <p className="text-[10px] text-orange-500 tracking-[0.2em] font-semibold">ENERGY</p>
+            <p className="text-[10px] text-emerald-500 tracking-[0.2em] font-semibold">ENERGY</p>
           </div>
         </div>
 
-        <Suspense fallback={<div className="flex items-center justify-center py-10"><div className="w-8 h-8 border-2 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" /></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center py-10"><div className="w-8 h-8 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" /></div>}>
           <ResetPasswordForm />
         </Suspense>
       </motion.div>

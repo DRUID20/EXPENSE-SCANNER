@@ -182,7 +182,7 @@ export default function ScanPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={resetScan}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl premium-card text-sm text-gray-600 dark:text-gray-400 hover:border-orange-300 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl premium-card text-sm text-gray-600 dark:text-gray-400 hover:border-emerald-300 transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
             New Scan
@@ -211,8 +211,8 @@ export default function ScanPage() {
               onClick={() => fileInputRef.current?.click()}
               className={`relative p-6 lg:p-12 rounded-2xl border-2 border-dashed transition-all cursor-pointer min-h-[250px] lg:min-h-[350px] flex flex-col items-center justify-center text-center ${
                 isDragging
-                  ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20"
-                  : "border-black/[0.06] dark:border-white/[0.06] bg-white dark:bg-[#111318] hover:border-orange-400 dark:hover:border-orange-600"
+                  ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20"
+                  : "border-black/[0.06] dark:border-white/[0.06] bg-white dark:bg-[#072419] hover:border-emerald-400 dark:hover:border-emerald-600"
               }`}
             >
               <input
@@ -225,7 +225,7 @@ export default function ScanPage() {
 
               <motion.div
                 animate={isDragging ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
-                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center mb-6 shadow-sm"
+                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mb-6 shadow-sm"
               >
                 {isDragging ? (
                   <ImageIcon className="w-10 h-10 text-white" />
@@ -242,7 +242,7 @@ export default function ScanPage() {
               </p>
 
               <div className="flex items-center gap-4">
-                <span className="px-4 py-2 rounded-xl bg-orange-100 dark:bg-orange-950 text-orange-600 dark:text-orange-400 text-sm font-medium">
+                <span className="px-4 py-2 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
                   Browse Files
                 </span>
                 <span className="text-gray-400 text-sm">or</span>
@@ -268,9 +268,9 @@ export default function ScanPage() {
             </div>
 
             {/* AI Info */}
-            <div className="p-5 premium-card border-orange-200/50 dark:border-orange-500/10 bg-orange-50/30 dark:bg-orange-950/10">
+            <div className="p-5 premium-card border-emerald-200/50 dark:border-emerald-500/10 bg-emerald-50/30 dark:bg-emerald-950/10">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -308,7 +308,7 @@ export default function ScanPage() {
                 </div>
               )}
 
-              <Loader2 className="w-8 h-8 text-orange-500 animate-spin mb-4" />
+              <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight mb-2">
                 Scanning your receipt...
               </h3>
@@ -318,9 +318,9 @@ export default function ScanPage() {
 
               {/* Progress dots */}
               <div className="flex gap-1.5 mt-6">
-                <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" />
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" />
               </div>
             </div>
           </motion.div>
@@ -348,7 +348,7 @@ export default function ScanPage() {
               <div className="lg:col-span-1">
                 <div className="premium-card p-4 sticky top-24">
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                    <Receipt className="w-4 h-4 text-orange-500" />
+                    <Receipt className="w-4 h-4 text-emerald-500" />
                     Receipt Image
                   </h4>
                   {preview && (
@@ -366,7 +366,7 @@ export default function ScanPage() {
                 {/* Main info */}
                 <div className="premium-card p-4 lg:p-6">
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-orange-500" />
+                    <Sparkles className="w-4 h-4 text-emerald-500" />
                     Extracted Details
                   </h4>
 
@@ -472,7 +472,7 @@ export default function ScanPage() {
                           {scanResult.amount != null && (
                             <tr className="border-t border-gray-200 dark:border-gray-700">
                               <td colSpan={3} className="py-2 text-right text-gray-900 dark:text-white font-bold">Total</td>
-                              <td className="py-2 text-right font-bold text-orange-500 text-lg">
+                              <td className="py-2 text-right font-bold text-emerald-500 text-lg">
                                 {formatCurrency(scanResult.amount, scanResult.currency)}
                               </td>
                             </tr>
@@ -490,7 +490,7 @@ export default function ScanPage() {
                     whileTap={{ scale: 0.99 }}
                     onClick={() => handleCreateExpense("DRAFT")}
                     disabled={submitting}
-                    className="flex-1 h-12 rounded-xl premium-card text-gray-700 dark:text-gray-300 font-semibold text-sm hover:border-orange-300 dark:hover:border-orange-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                    className="flex-1 h-12 rounded-xl premium-card text-gray-700 dark:text-gray-300 font-semibold text-sm hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
                   >
                     Save as Draft
                   </motion.button>
@@ -580,7 +580,7 @@ function InfoField({
       <p
         className={`text-sm font-semibold truncate ${
           highlight
-            ? "text-orange-500 text-lg"
+            ? "text-emerald-500 text-lg"
             : value
             ? "text-gray-900 dark:text-white"
             : "text-gray-400 italic"

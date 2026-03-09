@@ -94,7 +94,7 @@ export function NotificationBell() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen(!open)}
-        className="relative w-9 h-9 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06] flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors"
+        className="relative w-9 h-9 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06] flex items-center justify-center text-gray-400 hover:text-emerald-500 transition-colors"
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
@@ -114,14 +114,14 @@ export function NotificationBell() {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute right-0 top-11 w-80 max-h-96 rounded-2xl bg-white dark:bg-[#111318] border border-black/[0.06] dark:border-white/[0.06] shadow-xl shadow-black/[0.08] overflow-hidden z-50"
+            className="absolute right-0 top-11 w-80 max-h-96 rounded-2xl bg-white dark:bg-[#072419] border border-black/[0.06] dark:border-white/[0.06] shadow-xl shadow-black/[0.08] overflow-hidden z-50"
           >
             <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
               <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Notifications</h4>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllRead}
-                  className="flex items-center gap-1 text-xs text-orange-500 hover:text-orange-600 font-medium"
+                  className="flex items-center gap-1 text-xs text-emerald-500 hover:text-emerald-600 font-medium"
                 >
                   <CheckCheck className="w-3 h-3" />
                   Mark all read
@@ -140,7 +140,7 @@ export function NotificationBell() {
                   <button
                     key={n.id}
                     onClick={() => handleNotificationClick(n)}
-                    className={`w-full text-left p-3 border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${!n.isRead ? "bg-orange-50/50 dark:bg-orange-950/20" : ""}`}
+                    className={`w-full text-left p-3 border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${!n.isRead ? "bg-emerald-50/50 dark:bg-emerald-950/20" : ""}`}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${typeColors[n.type] || "bg-gray-400"}`} />
@@ -154,7 +154,7 @@ export function NotificationBell() {
                         </p>
                       </div>
                       {!n.isRead && (
-                        <div className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0 mt-1.5" />
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0 mt-1.5" />
                       )}
                     </div>
                   </button>

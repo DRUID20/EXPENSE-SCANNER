@@ -230,11 +230,11 @@ export default function ApprovalsPage() {
             exit={{ opacity: 0, y: -10, height: 0 }}
             className="mb-4"
           >
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800">
-              <span className="text-sm font-medium text-orange-700 dark:text-orange-300">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+              <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
                 {pendingSelected.length} pending selected
               </span>
-              <div className="h-4 w-px bg-orange-200 dark:bg-orange-800" />
+              <div className="h-4 w-px bg-emerald-200 dark:bg-emerald-800" />
 
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -257,12 +257,12 @@ export default function ApprovalsPage() {
                 Reject All
               </motion.button>
 
-              {bulkLoading && <Loader2 className="w-4 h-4 text-orange-500 animate-spin ml-2" />}
+              {bulkLoading && <Loader2 className="w-4 h-4 text-emerald-500 animate-spin ml-2" />}
 
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setSelectedIds(new Set())}
-                className="ml-auto text-xs text-orange-500 hover:text-orange-700 font-medium"
+                className="ml-auto text-xs text-emerald-500 hover:text-emerald-700 font-medium"
               >
                 Clear
               </motion.button>
@@ -273,7 +273,7 @@ export default function ApprovalsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
         </div>
       ) : expenses.length === 0 ? (
         <div className="premium-card p-10 lg:p-16">
@@ -296,7 +296,7 @@ export default function ApprovalsPage() {
           {/* Select All Header (for pending filter) */}
           {filter === "PENDING" && expenses.length > 0 && (
             <div className="flex items-center gap-3 px-5 py-2 mb-2">
-              <button onClick={toggleSelectAll} className="text-gray-400 hover:text-orange-500 transition-colors">
+              <button onClick={toggleSelectAll} className="text-gray-400 hover:text-emerald-500 transition-colors">
                 {isAllSelected ? (
                   <CheckSquare className="w-4.5 h-4.5" />
                 ) : isSomeSelected ? (
@@ -325,7 +325,7 @@ export default function ApprovalsPage() {
                     transition={{ delay: i * 0.03 }}
                     className={`premium-card p-3 lg:p-5 transition-colors ${
                       isSelected
-                        ? "!border-orange-300 dark:!border-orange-700 !bg-orange-50/50 dark:!bg-orange-950/20"
+                        ? "!border-emerald-300 dark:!border-emerald-700 !bg-emerald-50/50 dark:!bg-emerald-950/20"
                         : ""
                     }`}
                   >
@@ -334,18 +334,18 @@ export default function ApprovalsPage() {
                       {expense.status === "PENDING" && (
                         <button
                           onClick={() => toggleSelect(expense.id)}
-                          className="text-gray-400 hover:text-orange-500 transition-colors flex-shrink-0"
+                          className="text-gray-400 hover:text-emerald-500 transition-colors flex-shrink-0"
                         >
                           {isSelected ? (
-                            <CheckSquare className="w-4.5 h-4.5 text-orange-500" />
+                            <CheckSquare className="w-4.5 h-4.5 text-emerald-500" />
                           ) : (
                             <Square className="w-4.5 h-4.5" />
                           )}
                         </button>
                       )}
 
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-950 dark:to-amber-950 flex items-center justify-center flex-shrink-0">
-                        <Receipt className="w-6 h-6 text-orange-500" />
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-emerald-950 dark:to-emerald-950 flex items-center justify-center flex-shrink-0">
+                        <Receipt className="w-6 h-6 text-emerald-500" />
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -354,7 +354,7 @@ export default function ApprovalsPage() {
                         </h4>
                         <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                           <span className="flex items-center gap-1">
-                            <span className="w-5 h-5 rounded-md bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-[10px] font-bold">
+                            <span className="w-5 h-5 rounded-md bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-[10px] font-bold">
                               {expense.user.firstName[0]}{expense.user.lastName[0]}
                             </span>
                             {expense.user.firstName} {expense.user.lastName}
@@ -400,7 +400,7 @@ export default function ApprovalsPage() {
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 hover:text-orange-500 transition-colors"
+                              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 hover:text-emerald-500 transition-colors"
                               title="View details"
                             >
                               <Eye className="w-4 h-4" />
@@ -425,7 +425,7 @@ export default function ApprovalsPage() {
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 hover:text-orange-500 transition-colors"
+                              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 hover:text-emerald-500 transition-colors"
                             >
                               <Eye className="w-4 h-4" />
                             </motion.button>
@@ -451,7 +451,7 @@ export default function ApprovalsPage() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="w-9 h-9 rounded-lg premium-card flex items-center justify-center text-gray-500 hover:text-orange-500 transition-colors disabled:opacity-40"
+                  className="w-9 h-9 rounded-lg premium-card flex items-center justify-center text-gray-500 hover:text-emerald-500 transition-colors disabled:opacity-40"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </motion.button>
@@ -475,8 +475,8 @@ export default function ApprovalsPage() {
                       onClick={() => setPage(pageNum)}
                       className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
                         page === pageNum
-                          ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-sm"
-                          : "premium-card text-gray-600 dark:text-gray-400 hover:text-orange-500"
+                          ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm"
+                          : "premium-card text-gray-600 dark:text-gray-400 hover:text-emerald-500"
                       }`}
                     >
                       {pageNum}
@@ -489,7 +489,7 @@ export default function ApprovalsPage() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="w-9 h-9 rounded-lg premium-card flex items-center justify-center text-gray-500 hover:text-orange-500 transition-colors disabled:opacity-40"
+                  className="w-9 h-9 rounded-lg premium-card flex items-center justify-center text-gray-500 hover:text-emerald-500 transition-colors disabled:opacity-40"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </motion.button>
@@ -554,7 +554,7 @@ export default function ApprovalsPage() {
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={() => { setRejectTarget(null); setRejectionReason(""); }}
-                  className="flex-1 h-11 rounded-xl bg-gray-100 dark:bg-[#111318] border border-black/[0.06] dark:border-white/[0.06] text-gray-600 dark:text-gray-400 font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+                  className="flex-1 h-11 rounded-xl bg-gray-100 dark:bg-[#072419] border border-black/[0.06] dark:border-white/[0.06] text-gray-600 dark:text-gray-400 font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
                 >
                   Cancel
                 </motion.button>

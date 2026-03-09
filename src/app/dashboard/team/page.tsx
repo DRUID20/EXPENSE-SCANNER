@@ -274,7 +274,7 @@ export default function TeamPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
       </div>
     );
   }
@@ -331,7 +331,7 @@ export default function TeamPage() {
               return (
                 <motion.div key={u.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }} className="premium-card p-3.5 lg:p-5">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white font-bold flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold flex-shrink-0">
                       {u.firstName[0]}{u.lastName[0]}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -465,7 +465,7 @@ export default function TeamPage() {
             </div>
           ) : (
             auditLogs.map((log, i) => (
-              <motion.div key={log.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#111318] border border-black/[0.06] dark:border-white/[0.06]">
+              <motion.div key={log.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#072419] border border-black/[0.06] dark:border-white/[0.06]">
                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Clock className="w-4 h-4 text-gray-400" />
                 </div>
@@ -573,7 +573,7 @@ export default function TeamPage() {
                   </select>
                 </div>
                 <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <input type="checkbox" checked={policyForm.requireApproval} onChange={(e) => setPolicyForm({ ...policyForm, requireApproval: e.target.checked })} className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
+                  <input type="checkbox" checked={policyForm.requireApproval} onChange={(e) => setPolicyForm({ ...policyForm, requireApproval: e.target.checked })} className="w-4 h-4 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500" />
                   Require manager approval
                 </label>
                 <button onClick={handleCreatePolicy} disabled={saving} className="w-full h-10 btn-primary text-sm disabled:opacity-50 flex items-center justify-center gap-2">

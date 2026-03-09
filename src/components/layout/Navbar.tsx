@@ -12,7 +12,7 @@ export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header className="h-14 lg:h-16 bg-white/80 dark:bg-[#111318]/80 backdrop-blur-xl border-b border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
+    <header className="h-14 lg:h-16 bg-white/80 dark:bg-[#072419]/80 backdrop-blur-xl border-b border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
       {/* Left side */}
       <div className="flex items-center gap-3">
         <button
@@ -48,14 +48,14 @@ export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
               animate={{ opacity: 1 }}
               type="text"
               placeholder="Search expenses..."
-              className="w-full h-full pl-9 pr-3 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] border-none text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+              className="w-full h-full pl-9 pr-3 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] border-none text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
               onBlur={() => setSearchOpen(false)}
               autoFocus
             />
           )}
           <button
             onClick={() => setSearchOpen(!searchOpen)}
-            className="absolute left-0 w-9 h-9 rounded-xl flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors"
+            className="absolute left-0 w-9 h-9 rounded-xl flex items-center justify-center text-gray-400 hover:text-emerald-500 transition-colors"
           >
             <Search className="w-4 h-4" />
           </button>

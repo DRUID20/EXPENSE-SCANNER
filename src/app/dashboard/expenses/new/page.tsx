@@ -91,7 +91,7 @@ export default function NewExpensePage() {
         <Link href="/dashboard/expenses">
           <motion.button
             whileTap={{ scale: 0.95 }}
-            className="w-9 h-9 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors"
+            className="w-9 h-9 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] flex items-center justify-center text-gray-400 hover:text-emerald-500 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </motion.button>
@@ -154,7 +154,7 @@ export default function NewExpensePage() {
             <select
               value={form.currency}
               onChange={(e) => updateForm("currency", e.target.value)}
-              className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none"
+              className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none"
             >
               <option value="UGX">UGX</option>
               <option value="USD">USD</option>
@@ -173,7 +173,7 @@ export default function NewExpensePage() {
               type="date"
               value={form.date}
               onChange={(e) => updateForm("date", e.target.value)}
-              className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+              className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
             />
           </div>
         </div>
@@ -188,7 +188,7 @@ export default function NewExpensePage() {
             <select
               value={form.category}
               onChange={(e) => updateForm("category", e.target.value)}
-              className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none"
+              className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none"
             >
               <option value="">Select category...</option>
               {CATEGORIES.map((cat) => (
@@ -248,7 +248,7 @@ export default function NewExpensePage() {
             whileTap={{ scale: 0.99 }}
             onClick={() => handleSubmit("DRAFT")}
             disabled={submitting}
-            className="flex-1 h-11 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] text-gray-700 dark:text-gray-300 font-medium text-sm hover:border-orange-300 dark:hover:border-orange-500/30 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+            className="flex-1 h-11 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] text-gray-700 dark:text-gray-300 font-medium text-sm hover:border-emerald-300 dark:hover:border-emerald-500/30 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
           >
             Save as Draft
           </motion.button>

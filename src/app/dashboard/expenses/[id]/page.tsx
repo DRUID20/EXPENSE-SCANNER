@@ -137,7 +137,7 @@ export default function ExpenseDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
       </div>
     );
   }
@@ -172,7 +172,7 @@ export default function ExpenseDetailPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-9 h-9 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors"
+              className="w-9 h-9 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] flex items-center justify-center text-gray-400 hover:text-emerald-500 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </motion.button>
@@ -226,7 +226,7 @@ export default function ExpenseDetailPage() {
           {/* Expense details card */}
           <div className="premium-card p-4 lg:p-6">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-orange-500" />
+              <FileText className="w-5 h-5 text-emerald-500" />
               Expense Details
             </h3>
 
@@ -384,7 +384,7 @@ export default function ExpenseDetailPage() {
           {(expense.receiptPath || expense.receiptUrl) && (
             <div className="premium-card p-4">
               <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                <Receipt className="w-4 h-4 text-orange-500" />
+                <Receipt className="w-4 h-4 text-emerald-500" />
                 Receipt
               </h4>
               <img
@@ -398,11 +398,11 @@ export default function ExpenseDetailPage() {
           {/* Submitted by */}
           <div className="premium-card p-4">
             <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-              <User className="w-4 h-4 text-orange-500" />
+              <User className="w-4 h-4 text-emerald-500" />
               Submitted By
             </h4>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-sm font-bold">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-sm font-bold">
                 {expense.user.firstName[0]}{expense.user.lastName[0]}
               </div>
               <div>
@@ -438,7 +438,7 @@ function DetailField({
       </div>
       <p
         className={`text-sm font-semibold ${
-          highlight ? "text-orange-500 text-lg" : value ? "text-gray-900 dark:text-white" : "text-gray-400 italic"
+          highlight ? "text-emerald-500 text-lg" : value ? "text-gray-900 dark:text-white" : "text-gray-400 italic"
         }`}
       >
         {value || "—"}

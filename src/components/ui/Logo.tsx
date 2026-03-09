@@ -12,7 +12,7 @@ export function Logo({ collapsed = false }: { collapsed?: boolean }) {
     >
       {/* Flame/Energy Icon */}
       <div className="relative">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-sm">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
           <svg
             width="24"
             height="24"
@@ -38,13 +38,13 @@ export function Logo({ collapsed = false }: { collapsed?: boolean }) {
                 y2="19"
                 gradientUnits="userSpaceOnUse"
               >
-                <stop stopColor="#F97316" />
-                <stop offset="1" stopColor="#DC2626" />
+                <stop stopColor="#03D47C" />
+                <stop offset="1" stopColor="#00C271" />
               </linearGradient>
             </defs>
           </svg>
         </div>
-        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white dark:border-[#111318]" />
+        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-300 rounded-full border-2 border-white dark:border-[#072419]" />
       </div>
 
       {!collapsed && (

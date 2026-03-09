@@ -156,12 +156,12 @@ export default function SettingsPage() {
         {/* Profile Card */}
         <div className="premium-card p-4 lg:p-6">
           <div className="flex items-center gap-2 mb-6">
-            <User className="w-5 h-5 text-orange-500" />
+            <User className="w-5 h-5 text-emerald-500" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Profile</h3>
           </div>
 
           <div className="flex items-center gap-6 mb-6">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-orange-500/20">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-emerald-500/20">
               {user ? getInitials(user.firstName, user.lastName) : "??"}
             </div>
             <div>
@@ -170,7 +170,7 @@ export default function SettingsPage() {
               </h4>
               <p className="text-gray-500 dark:text-gray-400">{user?.email}</p>
               <div className="flex items-center gap-2 mt-1">
-                <span className="inline-block px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-950 text-orange-600 dark:text-orange-400 text-xs font-semibold">
+                <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
                   {user?.role === "ADMIN" ? "Administrator" : user?.role === "MANAGER" ? "Manager" : "Employee"}
                 </span>
                 {user?.branch && (
@@ -232,7 +232,7 @@ export default function SettingsPage() {
         {/* Change Password */}
         <div className="premium-card p-4 lg:p-6">
           <div className="flex items-center gap-2 mb-6">
-            <Shield className="w-5 h-5 text-orange-500" />
+            <Shield className="w-5 h-5 text-emerald-500" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Change Password</h3>
           </div>
 
@@ -297,7 +297,7 @@ export default function SettingsPage() {
         {pushSupported && (
           <div className="premium-card p-4 lg:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Bell className="w-5 h-5 text-orange-500" />
+              <Bell className="w-5 h-5 text-emerald-500" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Push Notifications</h3>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">

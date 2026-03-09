@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-10 bg-white dark:bg-[#08090d]">
+    <div className="min-h-screen flex items-center justify-center px-6 py-10 bg-white dark:bg-[#061B09]">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -54,12 +54,12 @@ export default function ForgotPasswordPage() {
         className="w-full max-w-[400px]"
       >
         <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-gray-900 dark:text-white">GASCO</h1>
-            <p className="text-[10px] text-orange-500 tracking-[0.2em] font-semibold">ENERGY</p>
+            <p className="text-[10px] text-emerald-500 tracking-[0.2em] font-semibold">ENERGY</p>
           </div>
         </div>
 
@@ -135,7 +135,7 @@ export default function ForgotPasswordPage() {
                   <p className="text-xs text-gray-600 dark:text-gray-400 truncate flex-1">{resetUrl}</p>
                   <button
                     onClick={copyLink}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-500 text-white text-xs font-medium"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-medium"
                   >
                     {copied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     {copied ? "Copied!" : "Copy"}
@@ -146,7 +146,7 @@ export default function ForgotPasswordPage() {
           </div>
         )}
 
-        <Link href="/login" className="flex items-center gap-2 justify-center mt-7 text-[13px] text-gray-400 hover:text-orange-500">
+        <Link href="/login" className="flex items-center gap-2 justify-center mt-7 text-[13px] text-gray-400 hover:text-emerald-500">
           <ArrowLeft className="w-4 h-4" />
           Back to sign in
         </Link>

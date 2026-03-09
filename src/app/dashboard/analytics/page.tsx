@@ -82,10 +82,10 @@ interface AnalyticsData {
   }>;
 }
 
-const COLORS = ["#f97316", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899", "#14b8a6", "#f43f5e", "#6366f1", "#84cc16"];
+const COLORS = ["#03D47C", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899", "#14b8a6", "#f43f5e", "#6366f1", "#84cc16"];
 const STATUS_COLORS: Record<string, string> = {
   DRAFT: "#9ca3af",
-  PENDING: "#f59e0b",
+  PENDING: "#00C271",
   APPROVED: "#22c55e",
   REJECTED: "#ef4444",
 };
@@ -206,7 +206,7 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
       </div>
     );
   }
@@ -303,7 +303,7 @@ export default function AnalyticsPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
         {[
-          { title: "Total Spending", value: formatCurrency(data.summary.totalAmount), icon: DollarSign, gradient: "from-orange-500 to-amber-500", shadow: "shadow-orange-500/20" },
+          { title: "Total Spending", value: formatCurrency(data.summary.totalAmount), icon: DollarSign, gradient: "from-emerald-500 to-emerald-600", shadow: "shadow-emerald-500/20" },
           { title: "Average Expense", value: formatCurrency(data.summary.avgAmount), icon: TrendingUp, gradient: "from-blue-500 to-cyan-500", shadow: "shadow-blue-500/20" },
           { title: "Total Expenses", value: String(data.summary.totalCount), icon: Receipt, gradient: "from-purple-500 to-pink-500", shadow: "shadow-purple-500/20" },
         ].map((stat) => (
@@ -335,7 +335,7 @@ export default function AnalyticsPage() {
           className="premium-card p-4 lg:p-6"
         >
           <div className="flex items-center gap-2 mb-6">
-            <Calendar className="w-5 h-5 text-orange-500" />
+            <Calendar className="w-5 h-5 text-emerald-500" />
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Monthly Trend</h3>
           </div>
           {data.monthlyTrend.length === 0 ? (
@@ -345,8 +345,8 @@ export default function AnalyticsPage() {
               <AreaChart data={data.monthlyTrend}>
                 <defs>
                   <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#03D47C" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#03D47C" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -357,7 +357,7 @@ export default function AnalyticsPage() {
                   formatter={(value) => [formatCurrency(Number(value)), "Amount"]}
                   labelFormatter={(label) => formatMonth(String(label))}
                 />
-                <Area type="monotone" dataKey="amount" stroke="#f97316" strokeWidth={2} fill="url(#colorAmount)" />
+                <Area type="monotone" dataKey="amount" stroke="#03D47C" strokeWidth={2} fill="url(#colorAmount)" />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -369,7 +369,7 @@ export default function AnalyticsPage() {
           className="premium-card p-4 lg:p-6"
         >
           <div className="flex items-center gap-2 mb-6">
-            <PieChartIcon className="w-5 h-5 text-orange-500" />
+            <PieChartIcon className="w-5 h-5 text-emerald-500" />
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">By Category</h3>
           </div>
           {data.categoryBreakdown.length === 0 ? (
@@ -414,7 +414,7 @@ export default function AnalyticsPage() {
           className="premium-card p-4 lg:p-6"
         >
           <div className="flex items-center gap-2 mb-6">
-            <BarChart3 className="w-5 h-5 text-orange-500" />
+            <BarChart3 className="w-5 h-5 text-emerald-500" />
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Category Spending</h3>
           </div>
           {data.categoryBreakdown.length === 0 ? (
@@ -468,13 +468,13 @@ export default function AnalyticsPage() {
           {user?.role !== "EMPLOYEE" && data.topSpenders.length > 0 && (
             <div className="premium-card p-4 lg:p-6">
               <div className="flex items-center gap-2 mb-4">
-                <Users className="w-5 h-5 text-orange-500" />
+                <Users className="w-5 h-5 text-emerald-500" />
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Top Spenders</h3>
               </div>
               <div className="space-y-3">
                 {data.topSpenders.slice(0, 5).map((spender, i) => (
                   <div key={spender.userId} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-xs font-bold">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold">
                       {i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -500,7 +500,7 @@ export default function AnalyticsPage() {
         <div className="space-y-4">
           {auditLoading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+              <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
             </div>
           ) : auditExpenses.length === 0 ? (
             <div className="premium-card p-16 text-center">
@@ -560,7 +560,7 @@ export default function AnalyticsPage() {
                           </td>
                           <td className="py-3 px-3 text-center">
                             <Link href={`/dashboard/expenses/${exp.id}`}>
-                              <button className="p-1.5 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950 transition-colors">
+                              <button className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950 transition-colors">
                                 <Eye className="w-4 h-4" />
                               </button>
                             </Link>

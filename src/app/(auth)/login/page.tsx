@@ -31,11 +31,11 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#0a0b0f]">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#061B09]">
         {/* Subtle gradient orbs */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-orange-500/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-amber-500/5 rounded-full blur-[120px]" />
+          <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-emerald-400/5 rounded-full blur-[120px]" />
         </div>
 
         {/* Dot grid pattern */}
@@ -53,19 +53,19 @@ export default function LoginPage() {
             transition={{ duration: 0.6 }}
           >
             <div className="flex items-center gap-3 mb-14">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                 <Zap className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white tracking-tight">GASCO</h1>
-                <p className="text-[10px] text-orange-400/80 tracking-[0.3em] font-medium">ENERGY</p>
+                <p className="text-[10px] text-emerald-400/80 tracking-[0.3em] font-medium">ENERGY</p>
               </div>
             </div>
 
             <h2 className="text-4xl xl:text-5xl font-bold text-white leading-[1.15] mb-5 tracking-tight">
               Smart Expense
               <br />
-              <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
                 Tracking
               </span>
             </h2>
@@ -94,7 +94,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-10 bg-white dark:bg-[#08090d]">
+      <div className="flex-1 flex items-center justify-center px-6 py-10 bg-white dark:bg-[#061B09]">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -103,12 +103,12 @@ export default function LoginPage() {
         >
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
               <Zap className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">GASCO</h1>
-              <p className="text-[9px] text-orange-500 tracking-[0.2em] font-medium">ENERGY</p>
+              <p className="text-[9px] text-emerald-500 tracking-[0.2em] font-medium">ENERGY</p>
             </div>
           </div>
 
@@ -178,11 +178,11 @@ export default function LoginPage() {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  className="w-3.5 h-3.5 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+                  className="w-3.5 h-3.5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
                 />
                 <span className="text-[13px] text-gray-500">Remember me</span>
               </label>
-              <Link href="/forgot-password" className="text-[13px] text-orange-500 hover:text-orange-600 font-medium">
+              <Link href="/forgot-password" className="text-[13px] text-emerald-500 hover:text-emerald-600 font-medium">
                 Forgot password?
               </Link>
             </div>
