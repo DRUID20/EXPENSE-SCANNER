@@ -35,23 +35,23 @@ import {
 } from "@/lib/pwa";
 
 interface ScanResult {
-  vendor: string | null;
-  title: string | null;
-  amount: number | null;
+  vendor: string;
+  title: string;
+  amount: number;
   currency: string;
-  date: string | null;
-  category: string | null;
-  tax: number | null;
-  subtotal: number | null;
-  lineItems: Array<{
+  date: string;
+  category: string;
+  tax?: number;
+  subtotal?: number;
+  lineItems?: Array<{
     description: string;
     quantity: number;
     unitPrice: number;
     total: number;
-  }> | null;
-  paymentMethod: string | null;
-  receiptNumber: string | null;
-  notes: string | null;
+  }>;
+  paymentMethod?: string;
+  receiptNumber?: string;
+  notes?: string;
 }
 
 type ScanStage = "upload" | "scanning" | "result" | "error";
@@ -178,13 +178,13 @@ export default function ScanPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: scanResult.title || "Scanned Expense",
-          description: scanResult.notes,
-          amount: scanResult.amount || 0,
-          currency: scanResult.currency || "USD",
-          category: scanResult.category || "Other",
+          title: scanResult.title,
+          description: scanResult.notes || null,
+          amount: scanResult.amount,
+          currency: scanResult.currency,
+          category: scanResult.category,
           vendor: scanResult.vendor,
-          date: scanResult.date || new Date().toISOString().split("T")[0],
+          date: scanResult.date,
           receiptUrl: imageBase64,
           receiptData: scanResult,
           status: submitStatus,
@@ -484,11 +484,7 @@ export default function ScanPage() {
                     <InfoField
                       icon={<DollarSign className="w-4 h-4" />}
                       label="Amount"
-                      value={
-                        scanResult.amount != null
-                          ? formatCurrency(scanResult.amount, scanResult.currency)
-                          : null
-                      }
+                      value={formatCurrency(scanResult.amount, scanResult.currency)}
                       highlight
                     />
                     <InfoField
@@ -505,7 +501,7 @@ export default function ScanPage() {
                       icon={<DollarSign className="w-4 h-4" />}
                       label="Tax"
                       value={
-                        scanResult.tax != null
+                        scanResult.tax !== undefined
                           ? formatCurrency(scanResult.tax, scanResult.currency)
                           : null
                       }
@@ -553,7 +549,7 @@ export default function ScanPage() {
                           ))}
                         </tbody>
                         <tfoot>
-                          {scanResult.subtotal != null && (
+                          {scanResult.subtotal !== undefined && (
                             <tr className="border-t border-gray-200 dark:border-gray-700">
                               <td colSpan={3} className="py-2 text-right text-gray-500 font-medium">Subtotal</td>
                               <td className="py-2 text-right font-medium text-gray-900 dark:text-white">
@@ -561,7 +557,7 @@ export default function ScanPage() {
                               </td>
                             </tr>
                           )}
-                          {scanResult.tax != null && (
+                          {scanResult.tax !== undefined && (
                             <tr>
                               <td colSpan={3} className="py-2 text-right text-gray-500 font-medium">Tax</td>
                               <td className="py-2 text-right font-medium text-gray-900 dark:text-white">
@@ -569,7 +565,7 @@ export default function ScanPage() {
                               </td>
                             </tr>
                           )}
-                          {scanResult.amount != null && (
+                          {scanResult.amount !== undefined && (
                             <tr className="border-t border-gray-200 dark:border-gray-700">
                               <td colSpan={3} className="py-2 text-right text-gray-900 dark:text-white font-bold">Total</td>
                               <td className="py-2 text-right font-bold text-orange-500 text-lg">

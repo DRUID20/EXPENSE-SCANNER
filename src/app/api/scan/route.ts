@@ -8,11 +8,15 @@ const SCAN_PROMPT = `You are an expert receipt/invoice data extractor. Analyze t
 
 Rules:
 - Extract ALL visible information from the receipt
-- If a field is not visible, use null
+- All required fields (vendor, title, amount, currency, date, category) MUST be provided
+- If vendor is unclear, use "Unknown Vendor"
+- If date is unclear, use today's date
+- If amount is unclear, use 0
 - Amounts should be numbers, not strings
 - Date should be in YYYY-MM-DD format
 - Choose the most appropriate category from the list
-- For the title, create a concise description like "Office supplies from Staples" or "Gas fill-up at Shell"`;
+- For the title, create a concise description like "Office supplies from Staples" or "Gas fill-up at Shell"
+- Only include optional fields (tax, subtotal, lineItems, paymentMethod, receiptNumber, notes) if they are clearly visible`;
 
 const extractReceiptTool: Anthropic.Tool = {
   name: "extract_receipt_data",
@@ -21,27 +25,27 @@ const extractReceiptTool: Anthropic.Tool = {
     type: "object" as const,
     properties: {
       vendor: {
-        type: ["string", "null"],
+        type: "string",
         description: "Store or vendor name",
       },
       title: {
-        type: ["string", "null"],
+        type: "string",
         description: "Brief description of the purchase",
       },
       amount: {
-        type: ["number", "null"],
+        type: "number",
         description: "Total amount paid",
       },
       currency: {
-        type: ["string", "null"],
-        description: "Currency code (e.g. USD)",
+        type: "string",
+        description: "Currency code (e.g. USD), defaults to USD",
       },
       date: {
-        type: ["string", "null"],
+        type: "string",
         description: "Date in YYYY-MM-DD format",
       },
       category: {
-        type: ["string", "null"],
+        type: "string",
         enum: [
           "Fuel & Gas",
           "Equipment",
@@ -53,20 +57,19 @@ const extractReceiptTool: Anthropic.Tool = {
           "Maintenance",
           "Office",
           "Other",
-          null,
         ],
         description: "Expense category",
       },
       tax: {
-        type: ["number", "null"],
-        description: "Tax amount",
+        type: "number",
+        description: "Tax amount if visible",
       },
       subtotal: {
-        type: ["number", "null"],
-        description: "Subtotal before tax",
+        type: "number",
+        description: "Subtotal before tax if visible",
       },
       lineItems: {
-        type: ["array", "null"],
+        type: "array",
         items: {
           type: "object",
           properties: {
@@ -80,15 +83,15 @@ const extractReceiptTool: Anthropic.Tool = {
         description: "Individual line items on the receipt",
       },
       paymentMethod: {
-        type: ["string", "null"],
+        type: "string",
         description: "Payment method (Cash, Credit Card, Debit Card, Other)",
       },
       receiptNumber: {
-        type: ["string", "null"],
+        type: "string",
         description: "Receipt or invoice number if visible",
       },
       notes: {
-        type: ["string", "null"],
+        type: "string",
         description: "Any additional relevant information",
       },
     },
@@ -131,7 +134,7 @@ export async function POST(req: NextRequest) {
     const mediaType = file.type as "image/jpeg" | "image/png" | "image/webp" | "image/gif";
 
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-6",
       max_tokens: 2048,
       tools: [extractReceiptTool],
       tool_choice: { type: "tool", name: "extract_receipt_data" },
@@ -170,6 +173,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("Scan error:", error);
+    if (error instanceof Error && error.message.includes("API key")) {
+      return NextResponse.json({ error: "AI service not configured. Please set ANTHROPIC_API_KEY." }, { status: 503 });
+    }
     const message = error instanceof Error ? error.message : "Failed to scan receipt";
     return NextResponse.json({ error: message }, { status: 500 });
   }
