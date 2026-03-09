@@ -12,7 +12,16 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const period = searchParams.get("period") || "6months";
 
-    const where = session.role === "EMPLOYEE" ? { userId: session.userId } : {};
+    let where: Record<string, unknown> = {};
+    if (session.role === "EMPLOYEE") {
+      where = { userId: session.userId };
+    } else if (session.role === "MANAGER") {
+      const currentUser = await prisma.user.findUnique({ where: { id: session.userId }, select: { branchId: true } });
+      if (currentUser?.branchId) {
+        where = { user: { branchId: currentUser.branchId } };
+      }
+    }
+    // ADMIN (Super User) sees all branches
 
     // Calculate date range
     const now = new Date();

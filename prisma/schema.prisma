@@ -3,23 +3,27 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  firstName String
-  lastName  String
-  role      String   @default("EMPLOYEE") // ADMIN, MANAGER, EMPLOYEE
-  avatar    String?
-  department String?
-  isActive  Boolean  @default(true)
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  firstName     String
+  lastName      String
+  role          String   @default("EMPLOYEE") // ADMIN (Super User), MANAGER, EMPLOYEE
+  avatar        String?
+  department    String?
+  isActive      Boolean  @default(true)
   spendingLimit Float?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  branchId String?
+  branch   Branch? @relation(fields: [branchId], references: [id])
 
   expenses         Expense[]
   approvedExpenses Expense[]      @relation("ApprovedBy")
@@ -27,23 +31,35 @@ model User {
   notifications    Notification[]
 }
 
+model Branch {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  location  String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User[]
+}
+
 model Expense {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  amount      Float
-  currency    String   @default("USD")
-  category    String
-  vendor      String?
-  date        DateTime
-  status      String   @default("DRAFT") // DRAFT, PENDING, APPROVED, REJECTED
-  receiptUrl  String?
-  receiptData String?  // JSON blob from AI extraction
-  notes       String?
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  amount          Float
+  currency        String   @default("UGX")
+  category        String
+  vendor          String?
+  date            DateTime
+  status          String   @default("DRAFT") // DRAFT, PENDING, APPROVED, REJECTED
+  receiptUrl      String?
+  receiptData     String?  // JSON blob from AI extraction
+  notes           String?
   rejectionReason String?
 
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   approvedById String?
   approvedBy   User?    @relation("ApprovedBy", fields: [approvedById], references: [id])
@@ -68,7 +84,7 @@ model SpendingPolicy {
 model AuditLog {
   id        String   @id @default(cuid())
   action    String   // CREATE, UPDATE, DELETE, APPROVE, REJECT, LOGIN, REGISTER, etc.
-  entity    String   // EXPENSE, USER, POLICY, etc.
+  entity    String   // EXPENSE, USER, POLICY, BRANCH, etc.
   entityId  String?
   details   String?  // JSON string
   userId    String

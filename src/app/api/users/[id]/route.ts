@@ -18,7 +18,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const { role, department, isActive, spendingLimit } = body;
+    const { role, department, isActive, spendingLimit, branchId } = body;
 
     const updated = await prisma.user.update({
       where: { id },
@@ -27,6 +27,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ...(department !== undefined && { department }),
         ...(isActive !== undefined && { isActive }),
         ...(spendingLimit !== undefined && { spendingLimit: spendingLimit ? parseFloat(spendingLimit) : null }),
+        ...(branchId !== undefined && { branchId }),
       },
       select: {
         id: true,
@@ -37,6 +38,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         department: true,
         isActive: true,
         spendingLimit: true,
+        branchId: true,
+        branch: { select: { id: true, name: true, code: true } },
         createdAt: true,
       },
     });

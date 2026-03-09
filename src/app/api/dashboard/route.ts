@@ -9,7 +9,16 @@ export async function GET() {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const where = session.role === "EMPLOYEE" ? { userId: session.userId } : {};
+    let where: Record<string, unknown> = {};
+    if (session.role === "EMPLOYEE") {
+      where = { userId: session.userId };
+    } else if (session.role === "MANAGER") {
+      const currentUser = await prisma.user.findUnique({ where: { id: session.userId }, select: { branchId: true } });
+      if (currentUser?.branchId) {
+        where = { user: { branchId: currentUser.branchId } };
+      }
+    }
+    // ADMIN (Super User) sees all branches
 
     const [totalExpenses, pendingCount, approvedCount, rejectedCount, draftCount, recentExpenses, categoryTotals, pendingApprovals, thisMonthTotal] =
       await Promise.all([

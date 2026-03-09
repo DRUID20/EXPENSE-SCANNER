@@ -4,11 +4,18 @@ import { hashPassword, generateToken } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, firstName, lastName, role } = await req.json();
+    const { email, password, firstName, lastName, role, branchId } = await req.json();
 
     if (!email || !password || !firstName || !lastName) {
       return NextResponse.json(
         { error: "All fields are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!branchId) {
+      return NextResponse.json(
+        { error: "Branch is required" },
         { status: 400 }
       );
     }
@@ -30,6 +37,7 @@ export async function POST(req: NextRequest) {
         firstName,
         lastName,
         role: role || "EMPLOYEE",
+        branchId,
       },
     });
 
@@ -48,6 +56,7 @@ export async function POST(req: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        branchId: user.branchId,
       },
     });
 

@@ -56,7 +56,9 @@ export async function getCurrentUser() {
       avatar: true,
       department: true,
       isActive: true,
+      branchId: true,
       createdAt: true,
+      branch: { select: { id: true, name: true, code: true } },
     },
   });
 

@@ -21,9 +21,20 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20");
 
     const where: Record<string, unknown> = {};
+    const branchFilter = searchParams.get("branchId");
 
     if (session.role === "EMPLOYEE") {
       where.userId = session.userId;
+    } else if (session.role === "MANAGER") {
+      // Managers see only their branch expenses
+      const currentUser = await prisma.user.findUnique({ where: { id: session.userId }, select: { branchId: true } });
+      if (currentUser?.branchId) {
+        where.user = { branchId: currentUser.branchId };
+      }
+    }
+    // ADMIN (Super User) sees all — optionally filter by branch
+    if (session.role === "ADMIN" && branchFilter && branchFilter !== "ALL") {
+      where.user = { branchId: branchFilter };
     }
 
     if (status && status !== "ALL") {
@@ -36,9 +47,9 @@ export async function GET(req: NextRequest) {
 
     if (search) {
       where.OR = [
-        { title: { contains: search } },
-        { vendor: { contains: search } },
-        { description: { contains: search } },
+        { title: { contains: search, mode: "insensitive" } },
+        { vendor: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -103,7 +114,7 @@ export async function POST(req: NextRequest) {
         title,
         description: description || null,
         amount: parseFloat(amount),
-        currency: currency || "USD",
+        currency: currency || "UGX",
         category,
         vendor: vendor || null,
         date: new Date(date),
@@ -133,8 +144,17 @@ export async function POST(req: NextRequest) {
 
     // If submitted, notify managers
     if (status === "PENDING") {
+      // Notify managers in the same branch + all admins (super users)
+      const currentUser = await prisma.user.findUnique({ where: { id: session.userId }, select: { branchId: true } });
       const managers = await prisma.user.findMany({
-        where: { role: { in: ["MANAGER", "ADMIN"] }, isActive: true },
+        where: {
+          isActive: true,
+          id: { not: session.userId },
+          OR: [
+            { role: "ADMIN" },
+            { role: "MANAGER", branchId: currentUser?.branchId },
+          ],
+        },
         select: { id: true },
       });
       if (managers.length > 0) {
@@ -142,7 +162,7 @@ export async function POST(req: NextRequest) {
           data: managers.map((m) => ({
             type: "EXPENSE_SUBMITTED",
             title: "New Expense Submitted",
-            message: `${session.firstName} ${session.lastName} submitted "${title}" for $${parseFloat(amount).toFixed(2)}`,
+            message: `${session.firstName} ${session.lastName} submitted "${title}" for UGX ${parseFloat(amount).toLocaleString()}`,
             userId: m.id,
             linkUrl: `/dashboard/expenses/${expense.id}`,
           })),
