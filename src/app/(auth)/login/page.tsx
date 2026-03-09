@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Zap } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Zap, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -182,9 +182,9 @@ export default function LoginPage() {
                 />
                 <span className="text-[13px] text-gray-500">Remember me</span>
               </label>
-              <button type="button" className="text-[13px] text-orange-500 hover:text-orange-600 font-medium">
+              <Link href="/forgot-password" className="text-[13px] text-orange-500 hover:text-orange-600 font-medium">
                 Forgot password?
-              </button>
+              </Link>
             </div>
 
             {/* Submit */}
@@ -206,13 +206,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-7 text-center text-[13px] text-gray-400">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/register"
-              className="text-orange-500 hover:text-orange-600 font-semibold"
-            >
-              Create account
-            </Link>
+            Don&apos;t have an account? Contact your administrator.
           </p>
         </motion.div>
       </div>

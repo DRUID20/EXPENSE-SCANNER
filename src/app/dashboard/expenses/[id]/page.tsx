@@ -37,6 +37,7 @@ interface Expense {
   status: string;
   receiptUrl: string | null;
   receiptData: string | null;
+  receiptPath: string | null;
   notes: string | null;
   rejectionReason: string | null;
   createdAt: string;
@@ -380,14 +381,14 @@ export default function ExpenseDetailPage() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Receipt Image */}
-          {expense.receiptUrl && (
+          {(expense.receiptPath || expense.receiptUrl) && (
             <div className="premium-card p-4">
               <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                 <Receipt className="w-4 h-4 text-orange-500" />
                 Receipt
               </h4>
               <img
-                src={expense.receiptUrl}
+                src={expense.receiptPath || expense.receiptUrl || ""}
                 alt="Receipt"
                 className="w-full rounded-xl shadow-sm"
               />

@@ -141,6 +141,11 @@ export default function ScanPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
+      // Show duplicate warning if detected but still created
+      if (data.duplicateWarning) {
+        alert(`Note: ${data.duplicateWarning.message}\nThe expense was still created.`);
+      }
+
       router.push("/dashboard/expenses");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create expense");

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { sendPushToUser } from "@/lib/push";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -95,17 +96,27 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       });
 
       // Notify expense owner
+      const notifTitle = body.status === "APPROVED" ? "Expense Approved" : "Expense Rejected";
+      const notifMessage = body.status === "APPROVED"
+        ? `Your expense "${expense.title}" has been approved`
+        : `Your expense "${expense.title}" has been rejected${body.rejectionReason ? `: ${body.rejectionReason}` : ""}`;
+
       await prisma.notification.create({
         data: {
           type: body.status === "APPROVED" ? "EXPENSE_APPROVED" : "EXPENSE_REJECTED",
-          title: body.status === "APPROVED" ? "Expense Approved" : "Expense Rejected",
-          message: body.status === "APPROVED"
-            ? `Your expense "${expense.title}" has been approved`
-            : `Your expense "${expense.title}" has been rejected${body.rejectionReason ? `: ${body.rejectionReason}` : ""}`,
+          title: notifTitle,
+          message: notifMessage,
           userId: expense.userId,
           linkUrl: `/dashboard/expenses/${id}`,
         },
       });
+
+      // Send push notification to expense owner
+      sendPushToUser(expense.userId, {
+        title: notifTitle,
+        message: notifMessage,
+        url: `/dashboard/expenses/${id}`,
+      }).catch(() => {});
 
       return NextResponse.json({ expense: updated });
     }

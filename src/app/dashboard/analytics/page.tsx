@@ -13,7 +13,15 @@ import {
   BarChart3,
   PieChart as PieChartIcon,
   Calendar,
+  ScrollText,
+  FileText,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  FileEdit,
+  Eye,
 } from "lucide-react";
+import Link from "next/link";
 import {
   BarChart,
   Bar,
@@ -92,11 +100,51 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
+interface AuditExpense {
+  id: string;
+  title: string;
+  amount: number;
+  currency: string;
+  category: string;
+  vendor: string | null;
+  date: string;
+  status: string;
+  receiptPath: string | null;
+  receiptUrl: string | null;
+  createdAt: string;
+  approvedAt: string | null;
+  rejectionReason: string | null;
+  user: { firstName: string; lastName: string; email: string };
+  approvedBy: { firstName: string; lastName: string } | null;
+}
+
+type ViewTab = "charts" | "audit";
+
+const statusIcons: Record<string, React.ElementType> = {
+  DRAFT: FileEdit,
+  PENDING: Clock,
+  APPROVED: CheckCircle2,
+  REJECTED: XCircle,
+};
+
+const statusBadgeColors: Record<string, string> = {
+  DRAFT: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+  PENDING: "bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400",
+  APPROVED: "bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400",
+  REJECTED: "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400",
+};
+
 export default function AnalyticsPage() {
   const { user } = useAuth();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("6months");
+  const [viewTab, setViewTab] = useState<ViewTab>("charts");
+  const [auditExpenses, setAuditExpenses] = useState<AuditExpense[]>([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditStatus, setAuditStatus] = useState("ALL");
+  const [auditPage, setAuditPage] = useState(1);
+  const [auditTotal, setAuditTotal] = useState(0);
 
   useEffect(() => {
     async function fetchAnalytics() {
@@ -113,6 +161,28 @@ export default function AnalyticsPage() {
     }
     fetchAnalytics();
   }, [period]);
+
+  useEffect(() => {
+    if (viewTab !== "audit") return;
+    async function fetchAuditExpenses() {
+      setAuditLoading(true);
+      try {
+        const params = new URLSearchParams({ page: String(auditPage), limit: "20" });
+        if (auditStatus !== "ALL") params.set("status", auditStatus);
+        const res = await fetch(`/api/expenses?${params}`);
+        const json = await res.json();
+        if (res.ok) {
+          setAuditExpenses(json.expenses);
+          setAuditTotal(json.pagination.total);
+        }
+      } catch (err) {
+        console.error("Audit fetch error:", err);
+      } finally {
+        setAuditLoading(false);
+      }
+    }
+    fetchAuditExpenses();
+  }, [viewTab, auditStatus, auditPage]);
 
   const handleExport = async () => {
     const res = await fetch("/api/export?format=csv");
@@ -160,7 +230,7 @@ export default function AnalyticsPage() {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Analytics</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Analytics & Reports</h1>
           <p className="text-[13px] text-gray-400 mt-0.5">
             {user?.role === "ADMIN"
               ? "Company-wide spending insights"
@@ -170,19 +240,37 @@ export default function AnalyticsPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <div className="relative">
-            <select
-              value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              className="h-10 pl-4 pr-8 rounded-xl input-premium text-gray-600 dark:text-gray-400 appearance-none cursor-pointer"
-            >
-              <option value="1month">Last Month</option>
-              <option value="3months">Last 3 Months</option>
-              <option value="6months">Last 6 Months</option>
-              <option value="1year">Last Year</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-          </div>
+          {viewTab === "charts" && (
+            <div className="relative">
+              <select
+                value={period}
+                onChange={(e) => setPeriod(e.target.value)}
+                className="h-10 pl-4 pr-8 rounded-xl input-premium text-gray-600 dark:text-gray-400 appearance-none cursor-pointer"
+              >
+                <option value="1month">Last Month</option>
+                <option value="3months">Last 3 Months</option>
+                <option value="6months">Last 6 Months</option>
+                <option value="1year">Last Year</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+            </div>
+          )}
+          {viewTab === "audit" && (
+            <div className="relative">
+              <select
+                value={auditStatus}
+                onChange={(e) => { setAuditStatus(e.target.value); setAuditPage(1); }}
+                className="h-10 pl-4 pr-8 rounded-xl input-premium text-gray-600 dark:text-gray-400 appearance-none cursor-pointer"
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="DRAFT">Draft</option>
+                <option value="PENDING">Pending</option>
+                <option value="APPROVED">Approved</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+            </div>
+          )}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -190,11 +278,28 @@ export default function AnalyticsPage() {
             className="flex items-center gap-2 px-4 py-2.5 btn-primary text-sm"
           >
             <Download className="w-4 h-4" />
-            Export Report
+            Export
           </motion.button>
         </div>
       </motion.div>
 
+      {/* View Tabs */}
+      <div className="flex gap-1 p-1 rounded-xl bg-gray-100 dark:bg-gray-800 w-fit">
+        {([
+          { id: "charts" as ViewTab, label: "Charts", icon: BarChart3 },
+          { id: "audit" as ViewTab, label: "Audit Report", icon: ScrollText },
+        ]).map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setViewTab(t.id)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewTab === t.id ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"}`}
+          >
+            <t.icon className="w-4 h-4" /> {t.label}
+          </button>
+        ))}
+      </div>
+
+      {viewTab === "charts" && (<>
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
         {[
@@ -388,6 +493,111 @@ export default function AnalyticsPage() {
           )}
         </motion.div>
       </div>
+      </>)}
+
+      {/* Audit Report View */}
+      {viewTab === "audit" && (
+        <div className="space-y-4">
+          {auditLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+            </div>
+          ) : auditExpenses.length === 0 ? (
+            <div className="premium-card p-16 text-center">
+              <FileText className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">No expenses found</h4>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Try adjusting your filters</p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{auditTotal} expenses found</p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-800">
+                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Expense</th>
+                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Submitted By</th>
+                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Category</th>
+                      <th className="text-right py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Amount</th>
+                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Date</th>
+                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Status</th>
+                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Reviewed By</th>
+                      <th className="text-center py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Receipt</th>
+                      <th className="text-center py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">View</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {auditExpenses.map((exp) => {
+                      const StatusIcon = statusIcons[exp.status] || FileEdit;
+                      return (
+                        <tr key={exp.id} className="border-b border-gray-100 dark:border-gray-800/50 hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
+                          <td className="py-3 px-3">
+                            <p className="font-medium text-gray-900 dark:text-white">{exp.title}</p>
+                            {exp.vendor && <p className="text-xs text-gray-400">{exp.vendor}</p>}
+                          </td>
+                          <td className="py-3 px-3 text-gray-600 dark:text-gray-400">{exp.user.firstName} {exp.user.lastName}</td>
+                          <td className="py-3 px-3 text-gray-600 dark:text-gray-400">{exp.category}</td>
+                          <td className="py-3 px-3 text-right font-semibold text-gray-900 dark:text-white">{formatCurrency(exp.amount, exp.currency)}</td>
+                          <td className="py-3 px-3 text-gray-600 dark:text-gray-400">{new Date(exp.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
+                          <td className="py-3 px-3">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeColors[exp.status] || ""}`}>
+                              <StatusIcon className="w-3 h-3" />
+                              {exp.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-gray-600 dark:text-gray-400">
+                            {exp.approvedBy ? `${exp.approvedBy.firstName} ${exp.approvedBy.lastName}` : "—"}
+                            {exp.rejectionReason && (
+                              <p className="text-xs text-red-400 truncate max-w-[150px]" title={exp.rejectionReason}>{exp.rejectionReason}</p>
+                            )}
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            {(exp.receiptPath || exp.receiptUrl) ? (
+                              <span className="inline-flex items-center gap-1 text-green-500 text-xs"><Receipt className="w-3.5 h-3.5" /> Yes</span>
+                            ) : (
+                              <span className="text-gray-400 text-xs">No</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            <Link href={`/dashboard/expenses/${exp.id}`}>
+                              <button className="p-1.5 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950 transition-colors">
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </Link>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              {auditTotal > 20 && (
+                <div className="flex items-center justify-between pt-4">
+                  <p className="text-sm text-gray-500">Page {auditPage} of {Math.ceil(auditTotal / 20)}</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setAuditPage(Math.max(1, auditPage - 1))}
+                      disabled={auditPage === 1}
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => setAuditPage(auditPage + 1)}
+                      disabled={auditPage >= Math.ceil(auditTotal / 20)}
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 }

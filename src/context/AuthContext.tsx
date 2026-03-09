@@ -11,23 +11,16 @@ interface User {
   role: string;
   avatar?: string;
   department?: string;
+  branchId?: string;
+  branch?: { id: string; name: string; code: string };
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
-}
-
-interface RegisterData {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  role?: string;
-  branchId?: string;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -71,28 +64,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/dashboard");
   };
 
-  const register = async (registerData: RegisterData) => {
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(registerData),
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
-
-    setUser(data.user);
-    router.push("/dashboard");
-  };
-
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     router.push("/login");
   };
 
+  const refreshUser = async () => {
+    await checkAuth();
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
