@@ -13,6 +13,8 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status");
     const category = searchParams.get("category");
     const search = searchParams.get("search");
+    const sortBy = searchParams.get("sortBy") || "createdAt";
+    const sortOrder = searchParams.get("sortOrder") || "desc";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
@@ -47,7 +49,7 @@ export async function GET(req: NextRequest) {
             select: { id: true, firstName: true, lastName: true, email: true, role: true },
           },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { [["title", "amount", "date", "status", "category", "createdAt"].includes(sortBy) ? sortBy : "createdAt"]: sortOrder === "asc" ? "asc" : "desc" },
         skip: (page - 1) * limit,
         take: limit,
       }),
