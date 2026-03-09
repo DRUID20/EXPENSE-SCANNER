@@ -366,7 +366,8 @@ input,select,textarea{font-family:inherit;outline:none}
           <div class="form-group"><label>Last Name <span class="req">*</span></label><div class="input-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><input id="regLast" placeholder="Al-Rashid" required></div></div>
         </div>
         <div class="form-group"><label>Email <span class="req">*</span></label><div class="input-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><input id="regEmail" type="email" placeholder="ahmed@gasco.energy" required></div></div>
-        <div class="form-group"><label>Role</label><div class="input-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><select id="regRole"><option value="EMPLOYEE">Employee</option><option value="MANAGER">Manager</option><option value="ADMIN">Administrator</option></select></div></div>
+        <div class="form-group"><label>Role</label><div class="input-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><select id="regRole"><option value="EMPLOYEE">Employee</option><option value="MANAGER">Manager</option><option value="ADMIN">Administrator (Super User)</option></select></div></div>
+        <div class="form-group"><label>Branch <span class="req">*</span></label><div class="input-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><select id="regBranch"></select></div></div>
         <div class="form-group"><label>Password <span class="req">*</span></label><div class="input-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input id="regPassword" type="password" placeholder="Create a strong password" required></div></div>
         <button type="submit" class="btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg> Create Account</button>
       </form>
@@ -440,12 +441,22 @@ let users = [];
 let notifications = [];
 let auditLog = [];
 let policies = [];
+let branches = [];
 let selectedExpenses = new Set();
 let expSortBy = 'createdAt';
 let expSortOrder = 'desc';
 let expSearch = '';
 let expStatusFilter = 'ALL';
 let expCategoryFilter = 'ALL';
+let expBranchFilter = 'ALL';
+
+const DEFAULT_BRANCHES = [
+  {id:'b1', name:'Head Office', code:'HQ', location:'Kampala', isActive:true, createdAt:new Date().toISOString()},
+  {id:'b2', name:'Jinja Branch', code:'JNJ', location:'Jinja', isActive:true, createdAt:new Date().toISOString()},
+  {id:'b3', name:'Mbarara Branch', code:'MBR', location:'Mbarara', isActive:true, createdAt:new Date().toISOString()},
+  {id:'b4', name:'Gulu Branch', code:'GLU', location:'Gulu', isActive:true, createdAt:new Date().toISOString()},
+  {id:'b5', name:'Entebbe Branch', code:'ENT', location:'Entebbe', isActive:true, createdAt:new Date().toISOString()}
+];
 
 function loadState() {
   users = JSON.parse(localStorage.getItem('gasco_users') || '[]');
@@ -454,6 +465,8 @@ function loadState() {
   notifications = JSON.parse(localStorage.getItem('gasco_notifs') || '[]');
   auditLog = JSON.parse(localStorage.getItem('gasco_audit') || '[]');
   policies = JSON.parse(localStorage.getItem('gasco_policies') || '[]');
+  branches = JSON.parse(localStorage.getItem('gasco_branches') || 'null');
+  if (!branches || branches.length === 0) { branches = [...DEFAULT_BRANCHES]; }
 }
 function saveState() {
   localStorage.setItem('gasco_users', JSON.stringify(users));
@@ -462,7 +475,16 @@ function saveState() {
   localStorage.setItem('gasco_notifs', JSON.stringify(notifications));
   localStorage.setItem('gasco_audit', JSON.stringify(auditLog));
   localStorage.setItem('gasco_policies', JSON.stringify(policies));
+  localStorage.setItem('gasco_branches', JSON.stringify(branches));
 }
+
+function getBranchName(branchId) {
+  if (!branchId) return 'Unassigned';
+  const b = branches.find(b => b.id === branchId);
+  return b ? b.name : 'Unknown';
+}
+
+function isSuperUser() { return currentUser && currentUser.role === 'ADMIN'; }
 
 // ========== AUTH ==========
 function handleLogin(e) {
@@ -479,6 +501,8 @@ function handleLogin(e) {
 
 function handleRegister(e) {
   e.preventDefault();
+  const branchId = document.getElementById('regBranch').value;
+  if (!branchId) { showError('registerError', 'Please select a branch'); return; }
   const data = {
     id: 'u' + Date.now(),
     firstName: document.getElementById('regFirst').value,
@@ -486,12 +510,13 @@ function handleRegister(e) {
     email: document.getElementById('regEmail').value,
     password: document.getElementById('regPassword').value,
     role: document.getElementById('regRole').value,
+    branchId: branchId,
     department: null, isActive: true, spendingLimit: null,
     createdAt: new Date().toISOString()
   };
   if (users.find(u => u.email === data.email)) { showError('registerError', 'Email already registered'); return; }
   users.push(data); currentUser = data;
-  addAudit('REGISTER', 'USER', data.id, {email: data.email, role: data.role});
+  addAudit('REGISTER', 'USER', data.id, {email: data.email, role: data.role, branch: getBranchName(branchId)});
   saveState(); enterApp();
 }
 
@@ -507,6 +532,7 @@ function showError(id, msg) {
 function showPage(id) {
   ['loginPage','registerPage','appPage'].forEach(p => document.getElementById(p).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
+  if (id === 'registerPage') populateBranchDropdowns();
 }
 
 function enterApp() {
@@ -514,7 +540,7 @@ function enterApp() {
   const u = currentUser;
   document.getElementById('sidebarAvatar').textContent = u.firstName[0] + u.lastName[0];
   document.getElementById('sidebarName').textContent = u.firstName + ' ' + u.lastName;
-  document.getElementById('sidebarRole').textContent = u.role === 'ADMIN' ? 'Administrator' : u.role === 'MANAGER' ? 'Manager' : 'Employee';
+  document.getElementById('sidebarRole').textContent = (u.role === 'ADMIN' ? 'Super User' : u.role === 'MANAGER' ? 'Manager' : 'Employee') + ' • ' + getBranchName(u.branchId);
   document.getElementById('topbarGreeting').textContent = 'Welcome back, ' + u.firstName;
   document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('navApprovals').style.display = (u.role === 'EMPLOYEE') ? 'none' : 'flex';
@@ -535,11 +561,21 @@ function navigateTo(page) {
 }
 
 // ========== HELPERS ==========
-function fmt(n) { return '$' + Number(n).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'); }
+function fmt(n) { return 'UGX ' + Number(n).toFixed(0).replace(/\d(?=(\d{3})+$)/g, '$&,'); }
 function fmtDate(d) { return new Date(d).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}); }
 function myExpenses() {
+  if (currentUser.role === 'ADMIN') return expenses; // Super User sees all branches
   if (currentUser.role === 'EMPLOYEE') return expenses.filter(e => e.userId === currentUser.id);
-  return expenses;
+  // MANAGER: sees own branch expenses only
+  return expenses.filter(e => {
+    const eu = users.find(u => u.id === e.userId);
+    return eu && eu.branchId === currentUser.branchId;
+  });
+}
+
+function branchUsers() {
+  if (currentUser.role === 'ADMIN') return users; // Super User sees all
+  return users.filter(u => u.branchId === currentUser.branchId);
 }
 function statusBadge(s) {
   const m = {DRAFT:'status-draft',PENDING:'status-pending',APPROVED:'status-approved',REJECTED:'status-rejected'};
@@ -597,7 +633,7 @@ function dismissInstall() { document.getElementById('installBanner').style.displ
 function exportCSV() {
   const ex = myExpenses();
   const headers = ['Title','Amount','Currency','Category','Vendor','Date','Status','Created'];
-  const rows = ex.map(e => [e.title, e.amount, e.currency||'USD', e.category, e.vendor||'', e.date, e.status, e.createdAt].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+  const rows = ex.map(e => [e.title, e.amount, e.currency||'UGX', e.category, e.vendor||'', e.date, e.status, e.createdAt].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
   const csv = [headers.join(','), ...rows].join('\n');
   const blob = new Blob([csv], {type:'text/csv'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
@@ -642,8 +678,9 @@ function renderDashboard() {
     ? '<div style="text-align:center;padding:24px;color:var(--text3);font-size:14px">No spending data yet</div>'
     : catArr.slice(0,6).map(([name,amt]) => `<div class="cat-row"><div class="cat-icon" style="background:rgba(249,115,22,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div><div class="cat-info"><div class="cat-header"><span class="cat-name">${name}</span><span class="cat-amount">${fmt(amt)}</span></div><div class="cat-bar"><div class="cat-bar-fill" style="width:${(amt/maxCat*100)}%"></div></div></div></div>`).join('');
 
+  const branchInfo = isSuperUser() ? 'All Branches' : getBranchName(currentUser.branchId);
   return `
-    <div class="page-header"><div><h1>Dashboard</h1><p class="sub">Overview of your expense activity</p></div>
+    <div class="page-header"><div><h1>Dashboard</h1><p class="sub">Overview of your expense activity &middot; <span style="color:var(--blue);font-weight:600">${branchInfo}</span></p></div>
     <div class="btn-group"><button class="btn-action btn-orange" onclick="navigateTo('scan')">Scan Receipt</button>
     <button class="btn-action btn-outline" onclick="navigateTo('newExpense')">Add Expense</button></div></div>
     <div class="stats-grid">
@@ -715,7 +752,7 @@ function renderExpenses() {
       return `<div class="expense-row" style="border:1px solid ${isSel?'var(--orange)':'var(--border)'};border-radius:var(--radius2);margin-bottom:8px;padding:16px;${isSel?'background:rgba(249,115,22,0.03)':''}">
       <div class="chk ${isSel?'checked':''}" onclick="event.stopPropagation();toggleSelect('${e.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
       <div class="expense-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-      <div class="expense-info"><div class="title-row"><span class="title">${e.title}</span>${statusBadge(e.status)}</div><div class="meta">${e.vendor?e.vendor+' &middot; ':''}${e.category} &middot; ${fmtDate(e.date)}${!isOwner&&u?' &middot; by '+u.firstName+' '+u.lastName:''}</div></div>
+      <div class="expense-info"><div class="title-row"><span class="title">${e.title}</span>${statusBadge(e.status)}</div><div class="meta">${e.vendor?e.vendor+' &middot; ':''}${e.category} &middot; ${fmtDate(e.date)}${!isOwner&&u?' &middot; by '+u.firstName+' '+u.lastName:''}${isSuperUser()&&u?' &middot; <span style="color:var(--blue)">'+getBranchName(u.branchId)+'</span>':''}</div></div>
       <div class="expense-amount">${fmt(e.amount)}</div>
       ${e.status==='DRAFT'&&isOwner?`<button onclick="event.stopPropagation();deleteExpense('${e.id}')" style="width:32px;height:32px;border-radius:8px;background:transparent;color:var(--text3);display:flex;align-items:center;justify-content:center" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`:''}
     </div>`;
@@ -751,7 +788,10 @@ function renderExpenses() {
 }
 
 function renderApprovals() {
-  const pending = expenses.filter(e => e.status === 'PENDING');
+  let pending = expenses.filter(e => e.status === 'PENDING');
+  if (!isSuperUser()) {
+    pending = pending.filter(e => { const eu = users.find(u => u.id === e.userId); return eu && eu.branchId === currentUser.branchId; });
+  }
   let rows = '';
   if (pending.length === 0) {
     rows = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><h4>No pending approvals</h4><p>No expenses waiting for review.</p></div>`;
@@ -797,7 +837,7 @@ function renderAnalytics() {
     </div>`;
   }
 
-  return `<div class="page-header"><div><h1>Analytics</h1><p class="sub">${currentUser.role==='ADMIN'?'Company-wide':currentUser.role==='MANAGER'?'Team':'Personal'} spending insights</p></div>
+  return `<div class="page-header"><div><h1>Analytics</h1><p class="sub">${currentUser.role==='ADMIN'?'All Branches':getBranchName(currentUser.branchId)} spending insights</p></div>
     <button class="btn-action btn-orange" onclick="exportCSV()">Export Report</button></div>
     <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
       <div class="stat-card"><div class="top"><div><div class="label">Total Spending</div><div class="value">${fmt(total)}</div></div><div class="icon" style="background:linear-gradient(135deg,#f97316,#f59e0b)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div></div>
@@ -830,12 +870,12 @@ function drawCharts() {
   if (mArr.length > 0) {
     const maxVal = Math.max(...mArr.map(m=>m[1]));
     const barW = Math.min(40, (w - 60) / mArr.length - 10);
-    const pad = {top:20,bottom:40,left:50,right:20};
+    const pad = {top:20,bottom:40,left:70,right:20};
     const chartW = w - pad.left - pad.right;
     const chartH = h - pad.top - pad.bottom;
 
     ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border'); ctx.lineWidth = 1;
-    for (let i = 0; i <= 4; i++) { const y = pad.top + chartH * (1 - i/4); ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w-pad.right, y); ctx.stroke(); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text3'); ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.fillText('$'+Math.round(maxVal*i/4), pad.left-8, y+3); }
+    for (let i = 0; i <= 4; i++) { const y = pad.top + chartH * (1 - i/4); ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w-pad.right, y); ctx.stroke(); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text3'); ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.fillText('UGX '+Math.round(maxVal*i/4).toLocaleString(), pad.left-8, y+3); }
 
     mArr.forEach(([m,v], i) => {
       const x = pad.left + (i + 0.5) * chartW / mArr.length - barW/2;
@@ -892,6 +932,7 @@ function renderTeam() {
 
   const tabsHTML = `<div class="tabs">
     <div class="tab ${teamTab==='users'?'active':''}" onclick="localStorage.setItem('gasco_team_tab','users');renderPage('team')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Users</div>
+    <div class="tab ${teamTab==='branches'?'active':''}" onclick="localStorage.setItem('gasco_team_tab','branches');renderPage('team')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Branches</div>
     <div class="tab ${teamTab==='policies'?'active':''}" onclick="localStorage.setItem('gasco_team_tab','policies');renderPage('team')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Policies</div>
     <div class="tab ${teamTab==='audit'?'active':''}" onclick="localStorage.setItem('gasco_team_tab','audit');renderPage('team')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Audit Log</div>
   </div>`;
@@ -899,16 +940,21 @@ function renderTeam() {
   let content = '';
   if (teamTab === 'users') {
     const addBtn = `<button class="btn-action btn-orange" onclick="showAddUserModal()">Add User</button>`;
-    const userCards = users.map(u => {
+    const visibleUsers = isSuperUser() ? users : users.filter(u => u.branchId === currentUser.branchId);
+    const userCards = visibleUsers.map(u => {
       const roleCls = u.role==='ADMIN'?'role-admin':u.role==='MANAGER'?'role-manager':'role-employee';
+      const branchLabel = getBranchName(u.branchId);
       return `<div class="user-card">
         <div class="user-card-avatar">${u.firstName[0]}${u.lastName[0]}</div>
-        <div class="user-card-info"><h4>${u.firstName} ${u.lastName} <span class="role-sm ${roleCls}">${u.role}</span> ${u.isActive===false?'<span class="inactive-badge">Inactive</span>':''}</h4>
-        <div class="meta"><span>${u.email}</span>${u.department?'<span>'+u.department+'</span>':''}${u.spendingLimit?'<span>Limit: '+fmt(u.spendingLimit)+'</span>':''}
+        <div class="user-card-info"><h4>${u.firstName} ${u.lastName} <span class="role-sm ${roleCls}">${u.role==='ADMIN'?'SUPER USER':u.role}</span> ${u.isActive===false?'<span class="inactive-badge">Inactive</span>':''}</h4>
+        <div class="meta"><span>${u.email}</span><span style="color:var(--blue);font-weight:600">${branchLabel}</span>${u.department?'<span>'+u.department+'</span>':''}${u.spendingLimit?'<span>Limit: '+fmt(u.spendingLimit)+'</span>':''}
         <span>${expenses.filter(e=>e.userId===u.id).length} expenses</span></div></div>
         <select onchange="updateUserRole('${u.id}',this.value)" style="height:32px;padding:0 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);font-size:12px;color:var(--text2)">
-          ${['EMPLOYEE','MANAGER','ADMIN'].map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${r}</option>`).join('')}
+          ${['EMPLOYEE','MANAGER','ADMIN'].map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${r==='ADMIN'?'SUPER USER':r}</option>`).join('')}
         </select>
+        ${isSuperUser()?`<select onchange="updateUserBranch('${u.id}',this.value)" style="height:32px;padding:0 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);font-size:12px;color:var(--text2)">
+          ${branches.filter(b=>b.isActive).map(b=>`<option value="${b.id}" ${u.branchId===b.id?'selected':''}>${b.name}</option>`).join('')}
+        </select>`:''}
         <select onchange="updateUserDept('${u.id}',this.value)" style="height:32px;padding:0 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);font-size:12px;color:var(--text2)">
           <option value="" ${!u.department?'selected':''}>No Dept</option>
           ${['Operations','Engineering','Finance','Marketing','HR','Field Services','Logistics'].map(d=>`<option value="${d}" ${u.department===d?'selected':''}>${d}</option>`).join('')}
@@ -919,6 +965,22 @@ function renderTeam() {
       </div>`;
     }).join('');
     content = `<div class="page-header" style="margin-bottom:16px"><div></div>${addBtn}</div>${userCards || '<div style="text-align:center;padding:32px;color:var(--text3)">No users</div>'}`;
+  } else if (teamTab === 'branches') {
+    const addBtn = `<button class="btn-action btn-orange" onclick="showAddBranchModal()">Add Branch</button>`;
+    const bCards = branches.map(b => {
+      const bUsers = users.filter(u => u.branchId === b.id);
+      const bExpenses = expenses.filter(e => { const eu = users.find(u=>u.id===e.userId); return eu && eu.branchId === b.id; });
+      const bTotal = bExpenses.reduce((s,e)=>s+Number(e.amount),0);
+      return `<div class="policy-card">
+        <div class="policy-icon" style="background:rgba(249,115,22,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div class="policy-info"><h4>${b.name} <span style="font-size:12px;color:var(--text3);font-weight:400">(${b.code})</span> ${!b.isActive?'<span class="inactive-badge">Inactive</span>':''}</h4>
+        <div class="meta">${b.location} &middot; ${bUsers.length} user${bUsers.length!==1?'s':''} &middot; ${bExpenses.length} expense${bExpenses.length!==1?'s':''} &middot; Total: ${fmt(bTotal)}</div></div>
+        <button onclick="toggleBranchActive('${b.id}')" style="width:32px;height:32px;border-radius:8px;background:transparent;color:${b.isActive?'var(--green)':'var(--text3)'};display:flex;align-items:center;justify-content:center" title="${b.isActive?'Deactivate':'Activate'}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px">${b.isActive?'<rect x="1" y="5" width="22" height="14" rx="7"/><circle cx="16" cy="12" r="3"/>':'<rect x="1" y="5" width="22" height="14" rx="7"/><circle cx="8" cy="12" r="3"/>'}</svg>
+        </button>
+      </div>`;
+    }).join('');
+    content = `<div class="page-header" style="margin-bottom:16px"><div></div>${addBtn}</div>${bCards}`;
   } else if (teamTab === 'policies') {
     const addBtn = `<button class="btn-action btn-orange" onclick="showAddPolicyModal()">Add Policy</button>`;
     const pCards = policies.length === 0
@@ -951,7 +1013,7 @@ function renderNewExpense() {
       <div class="form-group"><label>Title <span class="req">*</span></label><input id="expTitle" placeholder="e.g., Office supplies" required></div>
       <div class="form-grid">
         <div class="form-group"><label>Amount <span class="req">*</span></label><input id="expAmount" type="number" step="0.01" min="0" placeholder="0.00" required></div>
-        <div class="form-group"><label>Currency</label><select id="expCurrency"><option>USD</option><option>EUR</option><option>GBP</option><option>SAR</option><option>AED</option></select></div>
+        <div class="form-group"><label>Currency</label><select id="expCurrency"><option selected>UGX</option><option>USD</option><option>EUR</option><option>GBP</option><option>KES</option></select></div>
         <div class="form-group"><label>Date <span class="req">*</span></label><input id="expDate" type="date" value="${new Date().toISOString().split('T')[0]}" required></div>
       </div>
       <div class="form-grid2">
@@ -969,9 +1031,9 @@ function renderNewExpense() {
 
 function renderSettings() {
   const u = currentUser;
-  const roleLabel = u.role === 'ADMIN' ? 'Administrator' : u.role === 'MANAGER' ? 'Manager' : 'Employee';
+  const roleLabel = u.role === 'ADMIN' ? 'Super User' : u.role === 'MANAGER' ? 'Manager' : 'Employee';
   return `<div class="page-header"><div><h1>Settings</h1><p class="sub">Manage your account and preferences</p></div></div>
-    <div class="settings-card"><h3>Profile</h3><div class="profile-row"><div class="profile-avatar">${u.firstName[0]}${u.lastName[0]}</div><div class="profile-info"><div class="name">${u.firstName} ${u.lastName}</div><div class="email">${u.email}</div><div class="role-badge">${roleLabel}</div>${u.department?'<div style="font-size:13px;color:var(--text2);margin-top:4px">Department: '+u.department+'</div>':''}${u.spendingLimit?'<div style="font-size:13px;color:var(--text2);margin-top:2px">Spending Limit: '+fmt(u.spendingLimit)+'</div>':''}</div></div></div>
+    <div class="settings-card"><h3>Profile</h3><div class="profile-row"><div class="profile-avatar">${u.firstName[0]}${u.lastName[0]}</div><div class="profile-info"><div class="name">${u.firstName} ${u.lastName}</div><div class="email">${u.email}</div><div class="role-badge">${roleLabel}</div><div style="font-size:13px;color:var(--blue);margin-top:4px;font-weight:600">Branch: ${getBranchName(u.branchId)}</div>${u.department?'<div style="font-size:13px;color:var(--text2);margin-top:4px">Department: '+u.department+'</div>':''}${u.spendingLimit?'<div style="font-size:13px;color:var(--text2);margin-top:2px">Spending Limit: '+fmt(u.spendingLimit)+'</div>':''}</div></div></div>
     <div class="settings-card"><h3>Notifications</h3><div class="desc">You have ${notifications.filter(n=>n.userId===u.id&&!n.isRead).length} unread notifications</div></div>
     <div class="settings-card"><h3>Security</h3><div class="desc">Password, two-factor authentication</div><div class="coming-soon">Coming soon</div></div>
     <div class="settings-card"><h3>Appearance</h3><div class="desc">Current theme: ${document.documentElement.classList.contains('dark')?'Dark':'Light'}</div><button class="btn-action btn-outline" onclick="toggleTheme()" style="margin-top:8px">Toggle Theme</button></div>`;
@@ -984,7 +1046,7 @@ function createExpenseWithStatus(status) {
   saveExpense(status);
 }
 function saveExpense(status) {
-  const exp = { id: uid(), title: document.getElementById('expTitle').value, amount: document.getElementById('expAmount').value, currency: document.getElementById('expCurrency').value, date: document.getElementById('expDate').value, category: document.getElementById('expCategory').value, vendor: document.getElementById('expVendor').value, description: document.getElementById('expDesc').value, notes: document.getElementById('expNotes').value, status, userId: currentUser.id, createdAt: new Date().toISOString() };
+  const exp = { id: uid(), title: document.getElementById('expTitle').value, amount: document.getElementById('expAmount').value, currency: document.getElementById('expCurrency').value, date: document.getElementById('expDate').value, category: document.getElementById('expCategory').value, vendor: document.getElementById('expVendor').value, description: document.getElementById('expDesc').value, notes: document.getElementById('expNotes').value, status, userId: currentUser.id, branchId: currentUser.branchId, createdAt: new Date().toISOString() };
   expenses.push(exp);
   addAudit('CREATE', 'EXPENSE', exp.id, {title: exp.title, amount: exp.amount});
   if (status === 'PENDING') {
@@ -1064,7 +1126,10 @@ function showAddUserModal() {
         <div class="form-group"><label>Role</label><select id="muRole"><option>EMPLOYEE</option><option>MANAGER</option><option>ADMIN</option></select></div>
         <div class="form-group"><label>Department</label><select id="muDept"><option value="">None</option>${['Operations','Engineering','Finance','Marketing','HR','Field Services','Logistics'].map(d=>'<option>'+d+'</option>').join('')}</select></div>
       </div>
-      <div class="form-group"><label>Spending Limit</label><input id="muLimit" type="number" step="0.01" placeholder="Optional"></div>
+      <div class="form-grid2">
+        <div class="form-group"><label>Branch *</label><select id="muBranch">${branches.filter(b=>b.isActive).map(b=>`<option value="${b.id}">${b.name}</option>`).join('')}</select></div>
+        <div class="form-group"><label>Spending Limit</label><input id="muLimit" type="number" step="0.01" placeholder="Optional"></div>
+      </div>
       <button class="btn-primary" onclick="addUser()" style="margin-top:16px">Create User</button>
     </div>
   </div></div>`;
@@ -1074,9 +1139,10 @@ function addUser() {
   const f = document.getElementById('muFirst').value, l = document.getElementById('muLast').value, em = document.getElementById('muEmail').value, pw = document.getElementById('muPass').value;
   if (!f||!l||!em||!pw) { alert('Fill all required fields'); return; }
   if (users.find(u=>u.email===em)) { alert('Email exists'); return; }
-  const u = { id:'u'+Date.now(), firstName:f, lastName:l, email:em, password:pw, role:document.getElementById('muRole').value, department:document.getElementById('muDept').value||null, isActive:true, spendingLimit:document.getElementById('muLimit').value?parseFloat(document.getElementById('muLimit').value):null, createdAt:new Date().toISOString() };
+  const branchId = document.getElementById('muBranch').value;
+  const u = { id:'u'+Date.now(), firstName:f, lastName:l, email:em, password:pw, role:document.getElementById('muRole').value, branchId:branchId, department:document.getElementById('muDept').value||null, isActive:true, spendingLimit:document.getElementById('muLimit').value?parseFloat(document.getElementById('muLimit').value):null, createdAt:new Date().toISOString() };
   users.push(u);
-  addAudit('CREATE','USER',u.id,{email:u.email,role:u.role});
+  addAudit('CREATE','USER',u.id,{email:u.email,role:u.role,branch:getBranchName(branchId)});
   saveState(); closeModal(); navigateTo('team');
 }
 
@@ -1116,6 +1182,40 @@ function deletePolicy(id) {
   saveState(); navigateTo('team');
 }
 
+function updateUserBranch(id, branchId) {
+  const u = users.find(u=>u.id===id);
+  if(u){ u.branchId=branchId; addAudit('UPDATE','USER',id,{branch:getBranchName(branchId)}); saveState(); }
+}
+
+function showAddBranchModal() {
+  document.getElementById('modalContainer').innerHTML = `<div class="modal-overlay" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header"><h3>Add New Branch</h3><button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="form-card" style="border:none;padding:0">
+      <div class="form-group"><label>Branch Name *</label><input id="mbName" required placeholder="e.g., Lira Branch"></div>
+      <div class="form-grid2">
+        <div class="form-group"><label>Branch Code *</label><input id="mbCode" required placeholder="e.g., LRA" maxlength="5" style="text-transform:uppercase"></div>
+        <div class="form-group"><label>Location *</label><input id="mbLocation" required placeholder="e.g., Lira"></div>
+      </div>
+      <button class="btn-primary" onclick="addBranch()" style="margin-top:16px">Create Branch</button>
+    </div>
+  </div></div>`;
+}
+
+function addBranch() {
+  const name = document.getElementById('mbName').value, code = document.getElementById('mbCode').value.toUpperCase(), location = document.getElementById('mbLocation').value;
+  if (!name||!code||!location) { alert('All fields required'); return; }
+  if (branches.find(b=>b.code===code)) { alert('Branch code already exists'); return; }
+  const b = { id:'b'+Date.now(), name, code, location, isActive:true, createdAt:new Date().toISOString() };
+  branches.push(b);
+  addAudit('CREATE','BRANCH',b.id,{name,code,location});
+  saveState(); closeModal(); navigateTo('team');
+}
+
+function toggleBranchActive(id) {
+  const b = branches.find(b=>b.id===id);
+  if(b){ b.isActive=!b.isActive; addAudit('UPDATE','BRANCH',id,{name:b.name,isActive:b.isActive}); saveState(); navigateTo('team'); }
+}
+
 function closeModal() { document.getElementById('modalContainer').innerHTML = ''; }
 
 // ========== THEME ==========
@@ -1127,6 +1227,16 @@ function toggleTheme() {
 // ========== INIT ==========
 loadState();
 if (localStorage.getItem('gasco_theme') === 'dark') document.documentElement.classList.add('dark');
+
+// Populate branch dropdown on register page
+function populateBranchDropdowns() {
+  const regBranch = document.getElementById('regBranch');
+  if (regBranch) {
+    regBranch.innerHTML = '<option value="">Select branch...</option>' + branches.filter(b=>b.isActive).map(b=>`<option value="${b.id}">${b.name} (${b.code})</option>`).join('');
+  }
+}
+populateBranchDropdowns();
+
 if (currentUser) { enterApp(); } else { showPage('loginPage'); }
 
 // Close notification dropdown when clicking outside
