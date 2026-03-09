@@ -12,9 +12,6 @@
     "db:seed": "npx tsx prisma/seed.ts",
     "db:migrate": "prisma migrate deploy"
   },
-  "prisma": {
-    "seed": "npx tsx prisma/seed.ts"
-  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@prisma/client": "^6.19.2",
