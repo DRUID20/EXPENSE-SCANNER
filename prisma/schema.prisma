@@ -8,19 +8,19 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  firstName String
-  lastName  String
-  role      String   @default("EMPLOYEE") // ADMIN, MANAGER, EMPLOYEE
-  avatar    String?
-  department String?
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
+  firstName    String
+  lastName     String
+  role         String   @default("EMPLOYEE") // ADMIN, MANAGER, EMPLOYEE
+  avatar       String?
+  department   String?  // Legacy text field
   departmentId String?
-  dept       Department? @relation(fields: [departmentId], references: [id])
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  dept         Department? @relation(fields: [departmentId], references: [id])
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   expenses         Expense[]
   approvedExpenses Expense[] @relation("ApprovedBy")
@@ -30,8 +30,12 @@ model User {
 model Department {
   id          String   @id @default(cuid())
   name        String   @unique
+  code        String?  @unique  // e.g. "HQ", "STN-01", "STN-02"
   description String?
-  managerId   String?
+  parentId    String?
+  parent      Department?  @relation("DeptHierarchy", fields: [parentId], references: [id])
+  children    Department[] @relation("DeptHierarchy")
+  managerId   String?  // userId of department manager
   budget      Float?   // Monthly budget limit
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -72,9 +76,9 @@ model SpendingPolicy {
   name          String
   description   String?
   maxAmount     Float    // Max per-expense amount
-  maxMonthly    Float?   // Max monthly spending
-  categories    String?  // JSON array of restricted categories (null = all)
-  roles         String?  // JSON array of roles this applies to (null = all)
+  maxMonthly    Float?   // Max monthly total
+  categories    String?  // JSON array of categories (null = all)
+  roles         String?  // JSON array of roles (null = all)
   departmentId  String?
   department    Department? @relation(fields: [departmentId], references: [id])
   isActive      Boolean  @default(true)

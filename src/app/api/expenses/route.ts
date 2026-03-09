@@ -18,11 +18,37 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
+    const departmentId = searchParams.get("departmentId");
     const where: Record<string, unknown> = {};
 
-    // Employees see only their own expenses; Admins/Managers see all
+    // Department/station-based visibility
     if (session.role === "EMPLOYEE") {
+      // Employees see only their own expenses
       where.userId = session.userId;
+    } else if (session.role === "MANAGER") {
+      // Managers see expenses from users in their department + own
+      const currentUser = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { departmentId: true },
+      });
+      if (currentUser?.departmentId) {
+        // Get all users in this department
+        const deptUsers = await prisma.user.findMany({
+          where: { departmentId: currentUser.departmentId },
+          select: { id: true },
+        });
+        where.userId = { in: deptUsers.map((u) => u.id) };
+      }
+    }
+    // ADMIN sees all expenses (no filter)
+
+    // Optional department filter (admin can filter by any dept)
+    if (departmentId && departmentId !== "ALL" && session.role === "ADMIN") {
+      const deptUsers = await prisma.user.findMany({
+        where: { departmentId },
+        select: { id: true },
+      });
+      where.userId = { in: deptUsers.map((u) => u.id) };
     }
 
     if (status && status !== "ALL") {
@@ -46,7 +72,7 @@ export async function GET(req: NextRequest) {
         where,
         include: {
           user: {
-            select: { id: true, firstName: true, lastName: true, email: true, role: true },
+            select: { id: true, firstName: true, lastName: true, email: true, role: true, departmentId: true, dept: { select: { name: true, code: true } } },
           },
         },
         orderBy: { [["title", "amount", "date", "status", "category", "createdAt"].includes(sortBy) ? sortBy : "createdAt"]: sortOrder === "asc" ? "asc" : "desc" },

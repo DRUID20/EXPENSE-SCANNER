@@ -15,6 +15,7 @@ import {
   ChevronRight,
   LogOut,
   TrendingUp,
+  Shield,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { useAuth } from "@/context/AuthContext";
@@ -27,6 +28,7 @@ const navigation = [
   { name: "Approvals", href: "/dashboard/approvals", icon: ClipboardCheck, roles: ["ADMIN", "MANAGER"] },
   { name: "Analytics", href: "/dashboard/analytics", icon: TrendingUp, roles: ["ADMIN", "MANAGER"] },
   { name: "Team", href: "/dashboard/team", icon: Users, roles: ["ADMIN"] },
+  { name: "Audit Log", href: "/dashboard/audit", icon: Shield, roles: ["ADMIN"] },
   { name: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["ADMIN", "MANAGER", "EMPLOYEE"] },
 ];
 
