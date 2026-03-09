@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Zap, Building } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Zap, Building, MapPin } from "lucide-react";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -15,10 +15,21 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     role: "EMPLOYEE",
+    branchId: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [branches, setBranches] = useState<{ id: string; name: string; code: string; location: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/branches/public")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.branches) setBranches(data.branches);
+      })
+      .catch(() => {});
+  }, []);
 
   const updateForm = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -46,6 +57,7 @@ export default function RegisterPage() {
         email: form.email,
         password: form.password,
         role: form.role,
+        branchId: form.branchId,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
@@ -228,6 +240,29 @@ export default function RegisterPage() {
                   <option value="EMPLOYEE">Employee</option>
                   <option value="MANAGER">Manager</option>
                   <option value="ADMIN">Administrator</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Branch */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                Branch
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <select
+                  value={form.branchId}
+                  onChange={(e) => updateForm("branchId", e.target.value)}
+                  required
+                  className="w-full h-11 pl-10 pr-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none"
+                >
+                  <option value="">Select a branch</option>
+                  {branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>
+                      {branch.name} ({branch.location})
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

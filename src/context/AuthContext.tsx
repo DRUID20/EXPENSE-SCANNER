@@ -27,6 +27,7 @@ interface RegisterData {
   firstName: string;
   lastName: string;
   role?: string;
+  branchId?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
