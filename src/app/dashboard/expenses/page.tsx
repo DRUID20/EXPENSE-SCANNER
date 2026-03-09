@@ -24,6 +24,7 @@ import {
   ArrowUpDown,
   Calendar,
   X,
+  FileArchive,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -259,6 +260,32 @@ export default function ExpensesPage() {
     }
   };
 
+  const handleDownloadReceipts = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (categoryFilter !== "ALL") params.set("category", categoryFilter);
+      toast.info("Preparing receipt download...");
+
+      const res = await fetch(`/api/receipts/download?${params}`);
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const label = categoryFilter !== "ALL" ? categoryFilter.toLowerCase().replace(/\s+/g, "-") : "all";
+        a.download = `receipts-${label}-${new Date().toISOString().split("T")[0]}.zip`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Receipts downloaded as ZIP");
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "No receipts found");
+      }
+    } catch {
+      toast.error("Failed to download receipts");
+    }
+  };
+
   const clearDateFilter = () => {
     setDateFrom("");
     setDateTo("");
@@ -283,6 +310,16 @@ export default function ExpensesPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleDownloadReceipts}
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl premium-card text-sm text-gray-600 dark:text-gray-400 font-medium hover:border-emerald-300 transition-colors"
+            title="Download all receipts as ZIP"
+          >
+            <FileArchive className="w-4 h-4" />
+            <span className="hidden sm:inline">Receipts ZIP</span>
+          </motion.button>
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}

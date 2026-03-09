@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -13,8 +13,12 @@ import {
   FileText,
   Loader2,
   StickyNote,
+  Upload,
+  Image,
+  X,
 } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/context/ToastContext";
 
 const CATEGORIES = [
   "Fuel & Gas",
@@ -31,8 +35,12 @@ const CATEGORIES = [
 
 export default function NewExpensePage() {
   const router = useRouter();
+  const toast = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+  const [receiptBase64, setReceiptBase64] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -46,6 +54,35 @@ export default function NewExpensePage() {
 
   const updateForm = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file (JPEG, PNG, WebP)");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File too large. Maximum 10MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      setReceiptPreview(base64);
+      setReceiptBase64(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeReceipt = () => {
+    setReceiptPreview(null);
+    setReceiptBase64(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSubmit = async (status: "DRAFT" | "PENDING") => {
@@ -66,12 +103,17 @@ export default function NewExpensePage() {
       const res = await fetch("/api/expenses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, status }),
+        body: JSON.stringify({
+          ...form,
+          status,
+          ...(receiptBase64 && { receiptUrl: receiptBase64 }),
+        }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
+      toast.success(status === "DRAFT" ? "Expense saved as draft" : "Expense submitted for approval");
       router.push("/dashboard/expenses");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create expense");
@@ -211,6 +253,46 @@ export default function NewExpensePage() {
               className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
             />
           </div>
+        </div>
+
+        {/* Receipt Upload */}
+        <div>
+          <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <Image className="w-4 h-4 text-gray-400" />
+            Receipt
+          </label>
+          {receiptPreview ? (
+            <div className="relative inline-block">
+              <img
+                src={receiptPreview}
+                alt="Receipt preview"
+                className="max-h-48 rounded-xl border border-black/[0.08] dark:border-white/[0.08] object-contain"
+              />
+              <button
+                onClick={removeReceipt}
+                className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full h-28 rounded-xl border-2 border-dashed border-black/[0.1] dark:border-white/[0.1] hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-emerald-500"
+            >
+              <Upload className="w-6 h-6" />
+              <span className="text-sm font-medium">Click to attach receipt</span>
+              <span className="text-xs">JPEG, PNG, WebP up to 10MB</span>
+            </button>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleReceiptChange}
+            className="hidden"
+          />
         </div>
 
         {/* Description */}

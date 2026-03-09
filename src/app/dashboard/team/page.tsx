@@ -22,6 +22,7 @@ import {
   MapPin,
   Copy,
   CheckCircle2,
+  Pencil,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -100,6 +101,7 @@ export default function TeamPage() {
   const [inviteForm, setInviteForm] = useState({ email: "", firstName: "", lastName: "", role: "EMPLOYEE", department: "", password: "", spendingLimit: "", branchId: "" });
   const [policyForm, setPolicyForm] = useState({ name: "", maxAmount: "", category: "", role: "", requireApproval: true });
   const [branchForm, setBranchForm] = useState({ name: "", code: "", location: "" });
+  const [editingBranch, setEditingBranch] = useState<BranchItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -264,6 +266,57 @@ export default function TeamPage() {
     }
   };
 
+  const handleEditBranch = (branch: BranchItem) => {
+    setEditingBranch(branch);
+    setBranchForm({ name: branch.name, code: branch.code, location: branch.location });
+    setShowBranch(true);
+  };
+
+  const handleUpdateBranch = async () => {
+    if (!editingBranch || !branchForm.name || !branchForm.code || !branchForm.location) {
+      alert("All fields are required");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/branches/${editingBranch.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(branchForm),
+      });
+      if (res.ok) {
+        setShowBranch(false);
+        setEditingBranch(null);
+        setBranchForm({ name: "", code: "", location: "" });
+        fetchBranches();
+        fetchAudit();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to update branch");
+      }
+    } catch {
+      alert("Failed to update branch");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteBranch = async (id: string) => {
+    if (!confirm("Delete this branch? Users must be reassigned first.")) return;
+    try {
+      const res = await fetch(`/api/branches/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchBranches();
+        fetchAudit();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to delete branch");
+      }
+    } catch {
+      alert("Failed to delete branch");
+    }
+  };
+
   const copyCredentials = (user: UserItem) => {
     const text = `Email: ${user.email}\nPlease contact admin for your password.`;
     navigator.clipboard.writeText(text);
@@ -406,11 +459,20 @@ export default function TeamPage() {
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-semibold text-gray-900 dark:text-white">{b.name}</h4>
                       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">{b.code}</span>
+                      {!b.isActive && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400">Inactive</span>}
                     </div>
                     <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                       <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {b.location}</span>
                       <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {b._count.users} users</span>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleEditBranch(b)} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors" title="Edit branch">
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => handleDeleteBranch(b.id)} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors" title="Delete branch">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </motion.div>
@@ -527,22 +589,22 @@ export default function TeamPage() {
         )}
       </AnimatePresence>
 
-      {/* Create Branch Modal */}
+      {/* Create/Edit Branch Modal */}
       <AnimatePresence>
         {showBranch && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowBranch(false)}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => { setShowBranch(false); setEditingBranch(null); setBranchForm({ name: "", code: "", location: "" }); }}>
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-md premium-card p-5 lg:p-6 shadow-2xl">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Add New Branch</h3>
-                <button onClick={() => setShowBranch(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{editingBranch ? "Edit Branch" : "Add New Branch"}</h3>
+                <button onClick={() => { setShowBranch(false); setEditingBranch(null); setBranchForm({ name: "", code: "", location: "" }); }} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-4">
                 <input placeholder="Branch Name *" value={branchForm.name} onChange={(e) => setBranchForm({ ...branchForm, name: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
                 <input placeholder="Branch Code * (e.g. HQ, JNJ)" value={branchForm.code} onChange={(e) => setBranchForm({ ...branchForm, code: e.target.value.toUpperCase() })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
                 <input placeholder="Location * (e.g. Kampala, Uganda)" value={branchForm.location} onChange={(e) => setBranchForm({ ...branchForm, location: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
-                <button onClick={handleCreateBranch} disabled={saving} className="w-full h-10 btn-primary text-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                <button onClick={editingBranch ? handleUpdateBranch : handleCreateBranch} disabled={saving} className="w-full h-10 btn-primary text-sm disabled:opacity-50 flex items-center justify-center gap-2">
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Building2 className="w-4 h-4" />}
-                  {saving ? "Creating..." : "Create Branch"}
+                  {saving ? (editingBranch ? "Saving..." : "Creating...") : (editingBranch ? "Save Changes" : "Create Branch")}
                 </button>
               </div>
             </motion.div>
