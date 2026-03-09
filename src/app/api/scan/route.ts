@@ -4,25 +4,7 @@ import { getSession } from "@/lib/auth";
 
 const anthropic = new Anthropic();
 
-const SCAN_PROMPT = `You are an expert receipt/invoice data extractor. Analyze the receipt image and extract all relevant expense information.
-
-Return a JSON object with these fields:
-{
-  "vendor": "Store/vendor name",
-  "title": "Brief description of the purchase",
-  "amount": 0.00,
-  "currency": "USD",
-  "date": "YYYY-MM-DD",
-  "category": "One of: Fuel & Gas, Equipment, Travel, Supplies, Meals, Transportation, Utilities, Maintenance, Office, Other",
-  "tax": 0.00,
-  "subtotal": 0.00,
-  "lineItems": [
-    { "description": "Item name", "quantity": 1, "unitPrice": 0.00, "total": 0.00 }
-  ],
-  "paymentMethod": "Cash/Credit Card/Debit Card/Other",
-  "receiptNumber": "Receipt/invoice number if visible",
-  "notes": "Any additional relevant info"
-}
+const SCAN_PROMPT = `You are an expert receipt/invoice data extractor. Analyze the receipt image and extract all relevant expense information using the extract_receipt_data tool.
 
 Rules:
 - Extract ALL visible information from the receipt
@@ -30,8 +12,89 @@ Rules:
 - Amounts should be numbers, not strings
 - Date should be in YYYY-MM-DD format
 - Choose the most appropriate category from the list
-- For the title, create a concise description like "Office supplies from Staples" or "Gas fill-up at Shell"
-- Return ONLY valid JSON, no markdown or explanation`;
+- For the title, create a concise description like "Office supplies from Staples" or "Gas fill-up at Shell"`;
+
+const extractReceiptTool: Anthropic.Tool = {
+  name: "extract_receipt_data",
+  description: "Extract structured expense data from a receipt or invoice image",
+  input_schema: {
+    type: "object" as const,
+    properties: {
+      vendor: {
+        type: ["string", "null"],
+        description: "Store or vendor name",
+      },
+      title: {
+        type: ["string", "null"],
+        description: "Brief description of the purchase",
+      },
+      amount: {
+        type: ["number", "null"],
+        description: "Total amount paid",
+      },
+      currency: {
+        type: ["string", "null"],
+        description: "Currency code (e.g. USD)",
+      },
+      date: {
+        type: ["string", "null"],
+        description: "Date in YYYY-MM-DD format",
+      },
+      category: {
+        type: ["string", "null"],
+        enum: [
+          "Fuel & Gas",
+          "Equipment",
+          "Travel",
+          "Supplies",
+          "Meals",
+          "Transportation",
+          "Utilities",
+          "Maintenance",
+          "Office",
+          "Other",
+          null,
+        ],
+        description: "Expense category",
+      },
+      tax: {
+        type: ["number", "null"],
+        description: "Tax amount",
+      },
+      subtotal: {
+        type: ["number", "null"],
+        description: "Subtotal before tax",
+      },
+      lineItems: {
+        type: ["array", "null"],
+        items: {
+          type: "object",
+          properties: {
+            description: { type: "string" },
+            quantity: { type: "number" },
+            unitPrice: { type: "number" },
+            total: { type: "number" },
+          },
+          required: ["description", "quantity", "unitPrice", "total"],
+        },
+        description: "Individual line items on the receipt",
+      },
+      paymentMethod: {
+        type: ["string", "null"],
+        description: "Payment method (Cash, Credit Card, Debit Card, Other)",
+      },
+      receiptNumber: {
+        type: ["string", "null"],
+        description: "Receipt or invoice number if visible",
+      },
+      notes: {
+        type: ["string", "null"],
+        description: "Any additional relevant information",
+      },
+    },
+    required: ["vendor", "title", "amount", "currency", "date", "category"],
+  },
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -70,6 +133,8 @@ export async function POST(req: NextRequest) {
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 2048,
+      tools: [extractReceiptTool],
+      tool_choice: { type: "tool", name: "extract_receipt_data" },
       messages: [
         {
           role: "user",
@@ -91,21 +156,12 @@ export async function POST(req: NextRequest) {
       ],
     });
 
-    const textBlock = response.content.find((block) => block.type === "text");
-    if (!textBlock || textBlock.type !== "text") {
+    const toolUseBlock = response.content.find((block) => block.type === "tool_use");
+    if (!toolUseBlock || toolUseBlock.type !== "tool_use") {
       return NextResponse.json({ error: "Failed to extract data from receipt" }, { status: 500 });
     }
 
-    let extractedData;
-    try {
-      const jsonText = textBlock.text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      extractedData = JSON.parse(jsonText);
-    } catch {
-      return NextResponse.json(
-        { error: "Failed to parse extracted data", raw: textBlock.text },
-        { status: 500 }
-      );
-    }
+    const extractedData = toolUseBlock.input;
 
     return NextResponse.json({
       success: true,
