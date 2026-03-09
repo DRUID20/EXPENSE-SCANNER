@@ -20,6 +20,7 @@ import {
   Receipt,
   User,
   StickyNote,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -383,14 +384,25 @@ export default function ExpenseDetailPage() {
           {/* Receipt Image */}
           {(expense.receiptPath || expense.receiptUrl) && (
             <div className="premium-card p-4">
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                <Receipt className="w-4 h-4 text-emerald-500" />
-                Receipt
-              </h4>
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Receipt className="w-4 h-4 text-emerald-500" />
+                  Receipt
+                </h4>
+                <a
+                  href={expense.receiptPath || expense.receiptUrl || ""}
+                  download={`receipt-${expense.id}.jpg`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Download
+                </a>
+              </div>
               <img
                 src={expense.receiptPath || expense.receiptUrl || ""}
                 alt="Receipt"
-                className="w-full rounded-xl shadow-sm"
+                className="w-full rounded-xl shadow-sm cursor-pointer"
+                onClick={() => window.open(expense.receiptPath || expense.receiptUrl || "", "_blank")}
               />
             </div>
           )}
