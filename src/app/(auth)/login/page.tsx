@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Zap, Loader2, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -54,9 +55,7 @@ export default function LoginPage() {
             transition={{ duration: 0.6 }}
           >
             <div className="flex items-center gap-3 mb-14">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
+              <Image src="/GASCO LOGO OFFI.png" alt="GASCO Logo" width={48} height={48} className="rounded-2xl" />
               <div>
                 <h1 className="text-xl font-bold text-white tracking-tight">GASCO</h1>
                 <p className="text-[10px] text-emerald-400/80 tracking-[0.3em] font-medium">ENERGY</p>
@@ -104,9 +103,7 @@ export default function LoginPage() {
         >
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
+            <Image src="/GASCO LOGO OFFI.png" alt="GASCO Logo" width={40} height={40} className="rounded-xl" />
             <div>
               <h1 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">GASCO</h1>
               <p className="text-[9px] text-emerald-500 tracking-[0.2em] font-medium">ENERGY</p>

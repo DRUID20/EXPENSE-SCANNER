@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 export function Logo({ collapsed = false }: { collapsed?: boolean }) {
@@ -10,42 +11,7 @@ export function Logo({ collapsed = false }: { collapsed?: boolean }) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Flame/Energy Icon */}
-      <div className="relative">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12 2C12 2 4 8 4 14C4 18.4183 7.58172 22 12 22C16.4183 22 20 18.4183 20 14C20 8 12 2 12 2Z"
-              fill="white"
-              fillOpacity="0.9"
-            />
-            <path
-              d="M12 8C12 8 8 12 8 15C8 17.2091 9.79086 19 12 19C14.2091 19 16 17.2091 16 15C16 12 12 8 12 8Z"
-              fill="url(#flame-gradient)"
-            />
-            <defs>
-              <linearGradient
-                id="flame-gradient"
-                x1="12"
-                y1="8"
-                x2="12"
-                y2="19"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#03D47C" />
-                <stop offset="1" stopColor="#00C271" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-300 rounded-full border-2 border-white dark:border-[#072419]" />
-      </div>
+      <Image src="/GASCO LOGO OFFI.png" alt="GASCO Logo" width={36} height={36} className="rounded-xl" />
 
       {!collapsed && (
         <motion.div

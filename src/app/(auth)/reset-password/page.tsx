@@ -4,7 +4,8 @@ import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Lock, ArrowRight, Zap, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import { Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from "lucide-react";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -163,9 +164,7 @@ export default function ResetPasswordPage() {
         className="w-full max-w-[400px]"
       >
         <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
-            <Zap className="w-5 h-5 text-white" />
-          </div>
+          <Image src="/GASCO LOGO OFFI.png" alt="GASCO Logo" width={40} height={40} className="rounded-xl" />
           <div>
             <h1 className="text-lg font-bold text-gray-900 dark:text-white">GASCO</h1>
             <p className="text-[10px] text-emerald-500 tracking-[0.2em] font-semibold">ENERGY</p>
