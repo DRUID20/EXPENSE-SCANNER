@@ -37,7 +37,7 @@ export default function NewExpensePage() {
     title: "",
     description: "",
     amount: "",
-    currency: "USD",
+    currency: "UGX",
     category: "",
     vendor: "",
     date: new Date().toISOString().split("T")[0],
@@ -156,11 +156,12 @@ export default function NewExpensePage() {
               onChange={(e) => updateForm("currency", e.target.value)}
               className="w-full h-11 px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all appearance-none"
             >
+              <option value="UGX">UGX</option>
               <option value="USD">USD</option>
               <option value="EUR">EUR</option>
               <option value="GBP">GBP</option>
-              <option value="SAR">SAR</option>
-              <option value="AED">AED</option>
+              <option value="KES">KES</option>
+              <option value="TZS">TZS</option>
             </select>
           </div>
           <div>

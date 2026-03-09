@@ -128,7 +128,7 @@ export default function ScanPage() {
           title: scanResult.title || "Scanned Expense",
           description: scanResult.notes,
           amount: scanResult.amount || 0,
-          currency: scanResult.currency || "USD",
+          currency: scanResult.currency || "UGX",
           category: scanResult.category || "Other",
           vendor: scanResult.vendor,
           date: scanResult.date || new Date().toISOString().split("T")[0],

@@ -143,7 +143,7 @@ export default function DashboardPage() {
   const stats = [
     {
       title: isAdmin ? "Company Spending" : "Total Expenses",
-      value: data ? formatCurrency(data.stats.totalAmount) : "$0.00",
+      value: data ? formatCurrency(data.stats.totalAmount) : "UGX 0",
       icon: DollarSign,
       gradient: "from-orange-500 to-amber-500",
       shadow: "shadow-orange-500/20",

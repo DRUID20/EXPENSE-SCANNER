@@ -9,10 +9,12 @@ export function getInitials(firstName: string, lastName: string) {
   return `${firstName[0]}${lastName[0]}`.toUpperCase();
 }
 
-export function formatCurrency(amount: number, currency = "USD") {
-  return new Intl.NumberFormat("en-US", {
+export function formatCurrency(amount: number, currency = "UGX") {
+  return new Intl.NumberFormat("en-UG", {
     style: "currency",
     currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount);
 }
 

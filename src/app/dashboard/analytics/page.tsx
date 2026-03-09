@@ -246,7 +246,7 @@ export default function AnalyticsPage() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="month" tickFormatter={formatMonth} tick={{ fontSize: 12, fill: "#9ca3af" }} />
-                <YAxis tick={{ fontSize: 12, fill: "#9ca3af" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                <YAxis tick={{ fontSize: 12, fill: "#9ca3af" }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
                 <Tooltip
                   contentStyle={{ borderRadius: 12, border: "1px solid #e5e7eb", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
                   formatter={(value) => [formatCurrency(Number(value)), "Amount"]}
@@ -318,7 +318,7 @@ export default function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={data.categoryBreakdown} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis type="number" tick={{ fontSize: 11, fill: "#9ca3af" }} tickFormatter={(v) => `$${v}`} />
+                <XAxis type="number" tick={{ fontSize: 11, fill: "#9ca3af" }} tickFormatter={(v) => formatCurrency(v)} />
                 <YAxis dataKey="category" type="category" width={100} tick={{ fontSize: 11, fill: "#9ca3af" }} />
                 <Tooltip
                   contentStyle={{ borderRadius: 12, border: "1px solid #e5e7eb" }}

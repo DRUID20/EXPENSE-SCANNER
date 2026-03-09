@@ -34,7 +34,7 @@ const extractReceiptTool: Anthropic.Tool = {
       },
       currency: {
         type: ["string", "null"],
-        description: "Currency code (e.g. USD)",
+        description: "Currency code (e.g. UGX)",
       },
       date: {
         type: ["string", "null"],
