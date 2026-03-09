@@ -25,9 +25,23 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function getCachedUser(): User | null {
+  try {
+    const raw = sessionStorage.getItem("auth_user");
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    // Cache valid for 5 minutes
+    if (Date.now() - cached.ts > 5 * 60 * 1000) return null;
+    return cached.user;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const cachedUser = typeof window !== "undefined" ? getCachedUser() : null;
+  const [user, setUser] = useState<User | null>(cachedUser);
+  const [loading, setLoading] = useState(!cachedUser);
   const router = useRouter();
 
   const checkAuth = useCallback(async () => {
@@ -36,8 +50,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
+        try {
+          sessionStorage.setItem("auth_user", JSON.stringify({ ts: Date.now(), user: data.user }));
+        } catch { /* ignore */ }
       } else {
         setUser(null);
+        sessionStorage.removeItem("auth_user");
       }
     } catch {
       setUser(null);
@@ -67,6 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
+    sessionStorage.removeItem("auth_user");
+    sessionStorage.removeItem("dashboard_cache");
     router.push("/login");
   };
 

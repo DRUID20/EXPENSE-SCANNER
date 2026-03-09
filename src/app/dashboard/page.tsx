@@ -166,13 +166,29 @@ function DashboardSkeleton() {
   );
 }
 
+const CACHE_KEY = "dashboard_cache";
+const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
+
+function getCachedDashboard() {
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    if (Date.now() - cached.ts > CACHE_TTL) return null;
+    return cached;
+  } catch {
+    return null;
+  }
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const toast = useToast();
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
-  const [pendingApprovals, setPendingApprovals] = useState<DashboardData["recentExpenses"]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = typeof window !== "undefined" ? getCachedDashboard() : null;
+  const [data, setData] = useState<DashboardData | null>(cached?.data ?? null);
+  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(cached?.analytics ?? null);
+  const [pendingApprovals, setPendingApprovals] = useState<DashboardData["recentExpenses"]>(cached?.pending ?? []);
+  const [loading, setLoading] = useState(!cached);
 
   const isAdmin = user?.role === "ADMIN";
   const isManager = user?.role === "MANAGER";
@@ -194,15 +210,28 @@ export default function DashboardPage() {
           toast.error("Failed to load dashboard data");
         }
 
+        let aData = null;
         if (analyticsRes && analyticsRes.ok) {
-          const aData = await analyticsRes.json();
+          aData = await analyticsRes.json();
           setAnalytics(aData);
         }
 
+        let pendingData: DashboardData["recentExpenses"] = [];
         if (pendingRes && pendingRes.ok) {
-          const pendingData = await pendingRes.json();
-          setPendingApprovals(pendingData.expenses);
+          const pData = await pendingRes.json();
+          pendingData = pData.expenses;
+          setPendingApprovals(pendingData);
         }
+
+        // Cache for instant load on return
+        try {
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+            ts: Date.now(),
+            data: dashRes.ok ? dashData : null,
+            analytics: aData,
+            pending: pendingData,
+          }));
+        } catch { /* quota exceeded is fine */ }
       } catch (err) {
         console.error("Dashboard fetch error:", err);
         toast.error("Network error loading dashboard");

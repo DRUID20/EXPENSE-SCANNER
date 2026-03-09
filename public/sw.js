@@ -40,20 +40,22 @@ self.addEventListener("fetch", (event) => {
   // Skip non-GET requests
   if (request.method !== "GET") return;
 
-  // API requests: network-first
+  // API requests: stale-while-revalidate (show cached instantly, update in background)
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, clone);
-          });
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request);
-        })
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.match(request).then((cached) => {
+          const networkFetch = fetch(request).then((response) => {
+            if (response.ok) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          }).catch(() => cached);
+
+          // Return cached response immediately if available, otherwise wait for network
+          return cached || networkFetch;
+        });
+      })
     );
     return;
   }
