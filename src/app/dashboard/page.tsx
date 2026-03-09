@@ -29,6 +29,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Link from "next/link";
 
@@ -101,11 +102,77 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-5 lg:space-y-6 max-w-7xl mx-auto animate-pulse">
+      {/* Header skeleton */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <div className="h-7 w-48 rounded shimmer" />
+          <div className="h-4 w-64 rounded shimmer mt-2" />
+        </div>
+        <div className="flex gap-2">
+          <div className="h-10 w-32 rounded-xl shimmer" />
+          <div className="h-10 w-32 rounded-xl shimmer" />
+        </div>
+      </div>
+      {/* Stats skeleton */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="premium-card p-4 lg:p-5">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="h-3 w-20 rounded shimmer" />
+                <div className="h-8 w-28 rounded shimmer mt-2" />
+              </div>
+              <div className="w-9 h-9 lg:w-11 lg:h-11 rounded-xl shimmer" />
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Content skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5">
+        <div className="lg:col-span-2 premium-card p-4 lg:p-6">
+          <div className="h-5 w-36 rounded shimmer mb-4" />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-2.5">
+                <div className="w-9 h-9 rounded-lg shimmer" />
+                <div className="flex-1">
+                  <div className="h-4 w-40 rounded shimmer mb-1.5" />
+                  <div className="h-3 w-56 rounded shimmer" />
+                </div>
+                <div className="h-4 w-24 rounded shimmer" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="premium-card p-4 lg:p-6">
+          <div className="h-5 w-28 rounded shimmer mb-4" />
+          <div className="space-y-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg shimmer" />
+                <div className="flex-1">
+                  <div className="h-3 w-full rounded shimmer mb-2" />
+                  <div className="h-1 w-full rounded shimmer" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
+  const toast = useToast();
   const [data, setData] = useState<DashboardData | null>(null);
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
   const [pendingApprovals, setPendingApprovals] = useState<DashboardData["recentExpenses"]>([]);
+  const [loading, setLoading] = useState(true);
 
   const isAdmin = user?.role === "ADMIN";
   const isManager = user?.role === "MANAGER";
@@ -121,7 +188,11 @@ export default function DashboardPage() {
         ]);
 
         const dashData = await dashRes.json();
-        if (dashRes.ok) setData(dashData);
+        if (dashRes.ok) {
+          setData(dashData);
+        } else {
+          toast.error("Failed to load dashboard data");
+        }
 
         if (analyticsRes && analyticsRes.ok) {
           const aData = await analyticsRes.json();
@@ -134,10 +205,13 @@ export default function DashboardPage() {
         }
       } catch (err) {
         console.error("Dashboard fetch error:", err);
+        toast.error("Network error loading dashboard");
+      } finally {
+        setLoading(false);
       }
     }
     fetchAll();
-  }, [canApprove]);
+  }, [canApprove, toast]);
 
   const stats = [
     {
@@ -174,6 +248,8 @@ export default function DashboardPage() {
   const maxCategoryTotal = data?.categoryTotals?.length
     ? Math.max(...data.categoryTotals.map((c) => c.total))
     : 0;
+
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <motion.div

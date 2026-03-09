@@ -22,9 +22,12 @@ import {
   Square,
   Send,
   ArrowUpDown,
+  Calendar,
+  X,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 
 interface Expense {
   id: string;
@@ -62,13 +65,39 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.E
 
 type SortField = "createdAt" | "amount" | "date" | "title";
 
+function ExpenseSkeleton() {
+  return (
+    <div className="premium-card p-3.5 lg:p-5">
+      <div className="flex items-center gap-2.5 sm:gap-4">
+        <div className="w-5 h-5 rounded bg-black/[0.04] dark:bg-white/[0.04]" />
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl shimmer" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-4 w-32 rounded shimmer" />
+            <div className="h-5 w-16 rounded-full shimmer" />
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="h-3 w-20 rounded shimmer" />
+            <div className="h-3 w-16 rounded shimmer" />
+            <div className="h-3 w-24 rounded shimmer hidden sm:block" />
+          </div>
+        </div>
+        <div className="h-5 w-24 rounded shimmer" />
+      </div>
+    </div>
+  );
+}
+
 export default function ExpensesPage() {
   const { user } = useAuth();
+  const toast = useToast();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [sortBy, setSortBy] = useState<SortField>("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [total, setTotal] = useState(0);
@@ -97,6 +126,8 @@ export default function ExpensesPage() {
       if (debouncedSearch) params.set("search", debouncedSearch);
       if (statusFilter !== "ALL") params.set("status", statusFilter);
       if (categoryFilter !== "ALL") params.set("category", categoryFilter);
+      if (dateFrom) params.set("dateFrom", dateFrom);
+      if (dateTo) params.set("dateTo", dateTo);
       params.set("sortBy", sortBy);
       params.set("sortOrder", sortOrder);
       params.set("page", String(page));
@@ -107,13 +138,16 @@ export default function ExpensesPage() {
         setExpenses(data.expenses);
         setTotal(data.pagination.total);
         setPages(data.pagination.pages);
+      } else {
+        toast.error(data.error || "Failed to load expenses");
       }
     } catch (err) {
       console.error("Failed to fetch expenses:", err);
+      toast.error("Network error loading expenses");
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, statusFilter, categoryFilter, sortBy, sortOrder, page]);
+  }, [debouncedSearch, statusFilter, categoryFilter, dateFrom, dateTo, sortBy, sortOrder, page, toast]);
 
   useEffect(() => {
     fetchExpenses();
@@ -131,9 +165,14 @@ export default function ExpensesPage() {
       if (res.ok) {
         setExpenses((prev) => prev.filter((e) => e.id !== id));
         setTotal((prev) => prev - 1);
+        toast.success("Expense deleted");
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Failed to delete expense");
       }
     } catch (err) {
       console.error("Failed to delete:", err);
+      toast.error("Network error deleting expense");
     } finally {
       setDeleting(null);
     }
@@ -172,13 +211,15 @@ export default function ExpensesPage() {
       });
       if (res.ok) {
         setSelected(new Set());
+        toast.success(`${action.charAt(0).toUpperCase() + action.slice(1)} completed for ${selected.size} expense(s)`);
         fetchExpenses();
       } else {
         const data = await res.json();
-        alert(data.error || "Bulk action failed");
+        toast.error(data.error || "Bulk action failed");
       }
     } catch (err) {
       console.error("Bulk action failed:", err);
+      toast.error("Network error performing bulk action");
     } finally {
       setBulkLoading(false);
     }
@@ -194,22 +235,37 @@ export default function ExpensesPage() {
   };
 
   const handleExport = async () => {
-    const params = new URLSearchParams();
-    params.set("format", "csv");
-    if (statusFilter !== "ALL") params.set("status", statusFilter);
-    if (categoryFilter !== "ALL") params.set("category", categoryFilter);
+    try {
+      const params = new URLSearchParams();
+      params.set("format", "csv");
+      if (statusFilter !== "ALL") params.set("status", statusFilter);
+      if (categoryFilter !== "ALL") params.set("category", categoryFilter);
 
-    const res = await fetch(`/api/export?${params}`);
-    if (res.ok) {
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `expenses_${new Date().toISOString().split("T")[0]}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const res = await fetch(`/api/export?${params}`);
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `expenses_${new Date().toISOString().split("T")[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("CSV exported successfully");
+      } else {
+        toast.error("Failed to export CSV");
+      }
+    } catch {
+      toast.error("Network error exporting CSV");
     }
   };
+
+  const clearDateFilter = () => {
+    setDateFrom("");
+    setDateTo("");
+    setPage(1);
+  };
+
+  const hasDateFilter = dateFrom || dateTo;
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortBy !== field) return <ArrowUpDown className="w-3 h-3 opacity-30" />;
@@ -302,6 +358,35 @@ export default function ExpensesPage() {
           </div>
         </div>
 
+        {/* Date Range Filter */}
+        <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-black/[0.06] dark:border-white/[0.06]">
+          <Calendar className="w-4 h-4 text-gray-400" />
+          <span className="text-xs text-gray-400 font-medium">Date range:</span>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+            className="input-premium h-8 px-2.5 text-xs rounded-lg"
+            placeholder="From"
+          />
+          <span className="text-xs text-gray-400">to</span>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+            className="input-premium h-8 px-2.5 text-xs rounded-lg"
+            placeholder="To"
+          />
+          {hasDateFilter && (
+            <button
+              onClick={clearDateFilter}
+              className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"
+            >
+              <X className="w-3 h-3" /> Clear
+            </button>
+          )}
+        </div>
+
         {/* Sort bar */}
         <div className="flex items-center gap-4 mt-3 pt-3 border-t border-black/[0.06] dark:border-white/[0.06]">
         <span className="text-xs text-gray-400 font-medium">Sort by:</span>
@@ -377,8 +462,10 @@ export default function ExpensesPage() {
 
       {/* Content */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="space-y-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ExpenseSkeleton key={i} />
+          ))}
         </div>
       ) : expenses.length === 0 ? (
         <div className="premium-card p-10 lg:p-16">
@@ -388,11 +475,11 @@ export default function ExpensesPage() {
             </div>
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No expenses found</h4>
             <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mb-6">
-              {search || statusFilter !== "ALL" || categoryFilter !== "ALL"
+              {search || statusFilter !== "ALL" || categoryFilter !== "ALL" || hasDateFilter
                 ? "Try adjusting your filters to find what you're looking for."
                 : "Start by scanning a receipt or adding a new expense manually."}
             </p>
-            {!search && statusFilter === "ALL" && (
+            {!search && statusFilter === "ALL" && !hasDateFilter && (
               <div className="flex gap-3">
                 <Link href="/dashboard/scan">
                   <motion.button whileHover={{ scale: 1.02 }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl btn-primary text-sm">

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AuthProvider } from "@/context/AuthContext";
+import { ToastProvider } from "@/context/ToastContext";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
@@ -38,10 +39,12 @@ export default function RootLayout({
       <body className="antialiased bg-background text-foreground font-sans">
         <ThemeProvider>
           <AuthProvider>
-            <OfflineIndicator />
-            {children}
-            <InstallPrompt />
-            <ServiceWorkerRegistration />
+            <ToastProvider>
+              <OfflineIndicator />
+              {children}
+              <InstallPrompt />
+              <ServiceWorkerRegistration />
+            </ToastProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
