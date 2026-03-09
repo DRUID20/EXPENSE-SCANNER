@@ -16,12 +16,29 @@ model User {
   role      String   @default("EMPLOYEE") // ADMIN, MANAGER, EMPLOYEE
   avatar    String?
   department String?
+  departmentId String?
+  dept       Department? @relation(fields: [departmentId], references: [id])
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   expenses         Expense[]
   approvedExpenses Expense[] @relation("ApprovedBy")
+  auditLogs        AuditLog[]
+}
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  managerId   String?
+  budget      Float?   // Monthly budget limit
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+  policies    SpendingPolicy[]
 }
 
 model Expense {
@@ -48,4 +65,31 @@ model Expense {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model SpendingPolicy {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  maxAmount     Float    // Max per-expense amount
+  maxMonthly    Float?   // Max monthly spending
+  categories    String?  // JSON array of restricted categories (null = all)
+  roles         String?  // JSON array of roles this applies to (null = all)
+  departmentId  String?
+  department    Department? @relation(fields: [departmentId], references: [id])
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String   // CREATE, UPDATE, DELETE, APPROVE, REJECT, LOGIN, ROLE_CHANGE, etc.
+  entityType String   // EXPENSE, USER, DEPARTMENT, POLICY
+  entityId   String?
+  details    String?  // JSON blob with change details
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  ipAddress  String?
+  createdAt  DateTime @default(now())
 }
