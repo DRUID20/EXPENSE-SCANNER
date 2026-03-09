@@ -1,4 +1,4 @@
-const CACHE_NAME = "expense-tracker-v2";
+const CACHE_NAME = "expense-tracker-__BUILD_ID__";
 const OFFLINE_URL = "/offline.html";
 
 const PRECACHE_URLS = [

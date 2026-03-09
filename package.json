@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "sed -i \"s/__BUILD_ID__/$(date +%s)/\" public/sw.js",
     "build": "prisma generate && prisma db push && next build",
     "postinstall": "prisma generate",
     "start": "next start",

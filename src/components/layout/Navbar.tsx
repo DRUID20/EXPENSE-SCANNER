@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, Menu } from "lucide-react";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
+
 import { NotificationBell } from "@/components/ui/NotificationBell";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
@@ -62,7 +62,6 @@ export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
         </motion.div>
 
         <NotificationBell />
-        <ThemeToggle />
       </div>
     </header>
   );

@@ -7,18 +7,7 @@
   --font-mono: "SF Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
-:root {
-  --background: #FCFBF9;
-  --foreground: #002E22;
-  --card: #ffffff;
-  --card-border: rgba(0, 46, 34, 0.06);
-  --subtle: #F2EDE7;
-  --muted: #76847E;
-  --accent: #03D47C;
-  --accent-soft: rgba(3, 212, 124, 0.08);
-}
-
-.dark {
+:root, .dark {
   --background: #061B09;
   --foreground: #E7ECE9;
   --card: #072419;
@@ -27,6 +16,7 @@
   --muted: #8B9C8F;
   --accent: #03D47C;
   --accent-soft: rgba(3, 212, 124, 0.1);
+  color-scheme: dark;
 }
 
 * {
