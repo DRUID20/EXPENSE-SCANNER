@@ -69,6 +69,12 @@ model Expense {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([date])
+  @@index([userId, status])
+  @@index([category])
 }
 
 model PasswordResetToken {
@@ -101,6 +107,9 @@ model AuditLog {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, createdAt])
 }
 
 model PushSubscription {
@@ -123,4 +132,6 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id])
   linkUrl   String?
   createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
 }
