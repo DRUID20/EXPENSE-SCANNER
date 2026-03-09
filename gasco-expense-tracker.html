@@ -718,6 +718,7 @@ function renderExpenses() {
   if (expSearch) { const s = expSearch.toLowerCase(); ex = ex.filter(e => e.title.toLowerCase().includes(s) || (e.vendor||'').toLowerCase().includes(s)); }
   if (expStatusFilter !== 'ALL') ex = ex.filter(e => e.status === expStatusFilter);
   if (expCategoryFilter !== 'ALL') ex = ex.filter(e => e.category === expCategoryFilter);
+  if (expBranchFilter !== 'ALL' && isSuperUser()) { ex = ex.filter(e => { const eu = users.find(u=>u.id===e.userId); return eu && eu.branchId === expBranchFilter; }); }
   // Sort
   ex.sort((a,b) => {
     let va = a[expSortBy], vb = b[expSortBy];
@@ -779,7 +780,10 @@ function renderExpenses() {
         <option value="ALL" ${expCategoryFilter==='ALL'?'selected':''}>All Categories</option>
         ${['Fuel & Gas','Equipment','Travel','Supplies','Meals','Transportation','Utilities','Maintenance','Office','Other'].map(c=>`<option value="${c}" ${expCategoryFilter===c?'selected':''}>${c}</option>`).join('')}
       </select>
-    </div>
+      ${isSuperUser()?`<select class="filter-select" onchange="expBranchFilter=this.value;renderPage('expenses')">
+        <option value="ALL" ${expBranchFilter==='ALL'?'selected':''}>All Branches</option>
+        ${branches.filter(b=>b.isActive).map(b=>`<option value="${b.id}" ${expBranchFilter===b.id?'selected':''}>${b.name}</option>`).join('')}
+      </select>`:''}
     <div class="sort-bar"><span>Sort by:</span>
       ${[['date','Date'],['amount','Amount'],['title','Title'],['createdAt','Created']].map(([f,l])=>`<button class="sort-btn ${expSortBy===f?'active':''}" onclick="toggleSort('${f}')">${l} ${sortIcon(f)}</button>`).join('')}
     </div>
