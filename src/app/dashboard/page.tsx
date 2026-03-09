@@ -25,7 +25,6 @@ import {
   FileEdit,
   Users,
   ClipboardCheck,
-  AlertTriangle,
   Download,
   ArrowRight,
 } from "lucide-react";
@@ -60,15 +59,14 @@ interface DashboardData {
 interface AnalyticsSummary {
   summary: {
     totalAmount: number;
-    thisMonthAmount: number;
-    lastMonthAmount: number;
-    monthOverMonth: number;
+    avgAmount: number;
     totalCount: number;
   };
-  employeeSpending: Array<{
-    id: string;
-    name: string;
-    amount: number;
+  topSpenders: Array<{
+    userId: string;
+    firstName: string;
+    lastName: string;
+    total: number;
     count: number;
   }>;
 }
@@ -223,33 +221,6 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* Month-over-month insight for admin/manager */}
-      {canApprove && analytics && analytics.summary.monthOverMonth !== 0 && (
-        <motion.div
-          variants={itemVariants}
-          className={`rounded-xl p-4 flex items-center gap-3 ${
-            analytics.summary.monthOverMonth > 20
-              ? "bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800"
-              : "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800"
-          }`}
-        >
-          {analytics.summary.monthOverMonth > 20 ? (
-            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
-          ) : (
-            <TrendingUp className="w-5 h-5 text-blue-500 flex-shrink-0" />
-          )}
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            <span className="font-semibold">
-              {analytics.summary.monthOverMonth > 0 ? "+" : ""}
-              {analytics.summary.monthOverMonth}%
-            </span>{" "}
-            spending this month ({formatCurrency(analytics.summary.thisMonthAmount)}) compared to last month ({formatCurrency(analytics.summary.lastMonthAmount)}).
-          </p>
-          <Link href="/dashboard/analytics" className="ml-auto text-sm text-orange-500 hover:text-orange-600 font-medium whitespace-nowrap">
-            View details
-          </Link>
-        </motion.div>
-      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -456,7 +427,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Top Spenders for Admin/Manager */}
-      {canApprove && analytics && analytics.employeeSpending.length > 1 && (
+      {canApprove && analytics && analytics.topSpenders && analytics.topSpenders.length > 1 && (
         <motion.div
           variants={itemVariants}
           className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6"
@@ -471,14 +442,14 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {analytics.employeeSpending.slice(0, 6).map((emp, i) => (
+            {analytics.topSpenders.slice(0, 6).map((emp, i) => (
               <div
-                key={emp.id}
+                key={emp.userId}
                 className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50"
               >
                 <div className="relative">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-sm font-bold">
-                    {emp.name.split(" ").map((n) => n[0]).join("")}
+                    {emp.firstName[0]}{emp.lastName[0]}
                   </div>
                   {i < 3 && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-[9px] font-bold text-orange-500">
@@ -487,10 +458,10 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{emp.name}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{emp.firstName} {emp.lastName}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{emp.count} expenses</p>
                 </div>
-                <p className="text-sm font-bold text-orange-500">{formatCurrency(emp.amount)}</p>
+                <p className="text-sm font-bold text-orange-500">{formatCurrency(emp.total)}</p>
               </div>
             ))}
           </div>
