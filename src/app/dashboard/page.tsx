@@ -23,6 +23,11 @@ import {
   HelpCircle,
   Eye,
   FileEdit,
+  Users,
+  ClipboardCheck,
+  AlertTriangle,
+  Download,
+  ArrowRight,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -49,6 +54,22 @@ interface DashboardData {
   categoryTotals: Array<{
     category: string;
     total: number;
+  }>;
+}
+
+interface AnalyticsSummary {
+  summary: {
+    totalAmount: number;
+    thisMonthAmount: number;
+    lastMonthAmount: number;
+    monthOverMonth: number;
+    totalCount: number;
+  };
+  employeeSpending: Array<{
+    id: string;
+    name: string;
+    amount: number;
+    count: number;
   }>;
 }
 
@@ -85,34 +106,57 @@ const itemVariants = {
 export default function DashboardPage() {
   const { user } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
+  const [pendingApprovals, setPendingApprovals] = useState<DashboardData["recentExpenses"]>([]);
+
+  const isAdmin = user?.role === "ADMIN";
+  const isManager = user?.role === "MANAGER";
+  const canApprove = isAdmin || isManager;
 
   useEffect(() => {
-    async function fetchDashboard() {
+    async function fetchAll() {
       try {
-        const res = await fetch("/api/dashboard");
-        const json = await res.json();
-        if (res.ok) setData(json);
+        const [dashRes, analyticsRes] = await Promise.all([
+          fetch("/api/dashboard"),
+          canApprove ? fetch("/api/analytics?months=2") : Promise.resolve(null),
+        ]);
+
+        const dashData = await dashRes.json();
+        if (dashRes.ok) setData(dashData);
+
+        if (analyticsRes && analyticsRes.ok) {
+          const aData = await analyticsRes.json();
+          setAnalytics(aData);
+        }
+
+        // Fetch pending approvals for managers/admins
+        if (canApprove) {
+          const pendingRes = await fetch("/api/expenses?status=PENDING&limit=5");
+          const pendingData = await pendingRes.json();
+          if (pendingRes.ok) setPendingApprovals(pendingData.expenses);
+        }
       } catch (err) {
         console.error("Dashboard fetch error:", err);
       }
     }
-    fetchDashboard();
-  }, []);
+    fetchAll();
+  }, [canApprove]);
 
   const stats = [
     {
-      title: "Total Expenses",
+      title: isAdmin ? "Company Spending" : "Total Expenses",
       value: data ? formatCurrency(data.stats.totalAmount) : "$0.00",
       icon: DollarSign,
       gradient: "from-orange-500 to-amber-500",
       shadow: "shadow-orange-500/20",
     },
     {
-      title: "Pending Approval",
+      title: canApprove ? "Awaiting Approval" : "Pending Approval",
       value: data ? String(data.stats.pendingCount) : "0",
       icon: Clock,
       gradient: "from-blue-500 to-cyan-500",
       shadow: "shadow-blue-500/20",
+      alert: canApprove && data && data.stats.pendingCount > 0,
     },
     {
       title: "Approved",
@@ -144,9 +188,15 @@ export default function DashboardPage() {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {isAdmin ? "Admin Dashboard" : isManager ? "Manager Dashboard" : "Dashboard"}
+          </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Overview of your expense activity
+            {isAdmin
+              ? "Company-wide expense overview"
+              : isManager
+                ? "Team expenses and pending approvals"
+                : "Overview of your expense activity"}
           </p>
         </div>
         <div className="flex gap-3">
@@ -173,6 +223,34 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
+      {/* Month-over-month insight for admin/manager */}
+      {canApprove && analytics && analytics.summary.monthOverMonth !== 0 && (
+        <motion.div
+          variants={itemVariants}
+          className={`rounded-xl p-4 flex items-center gap-3 ${
+            analytics.summary.monthOverMonth > 20
+              ? "bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800"
+              : "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800"
+          }`}
+        >
+          {analytics.summary.monthOverMonth > 20 ? (
+            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          ) : (
+            <TrendingUp className="w-5 h-5 text-blue-500 flex-shrink-0" />
+          )}
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="font-semibold">
+              {analytics.summary.monthOverMonth > 0 ? "+" : ""}
+              {analytics.summary.monthOverMonth}%
+            </span>{" "}
+            spending this month ({formatCurrency(analytics.summary.thisMonthAmount)}) compared to last month ({formatCurrency(analytics.summary.lastMonthAmount)}).
+          </p>
+          <Link href="/dashboard/analytics" className="ml-auto text-sm text-orange-500 hover:text-orange-600 font-medium whitespace-nowrap">
+            View details
+          </Link>
+        </motion.div>
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map((stat) => (
@@ -188,13 +266,60 @@ export default function DashboardPage() {
                 <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{stat.title}</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stat.value}</p>
               </div>
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg ${stat.shadow}`}>
-                <stat.icon className="w-6 h-6 text-white" />
+              <div className="relative">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg ${stat.shadow}`}>
+                  <stat.icon className="w-6 h-6 text-white" />
+                </div>
+                {"alert" in stat && stat.alert && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 border-2 border-white dark:border-gray-900 animate-pulse" />
+                )}
               </div>
             </div>
           </motion.div>
         ))}
       </div>
+
+      {/* Pending Approvals Banner for Managers/Admins */}
+      {canApprove && pendingApprovals.length > 0 && (
+        <motion.div
+          variants={itemVariants}
+          className="rounded-2xl bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-800 p-6"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <ClipboardCheck className="w-5 h-5 text-amber-500" />
+              Pending Approvals
+              <span className="ml-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 text-xs font-semibold">
+                {data?.stats.pendingCount || pendingApprovals.length}
+              </span>
+            </h3>
+            <Link href="/dashboard/approvals" className="text-sm text-orange-500 hover:text-orange-600 font-medium flex items-center gap-1">
+              Review all <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {pendingApprovals.map((expense) => (
+              <Link key={expense.id} href={`/dashboard/expenses/${expense.id}`}>
+                <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors cursor-pointer group">
+                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    {expense.user.firstName[0]}{expense.user.lastName[0]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{expense.title}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {expense.user.firstName} {expense.user.lastName} &middot; {expense.category} &middot; {formatDate(expense.date)}
+                    </p>
+                  </div>
+                  <p className="text-sm font-bold text-gray-900 dark:text-white flex-shrink-0">
+                    {formatCurrency(expense.amount, expense.currency)}
+                  </p>
+                  <Eye className="w-4 h-4 text-gray-300 group-hover:text-orange-500 transition-colors flex-shrink-0" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -256,6 +381,7 @@ export default function DashboardPage() {
                         </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                           {expense.vendor && `${expense.vendor} · `}{expense.category} · {formatDate(expense.date)}
+                          {canApprove && ` · ${expense.user.firstName} ${expense.user.lastName}`}
                         </p>
                       </div>
                       <p className="text-sm font-bold text-gray-900 dark:text-white flex-shrink-0">
@@ -320,7 +446,7 @@ export default function DashboardPage() {
 
           <div className="mt-6 pt-5 border-t border-gray-100 dark:border-gray-800 text-center">
             <p className="text-xs text-gray-400 mb-3">
-              {user?.role === "ADMIN" ? "Company-wide spending" : "Your personal spending"}
+              {isAdmin ? "Company-wide spending" : isManager ? "Team spending" : "Your personal spending"}
             </p>
             <Link href="/dashboard/analytics" className="text-sm text-orange-500 hover:text-orange-600 font-medium">
               View Analytics →
@@ -329,6 +455,48 @@ export default function DashboardPage() {
         </motion.div>
       </div>
 
+      {/* Top Spenders for Admin/Manager */}
+      {canApprove && analytics && analytics.employeeSpending.length > 1 && (
+        <motion.div
+          variants={itemVariants}
+          className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6"
+        >
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Users className="w-5 h-5 text-orange-500" />
+              Top Spenders
+            </h3>
+            <Link href="/dashboard/analytics" className="text-sm text-orange-500 hover:text-orange-600 font-medium">
+              Full report →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {analytics.employeeSpending.slice(0, 6).map((emp, i) => (
+              <div
+                key={emp.id}
+                className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50"
+              >
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-sm font-bold">
+                    {emp.name.split(" ").map((n) => n[0]).join("")}
+                  </div>
+                  {i < 3 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-[9px] font-bold text-orange-500">
+                      {i + 1}
+                    </span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{emp.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{emp.count} expenses</p>
+                </div>
+                <p className="text-sm font-bold text-orange-500">{formatCurrency(emp.amount)}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {/* Quick Actions */}
       <motion.div variants={itemVariants}>
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
@@ -336,8 +504,12 @@ export default function DashboardPage() {
           {[
             { title: "Scan Receipt", desc: "Use AI to extract expense data from a photo", icon: ScanLine, href: "/dashboard/scan", gradient: "from-orange-500 to-amber-500" },
             { title: "Add Manually", desc: "Enter expense details by hand", icon: Plus, href: "/dashboard/expenses/new", gradient: "from-blue-500 to-cyan-500" },
-            { title: "View Reports", desc: "See spending trends and analytics", icon: TrendingUp, href: "/dashboard/analytics", gradient: "from-purple-500 to-pink-500" },
-          ].map((action) => (
+            ...(canApprove
+              ? [{ title: "Review Approvals", desc: "Review pending expense submissions", icon: ClipboardCheck, href: "/dashboard/approvals", gradient: "from-amber-500 to-yellow-500" }]
+              : []),
+            { title: "View Analytics", desc: "See spending trends and charts", icon: TrendingUp, href: "/dashboard/analytics", gradient: "from-purple-500 to-pink-500" },
+            { title: "Export Data", desc: "Download expense reports as CSV", icon: Download, href: "/dashboard/analytics", gradient: "from-green-500 to-emerald-500" },
+          ].slice(0, 3).map((action) => (
             <Link key={action.title} href={action.href}>
               <motion.div
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
