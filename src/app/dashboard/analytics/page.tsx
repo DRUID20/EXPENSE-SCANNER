@@ -170,7 +170,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     async function fetchBranches() {
       try {
-        const res = await fetch("/api/branches/public");
+        const res = await fetch("/api/branches");
         const json = await res.json();
         if (res.ok) setBranches(json.branches || []);
       } catch {
