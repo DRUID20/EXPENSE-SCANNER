@@ -168,7 +168,6 @@ export default function AnalyticsPage() {
 
   // Fetch branches for filter
   useEffect(() => {
-    if (user?.role !== "ADMIN") return;
     async function fetchBranches() {
       try {
         const res = await fetch("/api/branches/public");
@@ -179,7 +178,7 @@ export default function AnalyticsPage() {
       }
     }
     fetchBranches();
-  }, [user?.role]);
+  }, []);
 
   useEffect(() => {
     async function fetchAnalytics() {
@@ -309,7 +308,7 @@ export default function AnalyticsPage() {
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
               </div>
-              {user?.role === "ADMIN" && branches.length > 0 && (
+              {branches.length > 0 && (
                 <div className="relative">
                   <select
                     value={auditBranch}
