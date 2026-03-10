@@ -160,6 +160,8 @@ export default function AnalyticsPage() {
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditStatus, setAuditStatus] = useState("ALL");
   const [auditBranch, setAuditBranch] = useState("ALL");
+  const [auditDateFrom, setAuditDateFrom] = useState("");
+  const [auditDateTo, setAuditDateTo] = useState("");
   const [auditPage, setAuditPage] = useState(1);
   const [auditTotal, setAuditTotal] = useState(0);
   const [branches, setBranches] = useState<BranchOption[]>([]);
@@ -203,6 +205,8 @@ export default function AnalyticsPage() {
         const params = new URLSearchParams({ page: String(auditPage), limit: "20" });
         if (auditStatus !== "ALL") params.set("status", auditStatus);
         if (auditBranch !== "ALL") params.set("branchId", auditBranch);
+        if (auditDateFrom) params.set("dateFrom", auditDateFrom);
+        if (auditDateTo) params.set("dateTo", auditDateTo);
         const res = await fetch(`/api/expenses?${params}`);
         const json = await res.json();
         if (res.ok) {
@@ -216,7 +220,7 @@ export default function AnalyticsPage() {
       }
     }
     fetchAuditExpenses();
-  }, [viewTab, auditStatus, auditBranch, auditPage]);
+  }, [viewTab, auditStatus, auditBranch, auditDateFrom, auditDateTo, auditPage]);
 
   const handleExport = async () => {
     const res = await fetch("/api/export?format=csv");
@@ -320,6 +324,40 @@ export default function AnalyticsPage() {
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
                 </div>
               )}
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                  <input
+                    type="date"
+                    value={auditDateFrom}
+                    onChange={(e) => { setAuditDateFrom(e.target.value); setAuditPage(1); }}
+                    className="h-10 pl-9 pr-3 rounded-xl input-premium text-gray-600 dark:text-gray-400 cursor-pointer"
+                    placeholder="From"
+                    title="From date"
+                  />
+                </div>
+                <span className="text-gray-400 text-sm">to</span>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                  <input
+                    type="date"
+                    value={auditDateTo}
+                    onChange={(e) => { setAuditDateTo(e.target.value); setAuditPage(1); }}
+                    className="h-10 pl-9 pr-3 rounded-xl input-premium text-gray-600 dark:text-gray-400 cursor-pointer"
+                    placeholder="To"
+                    title="To date"
+                  />
+                </div>
+                {(auditDateFrom || auditDateTo) && (
+                  <button
+                    onClick={() => { setAuditDateFrom(""); setAuditDateTo(""); setAuditPage(1); }}
+                    className="h-10 px-3 rounded-xl text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                    title="Clear dates"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
             </>
           )}
           <motion.button
