@@ -42,7 +42,6 @@ interface UserItem {
   firstName: string;
   lastName: string;
   role: string;
-  department: string | null;
   isActive: boolean;
   spendingLimit: number | null;
   branchId: string | null;
@@ -73,7 +72,6 @@ interface AuditEntry {
   createdAt: string;
 }
 
-const DEPARTMENTS = ["Operations", "Engineering", "Finance", "Marketing", "HR", "Field Services", "Logistics"];
 const ROLES = ["EMPLOYEE", "MANAGER", "ADMIN"];
 const roleIcons: Record<string, React.ElementType> = {
   ADMIN: ShieldCheck,
@@ -98,7 +96,7 @@ export default function TeamPage() {
   const [showInvite, setShowInvite] = useState(false);
   const [showPolicy, setShowPolicy] = useState(false);
   const [showBranch, setShowBranch] = useState(false);
-  const [inviteForm, setInviteForm] = useState({ email: "", firstName: "", lastName: "", role: "EMPLOYEE", department: "", password: "", spendingLimit: "", branchId: "" });
+  const [inviteForm, setInviteForm] = useState({ email: "", firstName: "", lastName: "", role: "EMPLOYEE", password: "", spendingLimit: "", branchId: "" });
   const [policyForm, setPolicyForm] = useState({ name: "", maxAmount: "", category: "", role: "", requireApproval: true });
   const [branchForm, setBranchForm] = useState({ name: "", code: "", location: "" });
   const [editingBranch, setEditingBranch] = useState<BranchItem | null>(null);
@@ -168,7 +166,7 @@ export default function TeamPage() {
       });
       if (res.ok) {
         setShowInvite(false);
-        setInviteForm({ email: "", firstName: "", lastName: "", role: "EMPLOYEE", department: "", password: "", spendingLimit: "", branchId: "" });
+        setInviteForm({ email: "", firstName: "", lastName: "", role: "EMPLOYEE", password: "", spendingLimit: "", branchId: "" });
         fetchUsers();
         fetchAudit();
       } else {
@@ -398,7 +396,6 @@ export default function TeamPage() {
                       <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 flex-wrap">
                         <span>{u.email}</span>
                         {u.branch && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {u.branch.name}</span>}
-                        {u.department && <span className="flex items-center gap-1"><Building2 className="w-3 h-3" /> {u.department}</span>}
                         <span>{u._count.expenses} expenses</span>
                         {u.spendingLimit && <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> Limit: {formatCurrency(u.spendingLimit)}</span>}
                       </div>
@@ -414,13 +411,6 @@ export default function TeamPage() {
                         <select value={u.branchId || ""} onChange={(e) => handleUpdateUser(u.id, { branchId: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
                           <option value="">No Branch</option>
                           {branches.filter(b => b.isActive).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                        </select>
-                        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
-                      </div>
-                      <div className="relative">
-                        <select value={u.department || ""} onChange={(e) => handleUpdateUser(u.id, { department: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
-                          <option value="">No Dept</option>
-                          {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
                         </select>
                         <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
                       </div>
@@ -444,13 +434,6 @@ export default function TeamPage() {
                       <select value={u.branchId || ""} onChange={(e) => handleUpdateUser(u.id, { branchId: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
                         <option value="">No Branch</option>
                         {branches.filter(b => b.isActive).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                      </select>
-                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
-                    </div>
-                    <div className="relative">
-                      <select value={u.department || ""} onChange={(e) => handleUpdateUser(u.id, { department: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
-                        <option value="">No Dept</option>
-                        {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
                       </select>
                       <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
                     </div>
@@ -594,15 +577,9 @@ export default function TeamPage() {
                 </div>
                 <input type="email" placeholder="Email *" value={inviteForm.email} onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
                 <input type="password" placeholder="Password *" value={inviteForm.password} onChange={(e) => setInviteForm({ ...inviteForm, password: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
-                <div className="grid grid-cols-2 gap-3">
-                  <select value={inviteForm.role} onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400">
+                <select value={inviteForm.role} onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400">
                     {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                   </select>
-                  <select value={inviteForm.department} onChange={(e) => setInviteForm({ ...inviteForm, department: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400">
-                    <option value="">No Department</option>
-                    {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
-                  </select>
-                </div>
                 <select value={inviteForm.branchId} onChange={(e) => setInviteForm({ ...inviteForm, branchId: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400">
                   <option value="">Select Branch *</option>
                   {branches.filter(b => b.isActive).map((b) => <option key={b.id} value={b.id}>{b.name} ({b.location})</option>)}

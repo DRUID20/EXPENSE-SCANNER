@@ -10,7 +10,6 @@ interface User {
   lastName: string;
   role: string;
   avatar?: string;
-  department?: string;
   branchId?: string;
   branch?: { id: string; name: string; code: string };
 }

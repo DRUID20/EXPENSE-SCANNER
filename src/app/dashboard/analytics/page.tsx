@@ -20,6 +20,8 @@ import {
   Clock,
   FileEdit,
   Eye,
+  Store,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -39,6 +41,13 @@ import {
 } from "recharts";
 import { formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+
+interface VendorItem {
+  vendor: string;
+  total: number;
+  count: number;
+  avgAmount: number;
+}
 
 interface AnalyticsData {
   summary: {
@@ -80,6 +89,13 @@ interface AnalyticsData {
     category: string;
     user: { firstName: string; lastName: string };
   }>;
+  vendorBreakdown: VendorItem[];
+}
+
+interface BranchOption {
+  id: string;
+  name: string;
+  code: string;
 }
 
 const COLORS = ["#03D47C", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899", "#14b8a6", "#f43f5e", "#6366f1", "#84cc16"];
@@ -118,7 +134,7 @@ interface AuditExpense {
   approvedBy: { firstName: string; lastName: string } | null;
 }
 
-type ViewTab = "charts" | "audit";
+type ViewTab = "charts" | "vendors" | "audit";
 
 const statusIcons: Record<string, React.ElementType> = {
   DRAFT: FileEdit,
@@ -143,8 +159,25 @@ export default function AnalyticsPage() {
   const [auditExpenses, setAuditExpenses] = useState<AuditExpense[]>([]);
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditStatus, setAuditStatus] = useState("ALL");
+  const [auditBranch, setAuditBranch] = useState("ALL");
   const [auditPage, setAuditPage] = useState(1);
   const [auditTotal, setAuditTotal] = useState(0);
+  const [branches, setBranches] = useState<BranchOption[]>([]);
+
+  // Fetch branches for filter
+  useEffect(() => {
+    if (user?.role !== "ADMIN") return;
+    async function fetchBranches() {
+      try {
+        const res = await fetch("/api/branches/public");
+        const json = await res.json();
+        if (res.ok) setBranches(json.branches || []);
+      } catch {
+        // ignore
+      }
+    }
+    fetchBranches();
+  }, [user?.role]);
 
   useEffect(() => {
     async function fetchAnalytics() {
@@ -169,6 +202,7 @@ export default function AnalyticsPage() {
       try {
         const params = new URLSearchParams({ page: String(auditPage), limit: "20" });
         if (auditStatus !== "ALL") params.set("status", auditStatus);
+        if (auditBranch !== "ALL") params.set("branchId", auditBranch);
         const res = await fetch(`/api/expenses?${params}`);
         const json = await res.json();
         if (res.ok) {
@@ -182,7 +216,7 @@ export default function AnalyticsPage() {
       }
     }
     fetchAuditExpenses();
-  }, [viewTab, auditStatus, auditPage]);
+  }, [viewTab, auditStatus, auditBranch, auditPage]);
 
   const handleExport = async () => {
     const res = await fetch("/api/export?format=csv");
@@ -239,8 +273,8 @@ export default function AnalyticsPage() {
               : "Your personal spending insights"}
           </p>
         </div>
-        <div className="flex gap-3">
-          {viewTab === "charts" && (
+        <div className="flex gap-3 flex-wrap">
+          {(viewTab === "charts" || viewTab === "vendors") && (
             <div className="relative">
               <select
                 value={period}
@@ -256,20 +290,37 @@ export default function AnalyticsPage() {
             </div>
           )}
           {viewTab === "audit" && (
-            <div className="relative">
-              <select
-                value={auditStatus}
-                onChange={(e) => { setAuditStatus(e.target.value); setAuditPage(1); }}
-                className="h-10 pl-4 pr-8 rounded-xl input-premium text-gray-600 dark:text-gray-400 appearance-none cursor-pointer"
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="DRAFT">Draft</option>
-                <option value="PENDING">Pending</option>
-                <option value="APPROVED">Approved</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-            </div>
+            <>
+              <div className="relative">
+                <select
+                  value={auditStatus}
+                  onChange={(e) => { setAuditStatus(e.target.value); setAuditPage(1); }}
+                  className="h-10 pl-4 pr-8 rounded-xl input-premium text-gray-600 dark:text-gray-400 appearance-none cursor-pointer"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="DRAFT">Draft</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="APPROVED">Approved</option>
+                  <option value="REJECTED">Rejected</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+              </div>
+              {user?.role === "ADMIN" && branches.length > 0 && (
+                <div className="relative">
+                  <select
+                    value={auditBranch}
+                    onChange={(e) => { setAuditBranch(e.target.value); setAuditPage(1); }}
+                    className="h-10 pl-4 pr-8 rounded-xl input-premium text-gray-600 dark:text-gray-400 appearance-none cursor-pointer"
+                  >
+                    <option value="ALL">All Branches</option>
+                    {branches.map((b) => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                </div>
+              )}
+            </>
           )}
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -284,15 +335,16 @@ export default function AnalyticsPage() {
       </motion.div>
 
       {/* View Tabs */}
-      <div className="flex gap-1 p-1 rounded-xl bg-gray-100 dark:bg-gray-800 w-fit">
+      <div className="flex gap-1 p-1 rounded-xl bg-gray-100 dark:bg-gray-800 w-fit overflow-x-auto">
         {([
           { id: "charts" as ViewTab, label: "Charts", icon: BarChart3 },
+          { id: "vendors" as ViewTab, label: "Vendors", icon: Store },
           { id: "audit" as ViewTab, label: "Audit Report", icon: ScrollText },
         ]).map((t) => (
           <button
             key={t.id}
             onClick={() => setViewTab(t.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewTab === t.id ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${viewTab === t.id ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"}`}
           >
             <t.icon className="w-4 h-4" /> {t.label}
           </button>
@@ -495,6 +547,156 @@ export default function AnalyticsPage() {
       </div>
       </>)}
 
+      {/* Vendor Spending Report */}
+      {viewTab === "vendors" && (
+        <div className="space-y-6">
+          {/* Vendor Summary Cards */}
+          {data.vendorBreakdown && data.vendorBreakdown.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
+              <motion.div variants={itemVariants} className="premium-card p-4 lg:p-5">
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Vendors</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{data.vendorBreakdown.length}</p>
+              </motion.div>
+              <motion.div variants={itemVariants} className="premium-card p-4 lg:p-5">
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Top Vendor Spend</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{formatCurrency(data.vendorBreakdown[0]?.total || 0)}</p>
+                <p className="text-xs text-gray-400 mt-1">{data.vendorBreakdown[0]?.vendor}</p>
+              </motion.div>
+              <motion.div variants={itemVariants} className="premium-card p-4 lg:p-5">
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Vendor Transactions</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                  {data.vendorBreakdown.reduce((sum, v) => sum + v.count, 0)}
+                </p>
+              </motion.div>
+            </div>
+          )}
+
+          {/* Vendor Bar Chart - Top 10 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <motion.div variants={itemVariants} className="premium-card p-4 lg:p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Store className="w-5 h-5 text-emerald-500" />
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Top Vendors by Spend</h3>
+              </div>
+              {(!data.vendorBreakdown || data.vendorBreakdown.length === 0) ? (
+                <div className="flex items-center justify-center h-64 text-gray-400 text-sm">No vendor data for this period</div>
+              ) : (
+                <ResponsiveContainer width="100%" height={Math.max(280, Math.min(data.vendorBreakdown.length, 10) * 40)}>
+                  <BarChart data={data.vendorBreakdown.slice(0, 10)} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis type="number" tick={{ fontSize: 11, fill: "#9ca3af" }} tickFormatter={(v) => formatCurrency(v)} />
+                    <YAxis dataKey="vendor" type="category" width={120} tick={{ fontSize: 11, fill: "#9ca3af" }} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: 12, border: "1px solid #e5e7eb" }}
+                      formatter={(value) => [formatCurrency(Number(value)), "Total"]}
+                    />
+                    <Bar dataKey="total" radius={[0, 6, 6, 0]}>
+                      {data.vendorBreakdown.slice(0, 10).map((_, index) => (
+                        <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </motion.div>
+
+            {/* Vendor Frequency Pie */}
+            <motion.div variants={itemVariants} className="premium-card p-4 lg:p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <PieChartIcon className="w-5 h-5 text-emerald-500" />
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Vendor Share</h3>
+              </div>
+              {(!data.vendorBreakdown || data.vendorBreakdown.length === 0) ? (
+                <div className="flex items-center justify-center h-64 text-gray-400 text-sm">No vendor data for this period</div>
+              ) : (
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart>
+                    <Pie
+                      data={data.vendorBreakdown.slice(0, 8)}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={3}
+                      dataKey="total"
+                      nameKey="vendor"
+                    >
+                      {data.vendorBreakdown.slice(0, 8).map((_, index) => (
+                        <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ borderRadius: 12, border: "1px solid #e5e7eb" }}
+                      formatter={(value) => [formatCurrency(Number(value)), "Total"]}
+                    />
+                    <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </motion.div>
+          </div>
+
+          {/* Full Vendor Table */}
+          <motion.div variants={itemVariants} className="premium-card p-4 lg:p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <Store className="w-5 h-5 text-emerald-500" />
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">All Vendors</h3>
+            </div>
+            {(!data.vendorBreakdown || data.vendorBreakdown.length === 0) ? (
+              <div className="text-center py-12">
+                <Store className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                <p className="text-sm text-gray-500 dark:text-gray-400">No vendor data for this period</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-800">
+                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">#</th>
+                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Vendor</th>
+                      <th className="text-right py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Total Spent</th>
+                      <th className="text-right py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Transactions</th>
+                      <th className="text-right py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Avg. Amount</th>
+                      <th className="text-right py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">% of Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.vendorBreakdown.map((v, i) => {
+                      const totalVendorSpend = data.vendorBreakdown.reduce((sum, vv) => sum + vv.total, 0);
+                      const pct = totalVendorSpend > 0 ? ((v.total / totalVendorSpend) * 100).toFixed(1) : "0";
+                      return (
+                        <tr key={v.vendor} className="border-b border-gray-100 dark:border-gray-800/50 hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
+                          <td className="py-3 px-3 text-gray-400">{i + 1}</td>
+                          <td className="py-3 px-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: COLORS[i % COLORS.length] }}>
+                                {v.vendor.charAt(0).toUpperCase()}
+                              </div>
+                              <span className="font-medium text-gray-900 dark:text-white">{v.vendor}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-3 text-right font-semibold text-gray-900 dark:text-white">{formatCurrency(v.total)}</td>
+                          <td className="py-3 px-3 text-right text-gray-600 dark:text-gray-400">{v.count}</td>
+                          <td className="py-3 px-3 text-right text-gray-600 dark:text-gray-400">{formatCurrency(v.avgAmount)}</td>
+                          <td className="py-3 px-3 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <div className="w-16 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                                <div className="h-full rounded-full bg-emerald-500" style={{ width: `${pct}%` }} />
+                              </div>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 w-10 text-right">{pct}%</span>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </motion.div>
+        </div>
+      )}
+
       {/* Audit Report View */}
       {viewTab === "audit" && (
         <div className="space-y-4">
@@ -546,7 +748,7 @@ export default function AnalyticsPage() {
                             </span>
                           </td>
                           <td className="py-3 px-3 text-gray-600 dark:text-gray-400">
-                            {exp.approvedBy ? `${exp.approvedBy.firstName} ${exp.approvedBy.lastName}` : "—"}
+                            {exp.approvedBy ? `${exp.approvedBy.firstName} ${exp.approvedBy.lastName}` : "\u2014"}
                             {exp.rejectionReason && (
                               <p className="text-xs text-red-400 truncate max-w-[150px]" title={exp.rejectionReason}>{exp.rejectionReason}</p>
                             )}

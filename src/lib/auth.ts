@@ -69,7 +69,6 @@ export async function getCurrentUser() {
       lastName: true,
       role: true,
       avatar: true,
-      department: true,
       isActive: true,
       branchId: true,
       createdAt: true,

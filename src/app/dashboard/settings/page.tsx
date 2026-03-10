@@ -22,7 +22,6 @@ export default function SettingsPage() {
   const [profileForm, setProfileForm] = useState({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
-    department: user?.department || "",
   });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
@@ -216,20 +215,6 @@ export default function SettingsPage() {
                 />
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">Department</label>
-              <select
-                value={profileForm.department}
-                onChange={(e) => setProfileForm({ ...profileForm, department: e.target.value })}
-                className="w-full h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400"
-              >
-                <option value="">No Department</option>
-                {["Operations", "Engineering", "Finance", "Marketing", "HR", "Field Services", "Logistics"].map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            </div>
-
             {profileError && <p className="text-sm text-red-500">{profileError}</p>}
             {profileMessage && <p className="text-sm text-green-500 flex items-center gap-1"><CheckCircle2 className="w-4 h-4" />{profileMessage}</p>}
 

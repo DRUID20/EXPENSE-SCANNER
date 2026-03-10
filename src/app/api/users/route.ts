@@ -17,7 +17,6 @@ export async function GET() {
         firstName: true,
         lastName: true,
         role: true,
-        department: true,
         isActive: true,
         spendingLimit: true,
         branchId: true,
@@ -43,7 +42,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { email, firstName, lastName, role, department, password, spendingLimit, branchId } = await req.json();
+    const { email, firstName, lastName, role, password, spendingLimit, branchId } = await req.json();
 
     if (!email || !firstName || !lastName || !password) {
       return NextResponse.json({ error: "Email, name, and password are required" }, { status: 400 });
@@ -63,7 +62,6 @@ export async function POST(req: NextRequest) {
         lastName,
         password: hashedPassword,
         role: role || "EMPLOYEE",
-        department: department || null,
         spendingLimit: spendingLimit ? parseFloat(spendingLimit) : null,
         branchId: branchId || null,
       },
@@ -73,7 +71,6 @@ export async function POST(req: NextRequest) {
         firstName: true,
         lastName: true,
         role: true,
-        department: true,
         isActive: true,
         spendingLimit: true,
         branchId: true,

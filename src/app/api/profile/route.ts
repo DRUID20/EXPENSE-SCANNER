@@ -9,7 +9,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const { firstName, lastName, department } = await req.json();
+    const { firstName, lastName } = await req.json();
 
     if (!firstName || !lastName) {
       return NextResponse.json({ error: "First name and last name are required" }, { status: 400 });
@@ -20,7 +20,6 @@ export async function PATCH(req: NextRequest) {
       data: {
         firstName,
         lastName,
-        department: department || null,
       },
       select: {
         id: true,
@@ -29,7 +28,6 @@ export async function PATCH(req: NextRequest) {
         lastName: true,
         role: true,
         avatar: true,
-        department: true,
         isActive: true,
         branchId: true,
         branch: { select: { id: true, name: true, code: true } },
@@ -42,7 +40,7 @@ export async function PATCH(req: NextRequest) {
         action: "UPDATE",
         entity: "USER",
         entityId: session.userId,
-        details: JSON.stringify({ firstName, lastName, department }),
+        details: JSON.stringify({ firstName, lastName }),
         userId: session.userId,
       },
     });

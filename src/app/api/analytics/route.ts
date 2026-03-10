@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
       recentActivity,
       // Pre-fetch all users if we need top spenders (avoids sequential N+1)
       allSpenderUsers,
+      vendorExpenses,
     ] = await Promise.all([
       prisma.expense.aggregate({
         where: dateWhere,
@@ -100,6 +101,11 @@ export async function GET(req: NextRequest) {
             select: { id: true, firstName: true, lastName: true },
           })
         : Promise.resolve([]),
+      // Vendor spending aggregation
+      prisma.expense.findMany({
+        where: { ...dateWhere, vendor: { not: null } },
+        select: { vendor: true, amount: true },
+      }),
     ]);
 
     // Aggregate monthly data in-memory (lightweight - just amount/status/date)
@@ -117,6 +123,19 @@ export async function GET(req: NextRequest) {
     }
 
     const monthlyTrend = Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
+
+    // Aggregate vendor spending in-memory
+    const vendorMap: Record<string, { vendor: string; total: number; count: number }> = {};
+    for (const e of vendorExpenses) {
+      const v = (e.vendor || "").trim();
+      if (!v) continue;
+      if (!vendorMap[v]) vendorMap[v] = { vendor: v, total: 0, count: 0 };
+      vendorMap[v].total += e.amount;
+      vendorMap[v].count += 1;
+    }
+    const vendorBreakdown = Object.values(vendorMap)
+      .sort((a, b) => b.total - a.total)
+      .map((v) => ({ ...v, avgAmount: v.count > 0 ? v.total / v.count : 0 }));
 
     // Resolve top spenders with pre-fetched user names
     let topSpendersWithNames: Array<{ userId: string; firstName: string; lastName: string; total: number; count: number }> = [];
@@ -149,6 +168,7 @@ export async function GET(req: NextRequest) {
         total: s._sum.amount || 0,
       })),
       topSpenders: topSpendersWithNames,
+      vendorBreakdown,
       recentActivity: recentActivity.map((e) => ({
         id: e.id,
         title: e.title,

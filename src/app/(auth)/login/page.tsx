@@ -1,11 +1,129 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+
+// Animated line graph SVG component
+function AnimatedLineGraph() {
+  const points = [
+    [0, 70], [40, 55], [80, 65], [120, 35], [160, 45], [200, 25],
+    [240, 40], [280, 20], [320, 30], [360, 15], [400, 25], [440, 10],
+  ];
+  const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`).join(" ");
+  const areaD = pathD + ` L440,80 L0,80 Z`;
+
+  return (
+    <svg viewBox="0 0 440 80" className="w-full h-auto" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="graphGradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#03D47C" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#03D47C" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#03D47C" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#22c55e" stopOpacity="1" />
+        </linearGradient>
+      </defs>
+      <motion.path
+        d={areaD}
+        fill="url(#graphGradient)"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5, delay: 0.5 }}
+      />
+      <motion.path
+        d={pathD}
+        fill="none"
+        stroke="url(#lineGradient)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 1 }}
+        transition={{ duration: 2, delay: 0.3, ease: "easeInOut" }}
+      />
+      {points.map((p, i) => (
+        <motion.circle
+          key={i}
+          cx={p[0]}
+          cy={p[1]}
+          r="3"
+          fill="#03D47C"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 0.8 }}
+          transition={{ duration: 0.3, delay: 0.3 + i * 0.15 }}
+        />
+      ))}
+    </svg>
+  );
+}
+
+// Fading images carousel
+function FadingImages() {
+  const images = [
+    { src: "/login/ugx-bills.jpg", alt: "Ugandan Shillings" },
+    { src: "/login/budget-chart.jpg", alt: "Budget Planning" },
+    { src: "/login/expense-receipt.jpg", alt: "Expense Receipts" },
+  ];
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % images.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [images.length]);
+
+  return (
+    <div className="relative w-full h-48 rounded-2xl overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-t from-[#061B09] via-transparent to-transparent z-10" />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={current}
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 0.4, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${images[current].src})` }}
+        />
+      </AnimatePresence>
+      {/* Fallback colored blocks if images don't exist */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`fallback-${current}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.2 }}
+          className="absolute inset-0 flex items-center justify-center"
+        >
+          <div className="grid grid-cols-3 gap-3 p-6 w-full">
+            {[
+              { label: "UGX 5M", sub: "Monthly Budget", color: "from-emerald-500/20 to-emerald-600/10" },
+              { label: "UGX 2.3M", sub: "Spent", color: "from-blue-500/20 to-blue-600/10" },
+              { label: "54%", sub: "Saved", color: "from-purple-500/20 to-purple-600/10" },
+            ].map((card, i) => (
+              <motion.div
+                key={card.label}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 + i * 0.15 }}
+                className={`rounded-xl bg-gradient-to-br ${card.color} border border-white/[0.06] p-3 text-center`}
+              >
+                <p className="text-lg font-bold text-white/80">{card.label}</p>
+                <p className="text-[10px] text-gray-500">{card.sub}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -32,12 +150,25 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Panel - Branding */}
+      {/* Left Panel - Branding with animations */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#061B09]">
-        {/* Subtle gradient orbs */}
+        {/* Animated gradient orbs */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-emerald-400/5 rounded-full blur-[120px]" />
+          <motion.div
+            className="absolute top-20 left-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-[120px]"
+            animate={{ x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute bottom-20 right-20 w-96 h-96 bg-emerald-400/5 rounded-full blur-[120px]"
+            animate={{ x: [0, -20, 0], y: [0, 30, 0], scale: [1, 1.15, 1] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute top-1/2 left-1/3 w-64 h-64 bg-green-300/5 rounded-full blur-[100px]"
+            animate={{ x: [0, 40, 0], y: [0, -40, 0] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          />
         </div>
 
         {/* Dot grid pattern */}
@@ -48,7 +179,8 @@ export default function LoginPage() {
           }} />
         </div>
 
-        <div className="relative z-10 flex flex-col justify-center px-12 xl:px-16">
+        <div className="relative z-10 flex flex-col justify-between px-12 xl:px-16 py-12">
+          {/* Top: Logo + Text */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -70,11 +202,11 @@ export default function LoginPage() {
               </span>
             </h2>
 
-            <p className="text-base text-gray-500 max-w-sm leading-relaxed mb-10">
+            <p className="text-base text-gray-500 max-w-sm leading-relaxed mb-8">
               AI-powered receipt scanning, automatic categorization, and seamless approval workflows.
             </p>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-10">
               {["AI Receipt Scanning", "Auto-Categorize", "Approval Flow", "Real-time Analytics"].map(
                 (feature, i) => (
                   <motion.div
@@ -90,16 +222,41 @@ export default function LoginPage() {
               )}
             </div>
           </motion.div>
+
+          {/* Middle: Fading budget images */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <FadingImages />
+          </motion.div>
+
+          {/* Bottom: Animated line graph */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="mt-8"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+              <p className="text-[11px] text-gray-500 font-medium tracking-wide uppercase">Expense Trends</p>
+            </div>
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
+              <AnimatedLineGraph />
+            </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-10 bg-white dark:bg-[#061B09]">
+      <div className="flex-1 flex items-center justify-center px-6 py-10 bg-gray-50 dark:bg-[#061B09]">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-[380px]"
+          className="w-full max-w-[400px]"
         >
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10">
@@ -110,100 +267,103 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight">
-            Welcome back
-          </h3>
-          <p className="text-[14px] text-gray-400 mb-7">
-            Sign in to your expense tracker
-          </p>
+          {/* Credentials card - slightly brighter */}
+          <div className="bg-white dark:bg-[#0a2e18] rounded-2xl p-7 shadow-lg shadow-black/5 dark:shadow-black/20 border border-gray-200/60 dark:border-emerald-900/30">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight">
+              Welcome back
+            </h3>
+            <p className="text-[14px] text-gray-400 mb-7">
+              Sign in to your expense tracker
+            </p>
 
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-5 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200/50 dark:border-red-800/30 text-red-600 dark:text-red-400 text-[13px]"
-            >
-              {error}
-            </motion.div>
-          )}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-5 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200/50 dark:border-red-800/30 text-red-600 dark:text-red-400 text-[13px]"
+              >
+                {error}
+              </motion.div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
-            <div>
-              <label className="block text-[13px] font-medium text-gray-600 dark:text-gray-400 mb-1.5">
-                Email address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@gascoenergy.com"
-                  required
-                  className="w-full h-11 pl-10 pr-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
-                />
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Email */}
+              <div>
+                <label className="block text-[13px] font-medium text-gray-600 dark:text-gray-300 mb-1.5">
+                  Email address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@gascoenergy.com"
+                    required
+                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-gray-50 dark:bg-[#072419] border border-gray-200 dark:border-emerald-900/40 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all outline-none"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Password */}
-            <div>
-              <label className="block text-[13px] font-medium text-gray-600 dark:text-gray-400 mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  className="w-full h-11 pl-10 pr-11 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+              {/* Password */}
+              <div>
+                <label className="block text-[13px] font-medium text-gray-600 dark:text-gray-300 mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    required
+                    className="w-full h-11 pl-10 pr-11 rounded-xl bg-gray-50 dark:bg-[#072419] border border-gray-200 dark:border-emerald-900/40 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
 
-            {/* Remember & Forgot */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-3.5 h-3.5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
-                />
-                <span className="text-[13px] text-gray-500">Remember me</span>
-              </label>
-              <Link href="/forgot-password" className="text-[13px] text-emerald-500 hover:text-emerald-600 font-medium">
-                Forgot password?
-              </Link>
-            </div>
+              {/* Remember & Forgot */}
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+                  />
+                  <span className="text-[13px] text-gray-500">Remember me</span>
+                </label>
+                <Link href="/forgot-password" className="text-[13px] text-emerald-500 hover:text-emerald-600 font-medium">
+                  Forgot password?
+                </Link>
+              </div>
 
-            {/* Submit */}
-            <motion.button
-              whileTap={{ scale: 0.99 }}
-              type="submit"
-              disabled={loading}
-              className="w-full h-11 btn-primary flex items-center justify-center gap-2 text-sm disabled:opacity-60"
-            >
-              {loading ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  Sign In
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </motion.button>
-          </form>
+              {/* Submit */}
+              <motion.button
+                whileTap={{ scale: 0.99 }}
+                type="submit"
+                disabled={loading}
+                className="w-full h-11 btn-primary flex items-center justify-center gap-2 text-sm disabled:opacity-60"
+              >
+                {loading ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    Sign In
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </motion.button>
+            </form>
+          </div>
 
           <p className="mt-7 text-center text-[13px] text-gray-400">
             Don&apos;t have an account? Contact your administrator.
