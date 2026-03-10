@@ -147,12 +147,29 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-10 bg-gray-50 dark:bg-[#061B09]">
+      <div className="flex-1 flex items-center justify-center px-6 py-10 bg-gray-50 dark:bg-[#0a2a16] relative overflow-hidden">
+        {/* Animated aurora glow orbs */}
+        <motion.div
+          className="absolute top-1/4 -right-20 w-80 h-80 bg-emerald-500/15 rounded-full blur-[120px]"
+          animate={{ x: [0, -40, 20, 0], y: [0, 30, -20, 0], scale: [1, 1.2, 0.9, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 -left-20 w-72 h-72 bg-emerald-400/10 rounded-full blur-[100px]"
+          animate={{ x: [0, 30, -20, 0], y: [0, -40, 20, 0], scale: [1, 0.9, 1.15, 1] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-400/8 rounded-full blur-[140px]"
+          animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-[400px]"
+          className="relative z-10 w-full max-w-[400px]"
         >
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10">
