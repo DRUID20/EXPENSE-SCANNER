@@ -64,9 +64,11 @@ function AnimatedLineGraph() {
 // Fading images carousel
 function FadingImages() {
   const images = [
-    { src: "/login/ugx-bills.jpg", alt: "Ugandan Shillings" },
-    { src: "/login/budget-chart.jpg", alt: "Budget Planning" },
-    { src: "/login/expense-receipt.jpg", alt: "Expense Receipts" },
+    { src: "/login/ugx-1.png", alt: "Ugandan Shillings" },
+    { src: "/login/ugx-2.png", alt: "Ugandan Shillings" },
+    { src: "/login/ugx-3.png", alt: "Ugandan Shillings" },
+    { src: "/login/ugx-4.png", alt: "Ugandan Shillings" },
+    { src: "/login/ugx-5.png", alt: "Ugandan Shillings" },
   ];
   const [current, setCurrent] = useState(0);
 
@@ -84,42 +86,12 @@ function FadingImages() {
         <motion.div
           key={current}
           initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 0.4, scale: 1 }}
+          animate={{ opacity: 0.7, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${images[current].src})` }}
         />
-      </AnimatePresence>
-      {/* Fallback colored blocks if images don't exist */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={`fallback-${current}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2 }}
-          className="absolute inset-0 flex items-center justify-center"
-        >
-          <div className="grid grid-cols-3 gap-3 p-6 w-full">
-            {[
-              { label: "UGX 5M", sub: "Monthly Budget", color: "from-emerald-500/20 to-emerald-600/10" },
-              { label: "UGX 2.3M", sub: "Spent", color: "from-blue-500/20 to-blue-600/10" },
-              { label: "54%", sub: "Saved", color: "from-purple-500/20 to-purple-600/10" },
-            ].map((card, i) => (
-              <motion.div
-                key={card.label}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 + i * 0.15 }}
-                className={`rounded-xl bg-gradient-to-br ${card.color} border border-white/[0.06] p-3 text-center`}
-              >
-                <p className="text-lg font-bold text-white/80">{card.label}</p>
-                <p className="text-[10px] text-gray-500">{card.sub}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
       </AnimatePresence>
     </div>
   );
