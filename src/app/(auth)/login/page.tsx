@@ -240,7 +240,7 @@ export default function LoginPage() {
           </div>
 
           {/* Credentials card - slightly brighter */}
-          <div className="bg-white dark:bg-[#0a2e18] rounded-2xl p-7 shadow-lg shadow-black/5 dark:shadow-black/20 border border-gray-200/60 dark:border-emerald-900/30">
+          <div className="bg-white dark:bg-[#0f3d22] rounded-2xl p-7 shadow-lg shadow-black/5 dark:shadow-black/20 border border-gray-200/60 dark:border-emerald-500/20">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight">
               Welcome back
             </h3>
@@ -272,7 +272,7 @@ export default function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@gascoenergy.com"
                     required
-                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-gray-50 dark:bg-[#072419] border border-gray-200 dark:border-emerald-900/40 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all outline-none"
+                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-gray-50 dark:bg-[#0c3520] border border-gray-200 dark:border-emerald-700/40 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all outline-none"
                   />
                 </div>
               </div>
@@ -290,7 +290,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     required
-                    className="w-full h-11 pl-10 pr-11 rounded-xl bg-gray-50 dark:bg-[#072419] border border-gray-200 dark:border-emerald-900/40 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all outline-none"
+                    className="w-full h-11 pl-10 pr-11 rounded-xl bg-gray-50 dark:bg-[#0c3520] border border-gray-200 dark:border-emerald-700/40 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all outline-none"
                   />
                   <button
                     type="button"
