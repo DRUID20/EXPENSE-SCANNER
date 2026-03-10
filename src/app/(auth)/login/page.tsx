@@ -10,9 +10,9 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 // Fading images carousel
 function FadingImages() {
   const images = [
+    { src: "/login/ugx-3.png", alt: "Ugandan Shillings" },
     { src: "/login/ugx-1.png", alt: "Ugandan Shillings" },
     { src: "/login/ugx-2.png", alt: "Ugandan Shillings" },
-    { src: "/login/ugx-3.png", alt: "Ugandan Shillings" },
     { src: "/login/ugx-4.png", alt: "Ugandan Shillings" },
     { src: "/login/ugx-5.png", alt: "Ugandan Shillings" },
   ];
@@ -21,7 +21,7 @@ function FadingImages() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % images.length);
-    }, 4000);
+    }, 7000);
     return () => clearInterval(timer);
   }, [images.length]);
 
