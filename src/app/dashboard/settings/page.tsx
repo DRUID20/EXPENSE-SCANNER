@@ -6,7 +6,7 @@ import { User, Shield, Loader2, CheckCircle2, Eye, EyeOff, Lock, Save, MapPin, B
 import { useAuth } from "@/context/AuthContext";
 import { getInitials } from "@/lib/utils";
 
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
+function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
   const rawData = window.atob(base64);
@@ -14,7 +14,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   for (let i = 0; i < rawData.length; ++i) {
     outputArray[i] = rawData.charCodeAt(i);
   }
-  return outputArray;
+  return outputArray.buffer as ArrayBuffer;
 }
 
 export default function SettingsPage() {
