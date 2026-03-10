@@ -7,60 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 
-// Animated line graph SVG component
-function AnimatedLineGraph() {
-  const points = [
-    [0, 70], [40, 55], [80, 65], [120, 35], [160, 45], [200, 25],
-    [240, 40], [280, 20], [320, 30], [360, 15], [400, 25], [440, 10],
-  ];
-  const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`).join(" ");
-  const areaD = pathD + ` L440,80 L0,80 Z`;
-
-  return (
-    <svg viewBox="0 0 440 80" className="w-full h-auto" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="graphGradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#03D47C" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#03D47C" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#03D47C" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#22c55e" stopOpacity="1" />
-        </linearGradient>
-      </defs>
-      <motion.path
-        d={areaD}
-        fill="url(#graphGradient)"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.5, delay: 0.5 }}
-      />
-      <motion.path
-        d={pathD}
-        fill="none"
-        stroke="url(#lineGradient)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ pathLength: 1, opacity: 1 }}
-        transition={{ duration: 2, delay: 0.3, ease: "easeInOut" }}
-      />
-      {points.map((p, i) => (
-        <motion.circle
-          key={i}
-          cx={p[0]}
-          cy={p[1]}
-          r="3"
-          fill="#03D47C"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.8 }}
-          transition={{ duration: 0.3, delay: 0.3 + i * 0.15 }}
-        />
-      ))}
-    </svg>
-  );
-}
-
 // Fading images carousel
 function FadingImages() {
   const images = [
@@ -80,8 +26,8 @@ function FadingImages() {
   }, [images.length]);
 
   return (
-    <div className="relative w-full h-48 rounded-2xl overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-t from-[#061B09] via-transparent to-transparent z-10" />
+    <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-t from-[#061B09] via-[#061B09]/40 to-transparent z-10" />
       <AnimatePresence mode="wait">
         <motion.div
           key={current}
@@ -151,8 +97,11 @@ export default function LoginPage() {
           }} />
         </div>
 
-        <div className="relative z-10 flex flex-col justify-between px-12 xl:px-16 py-12">
-          {/* Top: Logo + Text */}
+        {/* Background fading images */}
+        <FadingImages />
+
+        <div className="relative z-20 flex flex-col justify-end h-full px-12 xl:px-16 py-12">
+          {/* Logo */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -174,11 +123,11 @@ export default function LoginPage() {
               </span>
             </h2>
 
-            <p className="text-base text-gray-500 max-w-sm leading-relaxed mb-8">
+            <p className="text-base text-gray-300/80 max-w-sm leading-relaxed mb-8">
               AI-powered receipt scanning, automatic categorization, and seamless approval workflows.
             </p>
 
-            <div className="flex flex-wrap gap-2 mb-10">
+            <div className="flex flex-wrap gap-2">
               {["AI Receipt Scanning", "Auto-Categorize", "Approval Flow", "Real-time Analytics"].map(
                 (feature, i) => (
                   <motion.div
@@ -186,37 +135,12 @@ export default function LoginPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 + i * 0.08 }}
-                    className="px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-[13px] text-gray-400"
+                    className="px-3.5 py-1.5 rounded-full bg-black/30 backdrop-blur-sm border border-white/[0.08] text-[13px] text-gray-300"
                   >
                     {feature}
                   </motion.div>
                 )
               )}
-            </div>
-          </motion.div>
-
-          {/* Middle: Fading budget images */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            <FadingImages />
-          </motion.div>
-
-          {/* Bottom: Animated line graph */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-8"
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-2 h-2 rounded-full bg-emerald-500" />
-              <p className="text-[11px] text-gray-500 font-medium tracking-wide uppercase">Expense Trends</p>
-            </div>
-            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
-              <AnimatedLineGraph />
             </div>
           </motion.div>
         </div>
