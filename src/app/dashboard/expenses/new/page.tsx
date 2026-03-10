@@ -173,7 +173,7 @@ export default function NewExpensePage() {
         </div>
 
         {/* Amount + Currency + Date Row */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               <DollarSign className="w-4 h-4 text-gray-400" />
@@ -221,7 +221,7 @@ export default function NewExpensePage() {
         </div>
 
         {/* Category + Vendor */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               <Tag className="w-4 h-4 text-gray-400" />

@@ -403,7 +403,7 @@ export default function TeamPage() {
                         {u.spendingLimit && <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> Limit: {formatCurrency(u.spendingLimit)}</span>}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="hidden lg:flex items-center gap-2 flex-wrap">
                       <div className="relative">
                         <select value={u.role} onChange={(e) => handleUpdateUser(u.id, { role: e.target.value })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
                           {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
@@ -431,6 +431,35 @@ export default function TeamPage() {
                         {u.isActive ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
                       </button>
                     </div>
+                  </div>
+                  {/* Mobile controls - stacked below user info */}
+                  <div className="flex lg:hidden items-center gap-2 flex-wrap mt-3 pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
+                    <div className="relative">
+                      <select value={u.role} onChange={(e) => handleUpdateUser(u.id, { role: e.target.value })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
+                        {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                      </select>
+                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+                    </div>
+                    <div className="relative">
+                      <select value={u.branchId || ""} onChange={(e) => handleUpdateUser(u.id, { branchId: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
+                        <option value="">No Branch</option>
+                        {branches.filter(b => b.isActive).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                      </select>
+                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+                    </div>
+                    <div className="relative">
+                      <select value={u.department || ""} onChange={(e) => handleUpdateUser(u.id, { department: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
+                        <option value="">No Dept</option>
+                        {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+                      </select>
+                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+                    </div>
+                    <button onClick={() => copyCredentials(u)} className="p-1 rounded-lg text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors" title="Copy login email">
+                      {copiedId === u.id ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
+                    </button>
+                    <button onClick={() => handleUpdateUser(u.id, { isActive: !u.isActive })} className={`p-1 rounded-lg transition-colors ${u.isActive ? "text-green-500 hover:bg-green-50 dark:hover:bg-green-950" : "text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"}`} title={u.isActive ? "Deactivate" : "Activate"}>
+                      {u.isActive ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
+                    </button>
                   </div>
                 </motion.div>
               );
