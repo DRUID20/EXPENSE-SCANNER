@@ -36,6 +36,8 @@ interface Expense {
   description: string | null;
   amount: number;
   currency: string;
+  amountUGX: number | null;
+  exchangeRate: number | null;
   category: string;
   vendor: string | null;
   date: string;
@@ -587,6 +589,11 @@ export default function ExpensesPage() {
                         <p className="text-base sm:text-lg font-bold text-[var(--foreground)]">
                           {formatCurrency(expense.amount, expense.currency)}
                         </p>
+                        {expense.currency !== "UGX" && expense.amountUGX && (
+                          <p className="text-[11px] text-[var(--muted)]">
+                            {formatCurrency(expense.amountUGX)}
+                          </p>
+                        )}
                       </div>
                       <div className="flex items-center gap-0.5 sm:gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <Link href={`/dashboard/expenses/${expense.id}`}>

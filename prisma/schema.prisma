@@ -50,6 +50,8 @@ model Expense {
   description     String?
   amount          Float
   currency        String   @default("UGX")
+  amountUGX       Float?   // Amount converted to UGX for consistent aggregation
+  exchangeRate    Float?   // Exchange rate used at time of creation (1 currency = X UGX)
   category        String
   vendor          String?
   date            DateTime

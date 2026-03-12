@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { convertToUGX } from "@/lib/currency";
 
 export async function GET(req: NextRequest) {
   try {
@@ -32,8 +33,8 @@ export async function GET(req: NextRequest) {
 
     if (format === "csv") {
       const headers = [
-        "ID", "Title", "Description", "Amount", "Currency", "Category",
-        "Vendor", "Date", "Status", "Submitted By", "Email",
+        "ID", "Title", "Description", "Amount", "Currency", "Amount (UGX)", "Exchange Rate",
+        "Category", "Vendor", "Date", "Status", "Submitted By", "Email",
         "Approved By", "Approved At", "Notes", "Created At"
       ];
 
@@ -43,6 +44,8 @@ export async function GET(req: NextRequest) {
         `"${(e.description || "").replace(/"/g, '""')}"`,
         e.amount.toFixed(2),
         e.currency,
+        (e.amountUGX ?? convertToUGX(e.amount, e.currency)).toFixed(0),
+        (e.exchangeRate ?? 1).toString(),
         e.category,
         `"${(e.vendor || "").replace(/"/g, '""')}"`,
         new Date(e.date).toISOString().split("T")[0],

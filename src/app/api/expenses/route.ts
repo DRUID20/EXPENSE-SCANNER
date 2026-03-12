@@ -5,6 +5,8 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { existsSync } from "fs";
 import { sendPushToUsers } from "@/lib/push";
+import { convertToUGX, getExchangeRate } from "@/lib/currency";
+import { formatCurrency } from "@/lib/utils";
 
 const RECEIPTS_DIR = path.join(process.cwd(), "public", "receipts");
 
@@ -96,6 +98,8 @@ export async function GET(req: NextRequest) {
           description: true,
           amount: true,
           currency: true,
+          amountUGX: true,
+          exchangeRate: true,
           category: true,
           vendor: true,
           date: true,
@@ -168,15 +172,20 @@ export async function POST(req: NextRequest) {
       }),
     ]);
 
-    // Spending policy enforcement
+    // Convert amount to UGX for policy comparison
+    const expenseCurrency = currency || "UGX";
+    const amountInUGX = convertToUGX(parsedAmount, expenseCurrency);
+    const exchangeRate = getExchangeRate(expenseCurrency);
+
+    // Spending policy enforcement (policies are always in UGX)
     for (const policy of policies) {
       const categoryMatch = !policy.category || policy.category === category;
       const roleMatch = !policy.role || policy.role === session.role;
 
-      if (categoryMatch && roleMatch && parsedAmount > policy.maxAmount) {
+      if (categoryMatch && roleMatch && amountInUGX > policy.maxAmount) {
         return NextResponse.json(
           {
-            error: `Expense exceeds spending policy "${policy.name}". Maximum allowed: UGX ${policy.maxAmount.toLocaleString()} for ${policy.category || "all categories"}.`,
+            error: `Expense exceeds spending policy "${policy.name}". Maximum allowed: ${formatCurrency(policy.maxAmount)} for ${policy.category || "all categories"}.${expenseCurrency !== "UGX" ? ` (Your expense: ${formatCurrency(parsedAmount, expenseCurrency)} = ${formatCurrency(amountInUGX)})` : ""}`,
             policyViolation: true,
             policyName: policy.name,
             maxAmount: policy.maxAmount,
@@ -186,10 +195,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (currentUser?.spendingLimit && parsedAmount > currentUser.spendingLimit) {
+    if (currentUser?.spendingLimit && amountInUGX > currentUser.spendingLimit) {
       return NextResponse.json(
         {
-          error: `Expense exceeds your personal spending limit of UGX ${currentUser.spendingLimit.toLocaleString()}.`,
+          error: `Expense exceeds your personal spending limit of ${formatCurrency(currentUser.spendingLimit)}.${expenseCurrency !== "UGX" ? ` (Your expense: ${formatCurrency(parsedAmount, expenseCurrency)} = ${formatCurrency(amountInUGX)})` : ""}`,
           policyViolation: true,
         },
         { status: 400 }
@@ -231,7 +240,9 @@ export async function POST(req: NextRequest) {
         title,
         description: description || null,
         amount: parsedAmount,
-        currency: currency || "UGX",
+        currency: expenseCurrency,
+        amountUGX: amountInUGX,
+        exchangeRate: exchangeRate,
         category,
         vendor: vendor || null,
         date: new Date(date),
@@ -281,11 +292,15 @@ export async function POST(req: NextRequest) {
         select: { id: true },
       });
       if (admins.length > 0) {
+        const amountDisplay = expenseCurrency !== "UGX"
+          ? `${formatCurrency(parsedAmount, expenseCurrency)} (${formatCurrency(amountInUGX)})`
+          : formatCurrency(parsedAmount);
+
         await prisma.notification.createMany({
           data: admins.map((m) => ({
             type: "EXPENSE_SUBMITTED",
             title: "New Expense Submitted",
-            message: `${session.firstName} ${session.lastName} submitted "${title}" for UGX ${parsedAmount.toLocaleString()}`,
+            message: `${session.firstName} ${session.lastName} submitted "${title}" for ${amountDisplay}`,
             userId: m.id,
             linkUrl: `/dashboard/expenses/${expense.id}`,
           })),
@@ -296,7 +311,7 @@ export async function POST(req: NextRequest) {
           admins.map((m) => m.id),
           {
             title: "New Expense Submitted",
-            message: `${session.firstName} ${session.lastName} submitted "${title}" for UGX ${parsedAmount.toLocaleString()}`,
+            message: `${session.firstName} ${session.lastName} submitted "${title}" for ${amountDisplay}`,
             url: `/dashboard/expenses/${expense.id}`,
           }
         ).catch(() => {});

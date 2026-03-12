@@ -32,6 +32,8 @@ interface Expense {
   description: string | null;
   amount: number;
   currency: string;
+  amountUGX: number | null;
+  exchangeRate: number | null;
   category: string;
   vendor: string | null;
   date: string;
@@ -232,7 +234,27 @@ export default function ExpenseDetailPage() {
             </h3>
 
             <div className="grid grid-cols-2 gap-4">
-              <DetailField icon={<DollarSign className="w-4 h-4" />} label="Amount" value={formatCurrency(expense.amount, expense.currency)} highlight />
+              <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-gray-400"><DollarSign className="w-4 h-4" /></span>
+                  <span className="text-xs text-[var(--muted)] font-medium">Amount</span>
+                </div>
+                <p className="text-lg font-semibold text-emerald-500">
+                  {formatCurrency(expense.amount, expense.currency)}
+                </p>
+                {expense.currency !== "UGX" && expense.amountUGX && (
+                  <div className="mt-1">
+                    <p className="text-sm text-[var(--foreground)] font-medium">
+                      {formatCurrency(expense.amountUGX)}
+                    </p>
+                    {expense.exchangeRate && (
+                      <p className="text-[11px] text-[var(--muted)]">
+                        Rate: 1 {expense.currency} = {expense.exchangeRate.toLocaleString()} UGX
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
               <DetailField icon={<Calendar className="w-4 h-4" />} label="Date" value={formatDate(expense.date)} />
               <DetailField icon={<Tag className="w-4 h-4" />} label="Category" value={expense.category} />
               <DetailField icon={<Store className="w-4 h-4" />} label="Vendor" value={expense.vendor} />

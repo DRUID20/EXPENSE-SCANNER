@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { sendPushToUser } from "@/lib/push";
+import { convertToUGX, getExchangeRate } from "@/lib/currency";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -135,6 +136,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       }
     }
 
+    // Recompute amountUGX if amount or currency changed
+    const updatedAmount = amount !== undefined ? parseFloat(amount) : expense.amount;
+    const updatedCurrency = currency !== undefined ? currency : expense.currency;
+    const needsConversion = amount !== undefined || currency !== undefined;
+
     const updated = await prisma.expense.update({
       where: { id },
       data: {
@@ -142,6 +148,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ...(description !== undefined && { description }),
         ...(amount !== undefined && { amount: parseFloat(amount) }),
         ...(currency !== undefined && { currency }),
+        ...(needsConversion && {
+          amountUGX: convertToUGX(updatedAmount, updatedCurrency),
+          exchangeRate: getExchangeRate(updatedCurrency),
+        }),
         ...(category !== undefined && { category }),
         ...(vendor !== undefined && { vendor }),
         ...(date !== undefined && { date: new Date(date) }),

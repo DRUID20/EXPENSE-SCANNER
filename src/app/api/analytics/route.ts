@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession, buildExpenseWhere } from "@/lib/auth";
+import { convertToUGX } from "@/lib/currency";
 
 export async function GET(req: NextRequest) {
   try {
@@ -53,36 +54,34 @@ export async function GET(req: NextRequest) {
     ] = await Promise.all([
       prisma.expense.aggregate({
         where: dateWhere,
-        _sum: { amount: true },
-        _avg: { amount: true },
+        _sum: { amountUGX: true, amount: true },
+        _avg: { amountUGX: true, amount: true },
         _count: true,
       }),
-      prisma.expense.groupBy({
-        by: ["category"],
+      // Fetch expenses with currency for proper category breakdown
+      prisma.expense.findMany({
         where: dateWhere,
-        _sum: { amount: true },
-        _count: true,
-        orderBy: { _sum: { amount: "desc" } },
+        select: { category: true, amount: true, currency: true, amountUGX: true },
       }),
       // Fetch only needed fields for monthly aggregation
       prisma.expense.findMany({
         where: dateWhere,
-        select: { amount: true, date: true, status: true },
+        select: { amount: true, currency: true, amountUGX: true, date: true, status: true },
         orderBy: { date: "asc" },
       }),
       prisma.expense.groupBy({
         by: ["status"],
         where: dateWhere,
         _count: true,
-        _sum: { amount: true },
+        _sum: { amountUGX: true, amount: true },
       }),
       needTopSpenders
         ? prisma.expense.groupBy({
             by: ["userId"],
             where: dateWhere,
-            _sum: { amount: true },
+            _sum: { amountUGX: true, amount: true },
             _count: true,
-            orderBy: { _sum: { amount: "desc" } },
+            orderBy: { _sum: { amountUGX: "desc" } },
             take: 10,
           })
         : Promise.resolve([]),
@@ -104,33 +103,35 @@ export async function GET(req: NextRequest) {
       // Vendor spending aggregation
       prisma.expense.findMany({
         where: { ...dateWhere, vendor: { not: null } },
-        select: { vendor: true, amount: true },
+        select: { vendor: true, amount: true, currency: true, amountUGX: true },
       }),
     ]);
 
-    // Aggregate monthly data in-memory (lightweight - just amount/status/date)
+    // Aggregate monthly data in-memory using UGX amounts
     const monthlyData: Record<string, { month: string; amount: number; count: number; approved: number; rejected: number }> = {};
     for (const e of allExpensesInRange) {
+      const ugx = e.amountUGX ?? convertToUGX(e.amount, e.currency);
       const d = new Date(e.date);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       if (!monthlyData[key]) {
         monthlyData[key] = { month: key, amount: 0, count: 0, approved: 0, rejected: 0 };
       }
-      monthlyData[key].amount += e.amount;
+      monthlyData[key].amount += ugx;
       monthlyData[key].count += 1;
-      if (e.status === "APPROVED") monthlyData[key].approved += e.amount;
-      if (e.status === "REJECTED") monthlyData[key].rejected += e.amount;
+      if (e.status === "APPROVED") monthlyData[key].approved += ugx;
+      if (e.status === "REJECTED") monthlyData[key].rejected += ugx;
     }
 
     const monthlyTrend = Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
 
-    // Aggregate vendor spending in-memory
+    // Aggregate vendor spending in-memory using UGX amounts
     const vendorMap: Record<string, { vendor: string; total: number; count: number }> = {};
     for (const e of vendorExpenses) {
       const v = (e.vendor || "").trim();
       if (!v) continue;
+      const ugx = e.amountUGX ?? convertToUGX(e.amount, e.currency);
       if (!vendorMap[v]) vendorMap[v] = { vendor: v, total: 0, count: 0 };
-      vendorMap[v].total += e.amount;
+      vendorMap[v].total += ugx;
       vendorMap[v].count += 1;
     }
     const vendorBreakdown = Object.values(vendorMap)
@@ -145,27 +146,35 @@ export async function GET(req: NextRequest) {
         userId: s.userId,
         firstName: userMap[s.userId]?.firstName || "Unknown",
         lastName: userMap[s.userId]?.lastName || "",
-        total: s._sum.amount || 0,
+        total: s._sum.amountUGX || s._sum.amount || 0,
         count: s._count,
       }));
     }
 
+    // Aggregate category breakdown in UGX from fetched expenses
+    const categoryMap: Record<string, { total: number; count: number }> = {};
+    for (const e of categoryBreakdown) {
+      const ugx = e.amountUGX ?? convertToUGX(e.amount, e.currency);
+      if (!categoryMap[e.category]) categoryMap[e.category] = { total: 0, count: 0 };
+      categoryMap[e.category].total += ugx;
+      categoryMap[e.category].count += 1;
+    }
+    const categoryBreakdownUGX = Object.entries(categoryMap)
+      .map(([category, data]) => ({ category, total: data.total, count: data.count }))
+      .sort((a, b) => b.total - a.total);
+
     return NextResponse.json({
       summary: {
-        totalAmount: totalStats._sum.amount || 0,
-        avgAmount: totalStats._avg.amount || 0,
+        totalAmount: totalStats._sum.amountUGX || totalStats._sum.amount || 0,
+        avgAmount: totalStats._avg.amountUGX || totalStats._avg.amount || 0,
         totalCount: totalStats._count,
       },
-      categoryBreakdown: categoryBreakdown.map((c) => ({
-        category: c.category,
-        total: c._sum.amount || 0,
-        count: c._count,
-      })),
+      categoryBreakdown: categoryBreakdownUGX,
       monthlyTrend,
       statusBreakdown: statusCounts.map((s) => ({
         status: s.status,
         count: s._count,
-        total: s._sum.amount || 0,
+        total: s._sum.amountUGX || s._sum.amount || 0,
       })),
       topSpenders: topSpendersWithNames,
       vendorBreakdown,
