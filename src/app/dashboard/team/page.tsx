@@ -79,7 +79,7 @@ const roleIcons: Record<string, React.ElementType> = {
 };
 const roleColors: Record<string, string> = {
   ADMIN: "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400",
-  EMPLOYEE: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+  EMPLOYEE: "bg-gray-100 dark:bg-gray-800 text-[var(--muted)]",
 };
 
 type Tab = "users" | "branches" | "policies" | "audit";
@@ -333,7 +333,7 @@ export default function TeamPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Team Management</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-[var(--foreground)] tracking-tight">Team Management</h1>
           <p className="text-[13px] text-gray-400 mt-0.5">Manage users, branches, policies, and audit logs</p>
         </div>
         {tab === "users" && (
@@ -364,7 +364,7 @@ export default function TeamPage() {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${tab === t.id ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${tab === t.id ? "bg-[var(--card-bg)] text-[var(--foreground)] shadow-sm" : "text-[var(--muted)] hover:text-[var(--foreground)]"}`}
           >
             <t.icon className="w-4 h-4" /> {t.label}
           </button>
@@ -385,13 +385,13 @@ export default function TeamPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h4 className="font-semibold text-gray-900 dark:text-white">{u.firstName} {u.lastName}</h4>
+                        <h4 className="font-semibold text-[var(--foreground)]">{u.firstName} {u.lastName}</h4>
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${roleColors[u.role]}`}>
                           <RoleIcon className="w-3 h-3" /> {u.role}
                         </span>
                         {!u.isActive && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400">Inactive</span>}
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 flex-wrap">
+                      <div className="flex items-center gap-3 text-sm text-[var(--muted)] flex-wrap">
                         <span>{u.email}</span>
                         {u.branch && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {u.branch.name}</span>}
                         <span>{u._count.expenses} expenses</span>
@@ -400,13 +400,13 @@ export default function TeamPage() {
                     </div>
                     <div className="hidden lg:flex items-center gap-2 flex-wrap">
                       <div className="relative">
-                        <select value={u.role} onChange={(e) => handleUpdateUser(u.id, { role: e.target.value })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
+                        <select value={u.role} onChange={(e) => handleUpdateUser(u.id, { role: e.target.value })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-[var(--muted)] appearance-none cursor-pointer">
                           {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                         </select>
                         <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
                       </div>
                       <div className="relative">
-                        <select value={u.branchId || ""} onChange={(e) => handleUpdateUser(u.id, { branchId: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
+                        <select value={u.branchId || ""} onChange={(e) => handleUpdateUser(u.id, { branchId: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-[var(--muted)] appearance-none cursor-pointer">
                           <option value="">No Branch</option>
                           {branches.filter(b => b.isActive).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                         </select>
@@ -423,13 +423,13 @@ export default function TeamPage() {
                   {/* Mobile controls - stacked below user info */}
                   <div className="flex lg:hidden items-center gap-2 flex-wrap mt-3 pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
                     <div className="relative">
-                      <select value={u.role} onChange={(e) => handleUpdateUser(u.id, { role: e.target.value })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
+                      <select value={u.role} onChange={(e) => handleUpdateUser(u.id, { role: e.target.value })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-[var(--muted)] appearance-none cursor-pointer">
                         {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                       </select>
                       <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
                     </div>
                     <div className="relative">
-                      <select value={u.branchId || ""} onChange={(e) => handleUpdateUser(u.id, { branchId: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-gray-600 dark:text-gray-400 appearance-none cursor-pointer">
+                      <select value={u.branchId || ""} onChange={(e) => handleUpdateUser(u.id, { branchId: e.target.value || null })} className="h-8 pl-3 pr-7 rounded-lg input-premium text-xs text-[var(--muted)] appearance-none cursor-pointer">
                         <option value="">No Branch</option>
                         {branches.filter(b => b.isActive).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                       </select>
@@ -453,10 +453,10 @@ export default function TeamPage() {
       {tab === "branches" && (
         <div className="space-y-3">
           {branches.length === 0 ? (
-            <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-16 text-center">
+            <div className="rounded-2xl bg-[var(--card-bg)] border border-gray-200 dark:border-gray-800 p-16 text-center">
               <Building2 className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">No branches</h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Create branches to organize your team</p>
+              <h4 className="font-semibold text-[var(--foreground)] mb-2">No branches</h4>
+              <p className="text-sm text-[var(--muted)]">Create branches to organize your team</p>
             </div>
           ) : (
             branches.map((b, i) => (
@@ -467,11 +467,11 @@ export default function TeamPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-semibold text-gray-900 dark:text-white">{b.name}</h4>
-                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">{b.code}</span>
+                      <h4 className="font-semibold text-[var(--foreground)]">{b.name}</h4>
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-[var(--muted)]">{b.code}</span>
                       {!b.isActive && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400">Inactive</span>}
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
                       <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {b.location}</span>
                       <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {b._count.users} users</span>
                     </div>
@@ -495,10 +495,10 @@ export default function TeamPage() {
       {tab === "policies" && (
         <div className="space-y-3">
           {policies.length === 0 ? (
-            <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-16 text-center">
+            <div className="rounded-2xl bg-[var(--card-bg)] border border-gray-200 dark:border-gray-800 p-16 text-center">
               <Shield className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">No spending policies</h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Create policies to enforce spending limits</p>
+              <h4 className="font-semibold text-[var(--foreground)] mb-2">No spending policies</h4>
+              <p className="text-sm text-[var(--muted)]">Create policies to enforce spending limits</p>
             </div>
           ) : (
             policies.map((p, i) => (
@@ -508,8 +508,8 @@ export default function TeamPage() {
                     <Shield className="w-6 h-6 text-blue-500" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 dark:text-white">{p.name}</h4>
-                    <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                    <h4 className="font-semibold text-[var(--foreground)]">{p.name}</h4>
+                    <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
                       <span>Max: {formatCurrency(p.maxAmount)}</span>
                       {p.category && <span>Category: {p.category}</span>}
                       {p.role && <span>Role: {p.role}</span>}
@@ -530,21 +530,21 @@ export default function TeamPage() {
       {tab === "audit" && (
         <div className="space-y-2">
           {auditLogs.length === 0 ? (
-            <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-16 text-center">
+            <div className="rounded-2xl bg-[var(--card-bg)] border border-gray-200 dark:border-gray-800 p-16 text-center">
               <ScrollText className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">No audit entries</h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Activity will appear here</p>
+              <h4 className="font-semibold text-[var(--foreground)] mb-2">No audit entries</h4>
+              <p className="text-sm text-[var(--muted)]">Activity will appear here</p>
             </div>
           ) : (
             auditLogs.map((log, i) => (
-              <motion.div key={log.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#072419] border border-black/[0.06] dark:border-white/[0.06]">
+              <motion.div key={log.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="flex items-start gap-3 p-3 rounded-xl bg-[var(--card-bg)] border border-black/[0.06] dark:border-white/[0.06]">
                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Clock className="w-4 h-4 text-gray-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900 dark:text-white">
+                  <p className="text-sm text-[var(--foreground)]">
                     <span className="font-medium">{log.user.firstName} {log.user.lastName}</span>{" "}
-                    <span className="text-gray-500 dark:text-gray-400">{log.action.toLowerCase().replace("_", " ")} {log.entity.toLowerCase()}</span>
+                    <span className="text-[var(--muted)]">{log.action.toLowerCase().replace("_", " ")} {log.entity.toLowerCase()}</span>
                   </p>
                   {log.details && (
                     <p className="text-xs text-gray-400 mt-0.5 truncate">
@@ -565,24 +565,24 @@ export default function TeamPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowInvite(false)}>
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-md premium-card p-5 lg:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Add New User</h3>
+                <h3 className="text-lg font-bold text-[var(--foreground)]">Add New User</h3>
                 <button onClick={() => setShowInvite(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <input placeholder="First Name *" value={inviteForm.firstName} onChange={(e) => setInviteForm({ ...inviteForm, firstName: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
-                  <input placeholder="Last Name *" value={inviteForm.lastName} onChange={(e) => setInviteForm({ ...inviteForm, lastName: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
+                  <input placeholder="First Name *" value={inviteForm.firstName} onChange={(e) => setInviteForm({ ...inviteForm, firstName: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
+                  <input placeholder="Last Name *" value={inviteForm.lastName} onChange={(e) => setInviteForm({ ...inviteForm, lastName: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
                 </div>
-                <input type="email" placeholder="Email *" value={inviteForm.email} onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
-                <input type="password" placeholder="Password *" value={inviteForm.password} onChange={(e) => setInviteForm({ ...inviteForm, password: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
-                <select value={inviteForm.role} onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400">
+                <input type="email" placeholder="Email *" value={inviteForm.email} onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
+                <input type="password" placeholder="Password *" value={inviteForm.password} onChange={(e) => setInviteForm({ ...inviteForm, password: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
+                <select value={inviteForm.role} onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--muted)]">
                     {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                   </select>
-                <select value={inviteForm.branchId} onChange={(e) => setInviteForm({ ...inviteForm, branchId: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400">
+                <select value={inviteForm.branchId} onChange={(e) => setInviteForm({ ...inviteForm, branchId: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--muted)]">
                   <option value="">Select Branch *</option>
                   {branches.filter(b => b.isActive).map((b) => <option key={b.id} value={b.id}>{b.name} ({b.location})</option>)}
                 </select>
-                <input type="number" placeholder="Spending Limit (optional)" value={inviteForm.spendingLimit} onChange={(e) => setInviteForm({ ...inviteForm, spendingLimit: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
+                <input type="number" placeholder="Spending Limit (optional)" value={inviteForm.spendingLimit} onChange={(e) => setInviteForm({ ...inviteForm, spendingLimit: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
                 <button onClick={handleInvite} disabled={saving} className="w-full h-10 btn-primary text-sm disabled:opacity-50 flex items-center justify-center gap-2">
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
                   {saving ? "Creating..." : "Create User"}
@@ -599,13 +599,13 @@ export default function TeamPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => { setShowBranch(false); setEditingBranch(null); setBranchForm({ name: "", code: "", location: "" }); }}>
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-md premium-card p-5 lg:p-6 shadow-2xl">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{editingBranch ? "Edit Branch" : "Add New Branch"}</h3>
+                <h3 className="text-lg font-bold text-[var(--foreground)]">{editingBranch ? "Edit Branch" : "Add New Branch"}</h3>
                 <button onClick={() => { setShowBranch(false); setEditingBranch(null); setBranchForm({ name: "", code: "", location: "" }); }} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-4">
-                <input placeholder="Branch Name *" value={branchForm.name} onChange={(e) => setBranchForm({ ...branchForm, name: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
-                <input placeholder="Branch Code * (e.g. HQ, JNJ)" value={branchForm.code} onChange={(e) => setBranchForm({ ...branchForm, code: e.target.value.toUpperCase() })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
-                <input placeholder="Location * (e.g. Kampala, Uganda)" value={branchForm.location} onChange={(e) => setBranchForm({ ...branchForm, location: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
+                <input placeholder="Branch Name *" value={branchForm.name} onChange={(e) => setBranchForm({ ...branchForm, name: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
+                <input placeholder="Branch Code * (e.g. HQ, JNJ)" value={branchForm.code} onChange={(e) => setBranchForm({ ...branchForm, code: e.target.value.toUpperCase() })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
+                <input placeholder="Location * (e.g. Kampala, Uganda)" value={branchForm.location} onChange={(e) => setBranchForm({ ...branchForm, location: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
                 <button onClick={editingBranch ? handleUpdateBranch : handleCreateBranch} disabled={saving} className="w-full h-10 btn-primary text-sm disabled:opacity-50 flex items-center justify-center gap-2">
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Building2 className="w-4 h-4" />}
                   {saving ? (editingBranch ? "Saving..." : "Creating...") : (editingBranch ? "Save Changes" : "Create Branch")}
@@ -622,23 +622,23 @@ export default function TeamPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowPolicy(false)}>
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-md premium-card p-5 lg:p-6 shadow-2xl">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Create Spending Policy</h3>
+                <h3 className="text-lg font-bold text-[var(--foreground)]">Create Spending Policy</h3>
                 <button onClick={() => setShowPolicy(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-4">
-                <input placeholder="Policy Name *" value={policyForm.name} onChange={(e) => setPolicyForm({ ...policyForm, name: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
-                <input type="number" placeholder="Max Amount *" value={policyForm.maxAmount} onChange={(e) => setPolicyForm({ ...policyForm, maxAmount: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400" />
+                <input placeholder="Policy Name *" value={policyForm.name} onChange={(e) => setPolicyForm({ ...policyForm, name: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
+                <input type="number" placeholder="Max Amount *" value={policyForm.maxAmount} onChange={(e) => setPolicyForm({ ...policyForm, maxAmount: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
                 <div className="grid grid-cols-2 gap-3">
-                  <select value={policyForm.category} onChange={(e) => setPolicyForm({ ...policyForm, category: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400">
+                  <select value={policyForm.category} onChange={(e) => setPolicyForm({ ...policyForm, category: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-[var(--muted)]">
                     <option value="">All Categories</option>
                     {["Fuel & Gas", "Equipment", "Travel", "Supplies", "Meals", "Transportation", "Utilities", "Maintenance", "Office", "Other"].map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
-                  <select value={policyForm.role} onChange={(e) => setPolicyForm({ ...policyForm, role: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-gray-600 dark:text-gray-400">
+                  <select value={policyForm.role} onChange={(e) => setPolicyForm({ ...policyForm, role: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-[var(--muted)]">
                     <option value="">All Roles</option>
                     {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
-                <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <label className="flex items-center gap-2 text-sm text-[var(--muted)]">
                   <input type="checkbox" checked={policyForm.requireApproval} onChange={(e) => setPolicyForm({ ...policyForm, requireApproval: e.target.checked })} className="w-4 h-4 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500" />
                   Require admin approval
                 </label>

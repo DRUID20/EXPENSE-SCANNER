@@ -86,7 +86,7 @@ const categoryIcons: Record<string, React.ElementType> = {
 };
 
 const statusConfig: Record<string, { color: string; icon: React.ElementType }> = {
-  DRAFT: { color: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400", icon: FileEdit },
+  DRAFT: { color: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-[var(--muted)]", icon: FileEdit },
   PENDING: { color: "bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400", icon: Clock },
   APPROVED: { color: "bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400", icon: CheckCircle2 },
   REJECTED: { color: "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400", icon: XCircle },
@@ -292,7 +292,7 @@ export default function DashboardPage() {
           <h1 className="text-xl lg:text-2xl font-bold text-[var(--foreground)] tracking-tight">
             {isAdmin ? "Admin Dashboard" : "Dashboard"}
           </h1>
-          <p className="text-[13px] text-gray-400 mt-0.5">
+          <p className="text-[13px] text-[var(--muted)] mt-0.5">
             {isAdmin
               ? "Company-wide expense overview"
               : "Overview of your expense activity"}
@@ -337,7 +337,7 @@ export default function DashboardPage() {
             <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.gradient} opacity-[0.04] rounded-full -translate-y-8 translate-x-8`} />
             <div className="flex items-start justify-between relative">
               <div>
-                <p className="text-[11px] lg:text-xs text-gray-400 font-medium uppercase tracking-wider">{stat.title}</p>
+                <p className="text-[11px] lg:text-xs text-[var(--muted)] font-medium uppercase tracking-wider">{stat.title}</p>
                 <p className="text-xl lg:text-3xl font-bold text-[var(--foreground)] mt-1.5 tracking-tight">{stat.value}</p>
               </div>
               <div className="relative">
@@ -380,7 +380,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-semibold text-[var(--foreground)] truncate">{expense.title}</p>
-                    <p className="text-[11px] text-gray-400 truncate">
+                    <p className="text-[11px] text-[var(--muted)] truncate">
                       {expense.user.firstName} {expense.user.lastName} · {expense.category} · {formatDate(expense.date)}
                     </p>
                   </div>
@@ -418,7 +418,7 @@ export default function DashboardPage() {
                 <Receipt className="w-7 h-7 text-gray-300 dark:text-gray-600" />
               </div>
               <h4 className="font-semibold text-[var(--foreground)] text-sm mb-1.5">No expenses yet</h4>
-              <p className="text-[13px] text-gray-400 max-w-xs mb-4">
+              <p className="text-[13px] text-[var(--muted)] max-w-xs mb-4">
                 Start by scanning a receipt or adding your first expense.
               </p>
               <Link href="/dashboard/scan">
@@ -453,7 +453,7 @@ export default function DashboardPage() {
                             {expense.status}
                           </span>
                         </div>
-                        <p className="text-[11px] text-gray-400 truncate">
+                        <p className="text-[11px] text-[var(--muted)] truncate">
                           {expense.vendor && `${expense.vendor} · `}{expense.category} · {formatDate(expense.date)}
                           {canApprove && ` · ${expense.user.firstName} ${expense.user.lastName}`}
                         </p>
@@ -482,7 +482,7 @@ export default function DashboardPage() {
           {!data || data.categoryTotals.length === 0 ? (
             <div className="text-center py-8">
               <HelpCircle className="w-7 h-7 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-              <p className="text-[13px] text-gray-400">No spending data yet</p>
+              <p className="text-[13px] text-[var(--muted)]">No spending data yet</p>
             </div>
           ) : (
             <div className="space-y-3.5">
@@ -518,7 +518,7 @@ export default function DashboardPage() {
           )}
 
           <div className="mt-5 pt-4 border-t border-black/[0.04] dark:border-white/[0.04] text-center">
-            <p className="text-[11px] text-gray-400 mb-2">
+            <p className="text-[11px] text-[var(--muted)] mb-2">
               {isAdmin ? "Company-wide spending" : "Your personal spending"}
             </p>
             <Link href="/dashboard/analytics" className="text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)] font-medium">
@@ -554,14 +554,14 @@ export default function DashboardPage() {
                     {emp.firstName[0]}{emp.lastName[0]}
                   </div>
                   {i < 3 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#072419] border border-black/[0.06] dark:border-white/[0.06] flex items-center justify-center text-[9px] font-bold text-[var(--accent)]">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--card-bg)] border border-black/[0.06] dark:border-white/[0.06] flex items-center justify-center text-[9px] font-bold text-[var(--accent)]">
                       {i + 1}
                     </span>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-semibold text-[var(--foreground)] truncate">{emp.firstName} {emp.lastName}</p>
-                  <p className="text-[11px] text-gray-400">{emp.count} expenses</p>
+                  <p className="text-[11px] text-[var(--muted)]">{emp.count} expenses</p>
                 </div>
                 <p className="text-[13px] font-bold text-[var(--accent)]">{formatCurrency(emp.total)}</p>
               </div>
@@ -594,7 +594,7 @@ export default function DashboardPage() {
                 <h4 className="text-[13px] font-semibold text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors">
                   {action.title}
                 </h4>
-                <p className="text-[11px] text-gray-400 mt-0.5 hidden sm:block">{action.desc}</p>
+                <p className="text-[11px] text-[var(--muted)] mt-0.5 hidden sm:block">{action.desc}</p>
               </motion.div>
             </Link>
           ))}

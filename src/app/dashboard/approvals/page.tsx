@@ -188,7 +188,7 @@ export default function ApprovalsPage() {
     >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Approvals</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-[var(--foreground)] tracking-tight">Approvals</h1>
           <p className="text-[13px] text-gray-400 mt-0.5">
             Review and approve expense submissions ({total} total)
           </p>
@@ -281,10 +281,10 @@ export default function ApprovalsPage() {
             <div className="w-20 h-20 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
               <ClipboardCheck className="w-10 h-10 text-gray-300 dark:text-gray-600" />
             </div>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <h4 className="text-lg font-semibold text-[var(--foreground)] mb-2">
               No {filter.toLowerCase()} expenses
             </h4>
-            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm">
+            <p className="text-sm text-[var(--muted)] max-w-sm">
               {filter === "PENDING"
                 ? "There are no expenses waiting for your review right now."
                 : "No expenses match this filter."}
@@ -305,7 +305,7 @@ export default function ApprovalsPage() {
                   <Square className="w-4.5 h-4.5" />
                 )}
               </button>
-              <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <span className="text-xs font-medium text-[var(--muted)] uppercase tracking-wider">
                 Select all
               </span>
             </div>
@@ -349,10 +349,10 @@ export default function ApprovalsPage() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-gray-900 dark:text-white truncate">
+                        <h4 className="font-semibold text-[var(--foreground)] truncate">
                           {expense.title}
                         </h4>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500 dark:text-gray-400">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--muted)]">
                           <span className="flex items-center gap-1">
                             <span className="w-5 h-5 rounded-md bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-[10px] font-bold">
                               {expense.user.firstName[0]}{expense.user.lastName[0]}
@@ -365,7 +365,7 @@ export default function ApprovalsPage() {
                       </div>
 
                       <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end mt-2 sm:mt-0">
-                        <p className="text-lg font-bold text-gray-900 dark:text-white flex-shrink-0">
+                        <p className="text-lg font-bold text-[var(--foreground)] flex-shrink-0">
                           {formatCurrency(expense.amount, expense.currency)}
                         </p>
 
@@ -442,7 +442,7 @@ export default function ApprovalsPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-6 px-2">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-[var(--muted)]">
                 Page {page} of {totalPages}
               </p>
               <div className="flex items-center gap-2">
@@ -476,7 +476,7 @@ export default function ApprovalsPage() {
                       className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
                         page === pageNum
                           ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm"
-                          : "premium-card text-gray-600 dark:text-gray-400 hover:text-emerald-500"
+                          : "premium-card text-[var(--muted)] hover:text-emerald-500"
                       }`}
                     >
                       {pageNum}
@@ -517,7 +517,7 @@ export default function ApprovalsPage() {
               className="w-full max-w-md premium-card p-5 lg:p-6 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <h3 className="text-lg font-bold text-[var(--foreground)] flex items-center gap-2">
                   <XCircle className="w-5 h-5 text-red-500" />
                   Reject {rejectTarget.type === "bulk" ? `${selectedIds.size} Expense(s)` : "Expense"}
                 </h3>
@@ -529,7 +529,7 @@ export default function ApprovalsPage() {
                 </button>
               </div>
 
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              <p className="text-sm text-[var(--muted)] mb-4">
                 Provide a reason for rejection (optional but recommended):
               </p>
 
@@ -554,7 +554,7 @@ export default function ApprovalsPage() {
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={() => { setRejectTarget(null); setRejectionReason(""); }}
-                  className="flex-1 h-11 rounded-xl bg-gray-100 dark:bg-[#072419] border border-black/[0.06] dark:border-white/[0.06] text-gray-600 dark:text-gray-400 font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+                  className="flex-1 h-11 rounded-xl bg-[var(--card-bg)] border border-black/[0.06] dark:border-white/[0.06] text-[var(--muted)] font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
                 >
                   Cancel
                 </motion.button>

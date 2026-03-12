@@ -209,10 +209,10 @@ export function NotificationBell() {
               >
                 <Icon className={`w-5 h-5 flex-shrink-0 ${toastIconColors[toast.type] || "text-gray-500"}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                  <p className="text-sm font-semibold text-[var(--foreground)] truncate">
                     {toast.title}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  <p className="text-xs text-[var(--muted)] truncate">
                     {toast.message}
                   </p>
                 </div>
@@ -254,10 +254,10 @@ export function NotificationBell() {
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute right-0 top-11 w-80 max-h-96 rounded-2xl bg-white dark:bg-[#072419] border border-black/[0.06] dark:border-white/[0.06] shadow-xl shadow-black/[0.08] overflow-hidden z-50"
+              className="absolute right-0 top-11 w-80 max-h-96 rounded-2xl bg-[var(--card-bg)] border border-black/[0.06] dark:border-white/[0.06] shadow-xl shadow-black/[0.08] overflow-hidden z-50"
             >
               <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
-                <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Notifications</h4>
+                <h4 className="font-semibold text-[var(--foreground)] text-sm">Notifications</h4>
                 {unreadCount > 0 && (
                   <button
                     onClick={markAllRead}
@@ -285,7 +285,7 @@ export function NotificationBell() {
                       <div className="flex items-start gap-3">
                         <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${typeColors[n.type] || "bg-gray-400"}`} />
                         <div className="flex-1 min-w-0">
-                          <p className={`text-sm ${!n.isRead ? "font-semibold text-gray-900 dark:text-white" : "text-gray-600 dark:text-gray-400"}`}>
+                          <p className={`text-sm ${!n.isRead ? "font-semibold text-[var(--foreground)]" : "text-[var(--muted)]"}`}>
                             {n.title}
                           </p>
                           <p className="text-xs text-gray-400 mt-0.5 truncate">{n.message}</p>

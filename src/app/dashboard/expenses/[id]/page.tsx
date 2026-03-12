@@ -58,7 +58,7 @@ interface Expense {
 }
 
 const statusConfig: Record<string, { label: string; color: string; bgColor: string; icon: React.ElementType }> = {
-  DRAFT: { label: "Draft", color: "text-gray-600 dark:text-gray-400", bgColor: "bg-gray-100 dark:bg-gray-800", icon: FileEdit },
+  DRAFT: { label: "Draft", color: "text-[var(--muted)]", bgColor: "bg-gray-100 dark:bg-gray-800", icon: FileEdit },
   PENDING: { label: "Pending Approval", color: "text-amber-600 dark:text-amber-400", bgColor: "bg-amber-100 dark:bg-amber-950", icon: Clock },
   APPROVED: { label: "Approved", color: "text-green-600 dark:text-green-400", bgColor: "bg-green-100 dark:bg-green-950", icon: CheckCircle2 },
   REJECTED: { label: "Rejected", color: "text-red-600 dark:text-red-400", bgColor: "bg-red-100 dark:bg-red-950", icon: XCircle },
@@ -179,13 +179,13 @@ export default function ExpenseDetailPage() {
             </motion.button>
           </Link>
           <div>
-            <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{expense.title}</h1>
+            <h1 className="text-xl lg:text-2xl font-bold text-[var(--foreground)] tracking-tight">{expense.title}</h1>
             <div className="flex items-center gap-2 mt-1">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${status.bgColor} ${status.color}`}>
                 <StatusIcon className="w-3.5 h-3.5" />
                 {status.label}
               </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <span className="text-sm text-[var(--muted)]">
                 Created {formatDate(expense.createdAt)}
               </span>
             </div>
@@ -226,7 +226,7 @@ export default function ExpenseDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Expense details card */}
           <div className="premium-card p-4 lg:p-6">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5 text-emerald-500" />
               Expense Details
             </h3>
@@ -240,17 +240,17 @@ export default function ExpenseDetailPage() {
 
             {expense.description && (
               <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Description</p>
-                <p className="text-sm text-gray-900 dark:text-white">{expense.description}</p>
+                <p className="text-sm text-[var(--muted)] mb-1">Description</p>
+                <p className="text-sm text-[var(--foreground)]">{expense.description}</p>
               </div>
             )}
 
             {expense.notes && (
               <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
+                <p className="text-sm text-[var(--muted)] mb-1 flex items-center gap-1">
                   <StickyNote className="w-3.5 h-3.5" /> Notes
                 </p>
-                <p className="text-sm text-gray-900 dark:text-white">{expense.notes}</p>
+                <p className="text-sm text-[var(--foreground)]">{expense.notes}</p>
               </div>
             )}
           </div>
@@ -258,27 +258,27 @@ export default function ExpenseDetailPage() {
           {/* Line Items from AI scan */}
           {parsedReceiptData?.lineItems && parsedReceiptData.lineItems.length > 0 && (
             <div className="premium-card p-4 lg:p-6">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
+              <h3 className="font-semibold text-[var(--foreground)] mb-4">
                 Line Items (AI Extracted)
               </h3>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-gray-800">
-                    <th className="text-left py-2 text-gray-500 font-medium">Item</th>
-                    <th className="text-right py-2 text-gray-500 font-medium">Qty</th>
-                    <th className="text-right py-2 text-gray-500 font-medium">Price</th>
-                    <th className="text-right py-2 text-gray-500 font-medium">Total</th>
+                    <th className="text-left py-2 text-[var(--muted)] font-medium">Item</th>
+                    <th className="text-right py-2 text-[var(--muted)] font-medium">Qty</th>
+                    <th className="text-right py-2 text-[var(--muted)] font-medium">Price</th>
+                    <th className="text-right py-2 text-[var(--muted)] font-medium">Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {parsedReceiptData.lineItems.map((item: { description: string; quantity: number; unitPrice: number; total: number }, i: number) => (
                     <tr key={i} className="border-b border-gray-50 dark:border-gray-800/50">
-                      <td className="py-2.5 text-gray-900 dark:text-white">{item.description}</td>
-                      <td className="py-2.5 text-right text-gray-600 dark:text-gray-400">{item.quantity}</td>
-                      <td className="py-2.5 text-right text-gray-600 dark:text-gray-400">
+                      <td className="py-2.5 text-[var(--foreground)]">{item.description}</td>
+                      <td className="py-2.5 text-right text-[var(--muted)]">{item.quantity}</td>
+                      <td className="py-2.5 text-right text-[var(--muted)]">
                         {formatCurrency(item.unitPrice, expense.currency)}
                       </td>
-                      <td className="py-2.5 text-right font-medium text-gray-900 dark:text-white">
+                      <td className="py-2.5 text-right font-medium text-[var(--foreground)]">
                         {formatCurrency(item.total, expense.currency)}
                       </td>
                     </tr>
@@ -308,7 +308,7 @@ export default function ExpenseDetailPage() {
           {/* Approval actions for managers/admins */}
           {canApprove && (
             <div className="premium-card p-4 lg:p-6">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Review Decision</h3>
+              <h3 className="font-semibold text-[var(--foreground)] mb-4">Review Decision</h3>
 
               {showRejectForm ? (
                 <div className="space-y-3">
@@ -317,7 +317,7 @@ export default function ExpenseDetailPage() {
                     onChange={(e) => setRejectionReason(e.target.value)}
                     placeholder="Reason for rejection..."
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl input-premium text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+                    className="w-full px-4 py-3 rounded-xl input-premium text-[var(--foreground)] text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
                   />
                   <div className="flex gap-2">
                     <motion.button
@@ -385,7 +385,7 @@ export default function ExpenseDetailPage() {
           {(expense.receiptPath || expense.receiptUrl) && (
             <div className="premium-card p-4">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
                   <Receipt className="w-4 h-4 text-emerald-500" />
                   Receipt
                 </h4>
@@ -409,7 +409,7 @@ export default function ExpenseDetailPage() {
 
           {/* Submitted by */}
           <div className="premium-card p-4">
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <h4 className="font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
               <User className="w-4 h-4 text-emerald-500" />
               Submitted By
             </h4>
@@ -418,10 +418,10 @@ export default function ExpenseDetailPage() {
                 {expense.user.firstName[0]}{expense.user.lastName[0]}
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                <p className="text-sm font-semibold text-[var(--foreground)]">
                   {expense.user.firstName} {expense.user.lastName}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{expense.user.email}</p>
+                <p className="text-xs text-[var(--muted)]">{expense.user.email}</p>
               </div>
             </div>
           </div>
@@ -446,11 +446,11 @@ function DetailField({
     <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
       <div className="flex items-center gap-1.5 mb-1">
         <span className="text-gray-400">{icon}</span>
-        <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">{label}</span>
+        <span className="text-xs text-[var(--muted)] font-medium">{label}</span>
       </div>
       <p
         className={`text-sm font-semibold ${
-          highlight ? "text-emerald-500 text-lg" : value ? "text-gray-900 dark:text-white" : "text-gray-400 italic"
+          highlight ? "text-emerald-500 text-lg" : value ? "text-[var(--foreground)]" : "text-gray-400 italic"
         }`}
       >
         {value || "—"}

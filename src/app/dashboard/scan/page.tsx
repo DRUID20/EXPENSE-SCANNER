@@ -232,7 +232,7 @@ export default function ScanPage() {
     >
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl lg:text-2xl tracking-tight font-bold text-gray-900 dark:text-white">Scan Receipt</h1>
+          <h1 className="text-xl lg:text-2xl tracking-tight font-bold text-[var(--foreground)]">Scan Receipt</h1>
           <p className="text-[13px] text-gray-400 mt-0.5">
             Upload or capture a receipt and let Claude AI extract the details
           </p>
@@ -244,7 +244,7 @@ export default function ScanPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={resetScan}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl premium-card text-sm text-gray-600 dark:text-gray-400 hover:border-emerald-300 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl premium-card text-sm text-[var(--muted)] hover:border-emerald-300 transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
             New Scan
@@ -274,7 +274,7 @@ export default function ScanPage() {
               className={`relative p-6 lg:p-12 rounded-2xl border-2 border-dashed transition-all cursor-pointer min-h-[250px] lg:min-h-[350px] flex flex-col items-center justify-center text-center ${
                 isDragging
                   ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20"
-                  : "border-black/[0.06] dark:border-white/[0.06] bg-white dark:bg-[#072419] hover:border-emerald-400 dark:hover:border-emerald-600"
+                  : "border-black/[0.06] dark:border-white/[0.06] bg-[var(--card-bg)] hover:border-emerald-400 dark:hover:border-emerald-600"
               }`}
             >
               <input
@@ -296,10 +296,10 @@ export default function ScanPage() {
                 )}
               </motion.div>
 
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight mb-2">
+              <h3 className="text-lg font-semibold text-[var(--foreground)] tracking-tight mb-2">
                 {isDragging ? "Drop your receipt here" : "Upload a receipt"}
               </h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md">
+              <p className="text-[var(--muted)] mb-6 max-w-md">
                 Drag and drop an image, or click to browse. Supports JPEG, PNG, WebP, and GIF up to 10MB.
               </p>
 
@@ -336,10 +336,10 @@ export default function ScanPage() {
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                  <h4 className="font-semibold text-[var(--foreground)] mb-1">
                     Powered by Claude AI
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-[var(--muted)]">
                     Our AI automatically extracts vendor, amount, date, tax, line items, and category from your receipts. Review the extracted data and submit with one click.
                   </p>
                 </div>
@@ -371,10 +371,10 @@ export default function ScanPage() {
               )}
 
               <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight mb-2">
+              <h3 className="text-lg font-semibold text-[var(--foreground)] tracking-tight mb-2">
                 Scanning your receipt...
               </h3>
-              <p className="text-gray-500 dark:text-gray-400 max-w-md">
+              <p className="text-[var(--muted)] max-w-md">
                 Claude AI is analyzing the image to extract expense details. This usually takes a few seconds.
               </p>
 
@@ -409,7 +409,7 @@ export default function ScanPage() {
               {/* Receipt Preview */}
               <div className="lg:col-span-1">
                 <div className="premium-card p-4 sticky top-24">
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <h4 className="font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
                     <Receipt className="w-4 h-4 text-emerald-500" />
                     Receipt Image
                   </h4>
@@ -427,14 +427,14 @@ export default function ScanPage() {
               <div className="lg:col-span-2 space-y-4">
                 {/* Main info */}
                 <div className="premium-card p-4 lg:p-6">
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <h4 className="font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
                     <Pencil className="w-4 h-4 text-emerald-500" />
                     Review &amp; Edit Details
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted)] mb-1.5">
                         <Store className="w-3.5 h-3.5" /> Vendor
                       </label>
                       <input
@@ -442,11 +442,11 @@ export default function ScanPage() {
                         value={scanResult.vendor || ""}
                         onChange={(e) => setScanResult({ ...scanResult, vendor: e.target.value || null })}
                         placeholder="Vendor name"
-                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white placeholder-gray-400"
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-[var(--foreground)] placeholder-gray-400"
                       />
                     </div>
                     <div>
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted)] mb-1.5">
                         <FileText className="w-3.5 h-3.5" /> Title
                       </label>
                       <input
@@ -454,11 +454,11 @@ export default function ScanPage() {
                         value={scanResult.title || ""}
                         onChange={(e) => setScanResult({ ...scanResult, title: e.target.value || null })}
                         placeholder="Expense title"
-                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white placeholder-gray-400"
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-[var(--foreground)] placeholder-gray-400"
                       />
                     </div>
                     <div>
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted)] mb-1.5">
                         <DollarSign className="w-3.5 h-3.5" /> Amount <span className="text-red-400">*</span>
                       </label>
                       <input
@@ -468,28 +468,28 @@ export default function ScanPage() {
                         value={scanResult.amount ?? ""}
                         onChange={(e) => setScanResult({ ...scanResult, amount: e.target.value ? parseFloat(e.target.value) : null })}
                         placeholder="0.00"
-                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white placeholder-gray-400"
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-[var(--foreground)] placeholder-gray-400"
                       />
                     </div>
                     <div>
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted)] mb-1.5">
                         <Calendar className="w-3.5 h-3.5" /> Date
                       </label>
                       <input
                         type="date"
                         value={scanResult.date || ""}
                         onChange={(e) => setScanResult({ ...scanResult, date: e.target.value || null })}
-                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white"
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-[var(--foreground)]"
                       />
                     </div>
                     <div>
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted)] mb-1.5">
                         <Tag className="w-3.5 h-3.5" /> Category
                       </label>
                       <select
                         value={scanResult.category || ""}
                         onChange={(e) => setScanResult({ ...scanResult, category: e.target.value || null })}
-                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white appearance-none"
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-[var(--foreground)] appearance-none"
                       >
                         <option value="">Select category...</option>
                         {CATEGORIES.map((cat) => (
@@ -498,13 +498,13 @@ export default function ScanPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted)] mb-1.5">
                         Currency
                       </label>
                       <select
                         value={scanResult.currency || "UGX"}
                         onChange={(e) => setScanResult({ ...scanResult, currency: e.target.value })}
-                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white appearance-none"
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-[var(--foreground)] appearance-none"
                       >
                         <option value="UGX">UGX</option>
                         <option value="USD">USD</option>
@@ -518,7 +518,7 @@ export default function ScanPage() {
 
                   {/* Notes */}
                   <div className="mt-4">
-                    <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                    <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted)] mb-1.5">
                       Notes
                     </label>
                     <textarea
@@ -526,7 +526,7 @@ export default function ScanPage() {
                       onChange={(e) => setScanResult({ ...scanResult, notes: e.target.value || null })}
                       placeholder="Additional notes..."
                       rows={2}
-                      className="w-full px-3 py-2 rounded-xl input-premium text-sm text-gray-900 dark:text-white placeholder-gray-400 resize-none"
+                      className="w-full px-3 py-2 rounded-xl input-premium text-sm text-[var(--foreground)] placeholder-gray-400 resize-none"
                     />
                   </div>
                 </div>
@@ -534,28 +534,28 @@ export default function ScanPage() {
                 {/* Line Items */}
                 {scanResult.lineItems && scanResult.lineItems.length > 0 && (
                   <div className="premium-card p-4 lg:p-6">
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
+                    <h4 className="font-semibold text-[var(--foreground)] mb-4">
                       Line Items
                     </h4>
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-gray-100 dark:border-gray-800">
-                            <th className="text-left py-2 text-gray-500 dark:text-gray-400 font-medium">Item</th>
-                            <th className="text-right py-2 text-gray-500 dark:text-gray-400 font-medium">Qty</th>
-                            <th className="text-right py-2 text-gray-500 dark:text-gray-400 font-medium">Price</th>
-                            <th className="text-right py-2 text-gray-500 dark:text-gray-400 font-medium">Total</th>
+                            <th className="text-left py-2 text-[var(--muted)] font-medium">Item</th>
+                            <th className="text-right py-2 text-[var(--muted)] font-medium">Qty</th>
+                            <th className="text-right py-2 text-[var(--muted)] font-medium">Price</th>
+                            <th className="text-right py-2 text-[var(--muted)] font-medium">Total</th>
                           </tr>
                         </thead>
                         <tbody>
                           {scanResult.lineItems.map((item, i) => (
                             <tr key={i} className="border-b border-gray-50 dark:border-gray-800/50">
-                              <td className="py-2.5 text-gray-900 dark:text-white">{item.description}</td>
-                              <td className="py-2.5 text-right text-gray-600 dark:text-gray-400">{item.quantity}</td>
-                              <td className="py-2.5 text-right text-gray-600 dark:text-gray-400">
+                              <td className="py-2.5 text-[var(--foreground)]">{item.description}</td>
+                              <td className="py-2.5 text-right text-[var(--muted)]">{item.quantity}</td>
+                              <td className="py-2.5 text-right text-[var(--muted)]">
                                 {formatCurrency(item.unitPrice, scanResult.currency)}
                               </td>
-                              <td className="py-2.5 text-right font-medium text-gray-900 dark:text-white">
+                              <td className="py-2.5 text-right font-medium text-[var(--foreground)]">
                                 {formatCurrency(item.total, scanResult.currency)}
                               </td>
                             </tr>
@@ -565,7 +565,7 @@ export default function ScanPage() {
                           {scanResult.subtotal != null && (
                             <tr className="border-t border-gray-200 dark:border-gray-700">
                               <td colSpan={3} className="py-2 text-right text-gray-500 font-medium">Subtotal</td>
-                              <td className="py-2 text-right font-medium text-gray-900 dark:text-white">
+                              <td className="py-2 text-right font-medium text-[var(--foreground)]">
                                 {formatCurrency(scanResult.subtotal, scanResult.currency)}
                               </td>
                             </tr>
@@ -573,14 +573,14 @@ export default function ScanPage() {
                           {scanResult.tax != null && (
                             <tr>
                               <td colSpan={3} className="py-2 text-right text-gray-500 font-medium">Tax</td>
-                              <td className="py-2 text-right font-medium text-gray-900 dark:text-white">
+                              <td className="py-2 text-right font-medium text-[var(--foreground)]">
                                 {formatCurrency(scanResult.tax, scanResult.currency)}
                               </td>
                             </tr>
                           )}
                           {scanResult.amount != null && (
                             <tr className="border-t border-gray-200 dark:border-gray-700">
-                              <td colSpan={3} className="py-2 text-right text-gray-900 dark:text-white font-bold">Total</td>
+                              <td colSpan={3} className="py-2 text-right text-[var(--foreground)] font-bold">Total</td>
                               <td className="py-2 text-right font-bold text-emerald-500 text-lg">
                                 {formatCurrency(scanResult.amount, scanResult.currency)}
                               </td>
@@ -599,7 +599,7 @@ export default function ScanPage() {
                     whileTap={{ scale: 0.99 }}
                     onClick={() => handleCreateExpense("DRAFT")}
                     disabled={submitting}
-                    className="flex-1 h-12 rounded-xl premium-card text-gray-700 dark:text-gray-300 font-semibold text-sm hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                    className="flex-1 h-12 rounded-xl premium-card text-[var(--muted)] font-semibold text-sm hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
                   >
                     Save as Draft
                   </motion.button>
@@ -638,10 +638,10 @@ export default function ScanPage() {
               <div className="w-16 h-16 rounded-2xl bg-red-100 dark:bg-red-950 flex items-center justify-center mb-4">
                 <AlertCircle className="w-8 h-8 text-red-500" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight mb-2">
+              <h3 className="text-lg font-semibold text-[var(--foreground)] tracking-tight mb-2">
                 Scan Failed
               </h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md">{error}</p>
+              <p className="text-[var(--muted)] mb-6 max-w-md">{error}</p>
               <div className="flex gap-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -656,7 +656,7 @@ export default function ScanPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => router.push("/dashboard/expenses/new")}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl premium-card text-sm text-gray-600 dark:text-gray-400 font-medium"
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl premium-card text-sm text-[var(--muted)] font-medium"
                 >
                   Enter Manually
                 </motion.button>

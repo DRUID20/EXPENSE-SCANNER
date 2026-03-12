@@ -58,7 +58,7 @@ const CATEGORY_FILTERS = [
 ];
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  DRAFT: { label: "Draft", color: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400", icon: FileEdit },
+  DRAFT: { label: "Draft", color: "bg-gray-100 dark:bg-gray-800 text-[var(--muted)]", icon: FileEdit },
   PENDING: { label: "Pending", color: "bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400", icon: Clock },
   APPROVED: { label: "Approved", color: "bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400", icon: CheckCircle2 },
   REJECTED: { label: "Rejected", color: "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400", icon: XCircle },
@@ -304,7 +304,7 @@ export default function ExpensesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">My Expenses</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-[var(--foreground)] tracking-tight">My Expenses</h1>
           <p className="text-[13px] text-gray-400 mt-0.5">
             {total} expense{total !== 1 ? "s" : ""} total
           </p>
@@ -314,7 +314,7 @@ export default function ExpensesPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleDownloadReceipts}
-            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl premium-card text-sm text-gray-600 dark:text-gray-400 font-medium hover:border-emerald-300 transition-colors"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl premium-card text-sm text-[var(--muted)] font-medium hover:border-emerald-300 transition-colors"
             title="Download all receipts as ZIP"
           >
             <FileArchive className="w-4 h-4" />
@@ -324,7 +324,7 @@ export default function ExpensesPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleExport}
-            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl premium-card text-sm text-gray-600 dark:text-gray-400 font-medium hover:border-emerald-300 transition-colors"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl premium-card text-sm text-[var(--muted)] font-medium hover:border-emerald-300 transition-colors"
           >
             <Download className="w-4 h-4" />
             <span className="hidden sm:inline">Export CSV</span>
@@ -333,7 +333,7 @@ export default function ExpensesPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl premium-card text-sm text-gray-600 dark:text-gray-400 font-medium hover:border-emerald-300 transition-colors"
+              className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl premium-card text-sm text-[var(--muted)] font-medium hover:border-emerald-300 transition-colors"
             >
               <ScanLine className="w-4 h-4" />
               <span className="hidden sm:inline">Scan Receipt</span>
@@ -510,8 +510,8 @@ export default function ExpensesPage() {
             <div className="w-20 h-20 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
               <Receipt className="w-10 h-10 text-gray-300 dark:text-gray-600" />
             </div>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No expenses found</h4>
-            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mb-6">
+            <h4 className="text-lg font-semibold text-[var(--foreground)] mb-2">No expenses found</h4>
+            <p className="text-sm text-[var(--muted)] max-w-sm mb-6">
               {search || statusFilter !== "ALL" || categoryFilter !== "ALL" || hasDateFilter
                 ? "Try adjusting your filters to find what you're looking for."
                 : "Start by scanning a receipt or adding a new expense manually."}
@@ -524,7 +524,7 @@ export default function ExpensesPage() {
                   </motion.button>
                 </Link>
                 <Link href="/dashboard/expenses/new">
-                  <motion.button whileHover={{ scale: 1.02 }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl premium-card text-sm text-gray-600 dark:text-gray-400 font-medium">
+                  <motion.button whileHover={{ scale: 1.02 }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl premium-card text-sm text-[var(--muted)] font-medium">
                     <Plus className="w-4 h-4" /> Add Manually
                   </motion.button>
                 </Link>
@@ -568,13 +568,13 @@ export default function ExpensesPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold text-gray-900 dark:text-white truncate">{expense.title}</h4>
+                          <h4 className="font-semibold text-[var(--foreground)] truncate">{expense.title}</h4>
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
                             <StatusIcon className="w-3 h-3" />
                             {status.label}
                           </span>
                         </div>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs sm:text-sm text-[var(--muted)]">
                           {expense.vendor && <span className="truncate max-w-[120px] sm:max-w-none">{expense.vendor}</span>}
                           <span>{expense.category}</span>
                           <span className="hidden sm:inline">{formatDate(expense.date)}</span>
@@ -584,7 +584,7 @@ export default function ExpensesPage() {
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                        <p className="text-base sm:text-lg font-bold text-[var(--foreground)]">
                           {formatCurrency(expense.amount, expense.currency)}
                         </p>
                       </div>
@@ -620,17 +620,17 @@ export default function ExpensesPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-2.5 sm:px-3 py-1.5 rounded-lg premium-card text-xs sm:text-sm text-gray-600 dark:text-gray-400 disabled:opacity-30 hover:border-emerald-300 transition-colors"
+                className="px-2.5 sm:px-3 py-1.5 rounded-lg premium-card text-xs sm:text-sm text-[var(--muted)] disabled:opacity-30 hover:border-emerald-300 transition-colors"
               >
                 Previous
               </button>
-              <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              <span className="text-xs sm:text-sm text-[var(--muted)]">
                 {page} / {pages}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(pages, p + 1))}
                 disabled={page === pages}
-                className="px-2.5 sm:px-3 py-1.5 rounded-lg premium-card text-xs sm:text-sm text-gray-600 dark:text-gray-400 disabled:opacity-30 hover:border-emerald-300 transition-colors"
+                className="px-2.5 sm:px-3 py-1.5 rounded-lg premium-card text-xs sm:text-sm text-[var(--muted)] disabled:opacity-30 hover:border-emerald-300 transition-colors"
               >
                 Next
               </button>

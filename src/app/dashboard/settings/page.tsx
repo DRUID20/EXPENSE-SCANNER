@@ -202,7 +202,7 @@ export default function SettingsPage() {
               <h4 className="text-xl font-bold" style={{ color: "var(--foreground)" }}>
                 {user?.firstName} {user?.lastName}
               </h4>
-              <p className="text-gray-500 dark:text-gray-400">{user?.email}</p>
+              <p className="text-[var(--muted)]">{user?.email}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold" style={{ background: "var(--accent-soft)", color: "var(--accent)" }}>
                   {user?.role === "ADMIN" ? "Administrator" : "Employee"}
@@ -219,22 +219,22 @@ export default function SettingsPage() {
           <form onSubmit={handleProfileSave} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">First Name</label>
+                <label className="block text-sm font-medium text-[var(--muted)] mb-1.5">First Name</label>
                 <input
                   type="text"
                   value={profileForm.firstName}
                   onChange={(e) => setProfileForm({ ...profileForm, firstName: e.target.value })}
-                  className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white"
+                  className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)]"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">Last Name</label>
+                <label className="block text-sm font-medium text-[var(--muted)] mb-1.5">Last Name</label>
                 <input
                   type="text"
                   value={profileForm.lastName}
                   onChange={(e) => setProfileForm({ ...profileForm, lastName: e.target.value })}
-                  className="w-full h-10 px-4 rounded-xl input-premium text-gray-900 dark:text-white"
+                  className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)]"
                   required
                 />
               </div>
@@ -306,14 +306,14 @@ export default function SettingsPage() {
 
           <form onSubmit={handlePasswordChange} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">Current Password</label>
+              <label className="block text-sm font-medium text-[var(--muted)] mb-1.5">Current Password</label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type={showPasswords ? "text" : "password"}
                   value={passwordForm.currentPassword}
                   onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                  className="w-full h-10 pl-10 pr-10 rounded-xl input-premium text-gray-900 dark:text-white"
+                  className="w-full h-10 pl-10 pr-10 rounded-xl input-premium text-[var(--foreground)]"
                   required
                 />
                 <button type="button" onClick={() => setShowPasswords(!showPasswords)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -323,7 +323,7 @@ export default function SettingsPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">New Password</label>
+                <label className="block text-sm font-medium text-[var(--muted)] mb-1.5">New Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
@@ -331,13 +331,13 @@ export default function SettingsPage() {
                     value={passwordForm.newPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                     placeholder="Min. 8 characters"
-                    className="w-full h-10 pl-10 pr-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
+                    className="w-full h-10 pl-10 pr-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400"
                     required
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">Confirm New Password</label>
+                <label className="block text-sm font-medium text-[var(--muted)] mb-1.5">Confirm New Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
@@ -345,7 +345,7 @@ export default function SettingsPage() {
                     value={passwordForm.confirmPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
                     placeholder="Repeat password"
-                    className="w-full h-10 pl-10 pr-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
+                    className="w-full h-10 pl-10 pr-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400"
                     required
                   />
                 </div>
@@ -368,7 +368,7 @@ export default function SettingsPage() {
               <Bell className="w-5 h-5" style={{ color: "var(--accent)" }} />
               <h3 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Push Notifications</h3>
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            <p className="text-sm text-[var(--muted)] mb-4">
               Get notified when expenses are submitted, approved, or rejected — even when the app is closed.
             </p>
             <div className="flex items-center gap-4">

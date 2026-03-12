@@ -139,7 +139,7 @@ export default function NewExpensePage() {
           </motion.button>
         </Link>
         <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">New Expense</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-[var(--foreground)] tracking-tight">New Expense</h1>
           <p className="text-[13px] text-gray-400 mt-0.5">
             Enter expense details manually
           </p>
@@ -159,7 +159,7 @@ export default function NewExpensePage() {
       <div className="premium-card p-4 lg:p-6 space-y-4 lg:space-y-5">
         {/* Title */}
         <div>
-          <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label className="flex items-center gap-1.5 text-sm font-semibold text-[var(--muted)] mb-2">
             <FileText className="w-4 h-4 text-gray-400" />
             Title <span className="text-red-400">*</span>
           </label>
@@ -168,14 +168,14 @@ export default function NewExpensePage() {
             value={form.title}
             onChange={(e) => updateForm("title", e.target.value)}
             placeholder="e.g., Office supplies from Staples"
-            className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
+            className="w-full h-11 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400"
           />
         </div>
 
         {/* Amount + Currency + Date Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="flex items-center gap-1.5 text-sm font-semibold text-[var(--muted)] mb-2">
               <DollarSign className="w-4 h-4 text-gray-400" />
               Amount <span className="text-red-400">*</span>
             </label>
@@ -186,17 +186,17 @@ export default function NewExpensePage() {
               value={form.amount}
               onChange={(e) => updateForm("amount", e.target.value)}
               placeholder="0.00"
-              className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
+              className="w-full h-11 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400"
             />
           </div>
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="flex items-center gap-1.5 text-sm font-semibold text-[var(--muted)] mb-2">
               Currency
             </label>
             <select
               value={form.currency}
               onChange={(e) => updateForm("currency", e.target.value)}
-              className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white text-sm transition-all appearance-none"
+              className="w-full h-11 px-4 rounded-xl input-premium text-[var(--foreground)] text-sm transition-all appearance-none"
             >
               <option value="UGX">UGX</option>
               <option value="USD">USD</option>
@@ -207,7 +207,7 @@ export default function NewExpensePage() {
             </select>
           </div>
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="flex items-center gap-1.5 text-sm font-semibold text-[var(--muted)] mb-2">
               <Calendar className="w-4 h-4 text-gray-400" />
               Date <span className="text-red-400">*</span>
             </label>
@@ -215,7 +215,7 @@ export default function NewExpensePage() {
               type="date"
               value={form.date}
               onChange={(e) => updateForm("date", e.target.value)}
-              className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white text-sm transition-all"
+              className="w-full h-11 px-4 rounded-xl input-premium text-[var(--foreground)] text-sm transition-all"
             />
           </div>
         </div>
@@ -223,14 +223,14 @@ export default function NewExpensePage() {
         {/* Category + Vendor */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="flex items-center gap-1.5 text-sm font-semibold text-[var(--muted)] mb-2">
               <Tag className="w-4 h-4 text-gray-400" />
               Category <span className="text-red-400">*</span>
             </label>
             <select
               value={form.category}
               onChange={(e) => updateForm("category", e.target.value)}
-              className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white text-sm transition-all appearance-none"
+              className="w-full h-11 px-4 rounded-xl input-premium text-[var(--foreground)] text-sm transition-all appearance-none"
             >
               <option value="">Select category...</option>
               {CATEGORIES.map((cat) => (
@@ -241,7 +241,7 @@ export default function NewExpensePage() {
             </select>
           </div>
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="flex items-center gap-1.5 text-sm font-semibold text-[var(--muted)] mb-2">
               <Store className="w-4 h-4 text-gray-400" />
               Vendor
             </label>
@@ -250,14 +250,14 @@ export default function NewExpensePage() {
               value={form.vendor}
               onChange={(e) => updateForm("vendor", e.target.value)}
               placeholder="e.g., Staples, Shell, etc."
-              className="w-full h-11 px-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
+              className="w-full h-11 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400"
             />
           </div>
         </div>
 
         {/* Receipt Upload */}
         <div>
-          <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label className="flex items-center gap-1.5 text-sm font-semibold text-[var(--muted)] mb-2">
             <Image className="w-4 h-4 text-gray-400" />
             Receipt
           </label>
@@ -297,7 +297,7 @@ export default function NewExpensePage() {
 
         {/* Description */}
         <div>
-          <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label className="flex items-center gap-1.5 text-sm font-semibold text-[var(--muted)] mb-2">
             <StickyNote className="w-4 h-4 text-gray-400" />
             Description
           </label>
@@ -306,13 +306,13 @@ export default function NewExpensePage() {
             onChange={(e) => updateForm("description", e.target.value)}
             placeholder="Brief description of the expense..."
             rows={3}
-            className="w-full px-4 py-3 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400 resize-none"
+            className="w-full px-4 py-3 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400 resize-none"
           />
         </div>
 
         {/* Notes */}
         <div>
-          <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label className="flex items-center gap-1.5 text-sm font-semibold text-[var(--muted)] mb-2">
             Notes
           </label>
           <textarea
@@ -320,7 +320,7 @@ export default function NewExpensePage() {
             onChange={(e) => updateForm("notes", e.target.value)}
             placeholder="Additional notes for the approver..."
             rows={2}
-            className="w-full px-4 py-3 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400 resize-none"
+            className="w-full px-4 py-3 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400 resize-none"
           />
         </div>
 
@@ -330,7 +330,7 @@ export default function NewExpensePage() {
             whileTap={{ scale: 0.99 }}
             onClick={() => handleSubmit("DRAFT")}
             disabled={submitting}
-            className="flex-1 h-11 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] text-gray-700 dark:text-gray-300 font-medium text-sm hover:border-emerald-300 dark:hover:border-emerald-500/30 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+            className="flex-1 h-11 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] text-[var(--muted)] font-medium text-sm hover:border-emerald-300 dark:hover:border-emerald-500/30 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
           >
             Save as Draft
           </motion.button>

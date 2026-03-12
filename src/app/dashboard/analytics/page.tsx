@@ -144,7 +144,7 @@ const statusIcons: Record<string, React.ElementType> = {
 };
 
 const statusBadgeColors: Record<string, string> = {
-  DRAFT: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+  DRAFT: "bg-gray-100 dark:bg-gray-800 text-[var(--muted)]",
   PENDING: "bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400",
   APPROVED: "bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400",
   REJECTED: "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400",
@@ -267,7 +267,7 @@ export default function AnalyticsPage() {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Analytics & Reports</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-[var(--foreground)] tracking-tight">Analytics & Reports</h1>
           <p className="text-[13px] text-gray-400 mt-0.5">
             {user?.role === "ADMIN"
               ? "Company-wide spending insights"
@@ -280,7 +280,7 @@ export default function AnalyticsPage() {
               <select
                 value={period}
                 onChange={(e) => setPeriod(e.target.value)}
-                className="h-10 pl-4 pr-8 rounded-xl input-premium text-gray-600 dark:text-gray-400 appearance-none cursor-pointer"
+                className="h-10 pl-4 pr-8 rounded-xl input-premium text-[var(--muted)] appearance-none cursor-pointer"
               >
                 <option value="1month">Last Month</option>
                 <option value="3months">Last 3 Months</option>
@@ -296,7 +296,7 @@ export default function AnalyticsPage() {
                 <select
                   value={auditStatus}
                   onChange={(e) => { setAuditStatus(e.target.value); setAuditPage(1); }}
-                  className="h-10 pl-4 pr-8 rounded-xl input-premium text-gray-600 dark:text-gray-400 appearance-none cursor-pointer"
+                  className="h-10 pl-4 pr-8 rounded-xl input-premium text-[var(--muted)] appearance-none cursor-pointer"
                 >
                   <option value="ALL">All Statuses</option>
                   <option value="DRAFT">Draft</option>
@@ -311,7 +311,7 @@ export default function AnalyticsPage() {
                   <select
                     value={auditBranch}
                     onChange={(e) => { setAuditBranch(e.target.value); setAuditPage(1); }}
-                    className="h-10 pl-4 pr-8 rounded-xl input-premium text-gray-600 dark:text-gray-400 appearance-none cursor-pointer"
+                    className="h-10 pl-4 pr-8 rounded-xl input-premium text-[var(--muted)] appearance-none cursor-pointer"
                   >
                     <option value="ALL">All Branches</option>
                     {branches.map((b) => (
@@ -328,7 +328,7 @@ export default function AnalyticsPage() {
                     type="date"
                     value={auditDateFrom}
                     onChange={(e) => { setAuditDateFrom(e.target.value); setAuditPage(1); }}
-                    className="h-10 pl-9 pr-3 rounded-xl input-premium text-gray-600 dark:text-gray-400 cursor-pointer"
+                    className="h-10 pl-9 pr-3 rounded-xl input-premium text-[var(--muted)] cursor-pointer"
                     placeholder="From"
                     title="From date"
                   />
@@ -340,7 +340,7 @@ export default function AnalyticsPage() {
                     type="date"
                     value={auditDateTo}
                     onChange={(e) => { setAuditDateTo(e.target.value); setAuditPage(1); }}
-                    className="h-10 pl-9 pr-3 rounded-xl input-premium text-gray-600 dark:text-gray-400 cursor-pointer"
+                    className="h-10 pl-9 pr-3 rounded-xl input-premium text-[var(--muted)] cursor-pointer"
                     placeholder="To"
                     title="To date"
                   />
@@ -379,7 +379,7 @@ export default function AnalyticsPage() {
           <button
             key={t.id}
             onClick={() => setViewTab(t.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${viewTab === t.id ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${viewTab === t.id ? "bg-[var(--card-bg)] text-[var(--foreground)] shadow-sm" : "text-[var(--muted)] hover:text-[var(--foreground)]"}`}
           >
             <t.icon className="w-4 h-4" /> {t.label}
           </button>
@@ -403,8 +403,8 @@ export default function AnalyticsPage() {
             <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-5 rounded-full -translate-y-8 translate-x-8`} />
             <div className="flex items-start justify-between relative">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{stat.title}</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stat.value}</p>
+                <p className="text-sm text-[var(--muted)] font-medium">{stat.title}</p>
+                <p className="text-3xl font-bold text-[var(--foreground)] mt-2">{stat.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg ${stat.shadow}`}>
                 <stat.icon className="w-6 h-6 text-white" />
@@ -423,7 +423,7 @@ export default function AnalyticsPage() {
         >
           <div className="flex items-center gap-2 mb-6">
             <Calendar className="w-5 h-5 text-emerald-500" />
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Monthly Trend</h3>
+            <h3 className="text-lg font-bold text-[var(--foreground)]">Monthly Trend</h3>
           </div>
           {data.monthlyTrend.length === 0 ? (
             <div className="flex items-center justify-center h-64 text-gray-400 text-sm">No data for this period</div>
@@ -457,7 +457,7 @@ export default function AnalyticsPage() {
         >
           <div className="flex items-center gap-2 mb-6">
             <PieChartIcon className="w-5 h-5 text-emerald-500" />
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">By Category</h3>
+            <h3 className="text-lg font-bold text-[var(--foreground)]">By Category</h3>
           </div>
           {data.categoryBreakdown.length === 0 ? (
             <div className="flex items-center justify-center h-64 text-gray-400 text-sm">No data for this period</div>
@@ -502,7 +502,7 @@ export default function AnalyticsPage() {
         >
           <div className="flex items-center gap-2 mb-6">
             <BarChart3 className="w-5 h-5 text-emerald-500" />
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Category Spending</h3>
+            <h3 className="text-lg font-bold text-[var(--foreground)]">Category Spending</h3>
           </div>
           {data.categoryBreakdown.length === 0 ? (
             <div className="flex items-center justify-center h-64 text-gray-400 text-sm">No data for this period</div>
@@ -533,7 +533,7 @@ export default function AnalyticsPage() {
         >
           {/* Status Breakdown */}
           <div className="premium-card p-4 lg:p-6">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Status Breakdown</h3>
+            <h3 className="text-lg font-bold text-[var(--foreground)] mb-4">Status Breakdown</h3>
             <div className="grid grid-cols-2 gap-3">
               {data.statusBreakdown.map((s) => (
                 <div key={s.status} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
@@ -542,8 +542,8 @@ export default function AnalyticsPage() {
                     style={{ backgroundColor: STATUS_COLORS[s.status] || "#9ca3af" }}
                   />
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{s.status}</p>
-                    <p className="text-sm font-bold text-gray-900 dark:text-white">{s.count}</p>
+                    <p className="text-xs text-[var(--muted)]">{s.status}</p>
+                    <p className="text-sm font-bold text-[var(--foreground)]">{s.count}</p>
                     <p className="text-xs text-gray-400">{formatCurrency(s.total)}</p>
                   </div>
                 </div>
@@ -556,7 +556,7 @@ export default function AnalyticsPage() {
             <div className="premium-card p-4 lg:p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Users className="w-5 h-5 text-emerald-500" />
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Top Spenders</h3>
+                <h3 className="text-lg font-bold text-[var(--foreground)]">Top Spenders</h3>
               </div>
               <div className="space-y-3">
                 {data.topSpenders.slice(0, 5).map((spender, i) => (
@@ -565,12 +565,12 @@ export default function AnalyticsPage() {
                       {i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      <p className="text-sm font-medium text-[var(--foreground)] truncate">
                         {spender.firstName} {spender.lastName}
                       </p>
                       <p className="text-xs text-gray-400">{spender.count} expenses</p>
                     </div>
-                    <p className="text-sm font-bold text-gray-900 dark:text-white">
+                    <p className="text-sm font-bold text-[var(--foreground)]">
                       {formatCurrency(spender.total)}
                     </p>
                   </div>
@@ -589,17 +589,17 @@ export default function AnalyticsPage() {
           {data.vendorBreakdown && data.vendorBreakdown.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
               <motion.div variants={itemVariants} className="premium-card p-4 lg:p-5">
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Vendors</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{data.vendorBreakdown.length}</p>
+                <p className="text-sm text-[var(--muted)] font-medium">Total Vendors</p>
+                <p className="text-3xl font-bold text-[var(--foreground)] mt-2">{data.vendorBreakdown.length}</p>
               </motion.div>
               <motion.div variants={itemVariants} className="premium-card p-4 lg:p-5">
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Top Vendor Spend</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{formatCurrency(data.vendorBreakdown[0]?.total || 0)}</p>
+                <p className="text-sm text-[var(--muted)] font-medium">Top Vendor Spend</p>
+                <p className="text-3xl font-bold text-[var(--foreground)] mt-2">{formatCurrency(data.vendorBreakdown[0]?.total || 0)}</p>
                 <p className="text-xs text-gray-400 mt-1">{data.vendorBreakdown[0]?.vendor}</p>
               </motion.div>
               <motion.div variants={itemVariants} className="premium-card p-4 lg:p-5">
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Vendor Transactions</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                <p className="text-sm text-[var(--muted)] font-medium">Total Vendor Transactions</p>
+                <p className="text-3xl font-bold text-[var(--foreground)] mt-2">
                   {data.vendorBreakdown.reduce((sum, v) => sum + v.count, 0)}
                 </p>
               </motion.div>
@@ -611,7 +611,7 @@ export default function AnalyticsPage() {
             <motion.div variants={itemVariants} className="premium-card p-4 lg:p-6">
               <div className="flex items-center gap-2 mb-6">
                 <Store className="w-5 h-5 text-emerald-500" />
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Top Vendors by Spend</h3>
+                <h3 className="text-lg font-bold text-[var(--foreground)]">Top Vendors by Spend</h3>
               </div>
               {(!data.vendorBreakdown || data.vendorBreakdown.length === 0) ? (
                 <div className="flex items-center justify-center h-64 text-gray-400 text-sm">No vendor data for this period</div>
@@ -639,7 +639,7 @@ export default function AnalyticsPage() {
             <motion.div variants={itemVariants} className="premium-card p-4 lg:p-6">
               <div className="flex items-center gap-2 mb-6">
                 <PieChartIcon className="w-5 h-5 text-emerald-500" />
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Vendor Share</h3>
+                <h3 className="text-lg font-bold text-[var(--foreground)]">Vendor Share</h3>
               </div>
               {(!data.vendorBreakdown || data.vendorBreakdown.length === 0) ? (
                 <div className="flex items-center justify-center h-64 text-gray-400 text-sm">No vendor data for this period</div>
@@ -675,24 +675,24 @@ export default function AnalyticsPage() {
           <motion.div variants={itemVariants} className="premium-card p-4 lg:p-6">
             <div className="flex items-center gap-2 mb-6">
               <Store className="w-5 h-5 text-emerald-500" />
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">All Vendors</h3>
+              <h3 className="text-lg font-bold text-[var(--foreground)]">All Vendors</h3>
             </div>
             {(!data.vendorBreakdown || data.vendorBreakdown.length === 0) ? (
               <div className="text-center py-12">
                 <Store className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                <p className="text-sm text-gray-500 dark:text-gray-400">No vendor data for this period</p>
+                <p className="text-sm text-[var(--muted)]">No vendor data for this period</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-800">
-                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">#</th>
-                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Vendor</th>
-                      <th className="text-right py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Total Spent</th>
-                      <th className="text-right py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Transactions</th>
-                      <th className="text-right py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Avg. Amount</th>
-                      <th className="text-right py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">% of Total</th>
+                      <th className="text-left py-3 px-3 text-[var(--muted)] font-medium">#</th>
+                      <th className="text-left py-3 px-3 text-[var(--muted)] font-medium">Vendor</th>
+                      <th className="text-right py-3 px-3 text-[var(--muted)] font-medium">Total Spent</th>
+                      <th className="text-right py-3 px-3 text-[var(--muted)] font-medium">Transactions</th>
+                      <th className="text-right py-3 px-3 text-[var(--muted)] font-medium">Avg. Amount</th>
+                      <th className="text-right py-3 px-3 text-[var(--muted)] font-medium">% of Total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -707,18 +707,18 @@ export default function AnalyticsPage() {
                               <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: COLORS[i % COLORS.length] }}>
                                 {v.vendor.charAt(0).toUpperCase()}
                               </div>
-                              <span className="font-medium text-gray-900 dark:text-white">{v.vendor}</span>
+                              <span className="font-medium text-[var(--foreground)]">{v.vendor}</span>
                             </div>
                           </td>
-                          <td className="py-3 px-3 text-right font-semibold text-gray-900 dark:text-white">{formatCurrency(v.total)}</td>
-                          <td className="py-3 px-3 text-right text-gray-600 dark:text-gray-400">{v.count}</td>
-                          <td className="py-3 px-3 text-right text-gray-600 dark:text-gray-400">{formatCurrency(v.avgAmount)}</td>
+                          <td className="py-3 px-3 text-right font-semibold text-[var(--foreground)]">{formatCurrency(v.total)}</td>
+                          <td className="py-3 px-3 text-right text-[var(--muted)]">{v.count}</td>
+                          <td className="py-3 px-3 text-right text-[var(--muted)]">{formatCurrency(v.avgAmount)}</td>
                           <td className="py-3 px-3 text-right">
                             <div className="flex items-center justify-end gap-2">
                               <div className="w-16 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                                 <div className="h-full rounded-full bg-emerald-500" style={{ width: `${pct}%` }} />
                               </div>
-                              <span className="text-xs text-gray-500 dark:text-gray-400 w-10 text-right">{pct}%</span>
+                              <span className="text-xs text-[var(--muted)] w-10 text-right">{pct}%</span>
                             </div>
                           </td>
                         </tr>
@@ -742,25 +742,25 @@ export default function AnalyticsPage() {
           ) : auditExpenses.length === 0 ? (
             <div className="premium-card p-16 text-center">
               <FileText className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">No expenses found</h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Try adjusting your filters</p>
+              <h4 className="font-semibold text-[var(--foreground)] mb-2">No expenses found</h4>
+              <p className="text-sm text-[var(--muted)]">Try adjusting your filters</p>
             </div>
           ) : (
             <>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{auditTotal} expenses found</p>
+              <p className="text-sm text-[var(--muted)]">{auditTotal} expenses found</p>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-800">
-                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Expense</th>
-                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Submitted By</th>
-                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Category</th>
-                      <th className="text-right py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Amount</th>
-                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Date</th>
-                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Status</th>
-                      <th className="text-left py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Reviewed By</th>
-                      <th className="text-center py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">Receipt</th>
-                      <th className="text-center py-3 px-3 text-gray-500 dark:text-gray-400 font-medium">View</th>
+                      <th className="text-left py-3 px-3 text-[var(--muted)] font-medium">Expense</th>
+                      <th className="text-left py-3 px-3 text-[var(--muted)] font-medium">Submitted By</th>
+                      <th className="text-left py-3 px-3 text-[var(--muted)] font-medium">Category</th>
+                      <th className="text-right py-3 px-3 text-[var(--muted)] font-medium">Amount</th>
+                      <th className="text-left py-3 px-3 text-[var(--muted)] font-medium">Date</th>
+                      <th className="text-left py-3 px-3 text-[var(--muted)] font-medium">Status</th>
+                      <th className="text-left py-3 px-3 text-[var(--muted)] font-medium">Reviewed By</th>
+                      <th className="text-center py-3 px-3 text-[var(--muted)] font-medium">Receipt</th>
+                      <th className="text-center py-3 px-3 text-[var(--muted)] font-medium">View</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -769,20 +769,20 @@ export default function AnalyticsPage() {
                       return (
                         <tr key={exp.id} className="border-b border-gray-100 dark:border-gray-800/50 hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
                           <td className="py-3 px-3">
-                            <p className="font-medium text-gray-900 dark:text-white">{exp.title}</p>
+                            <p className="font-medium text-[var(--foreground)]">{exp.title}</p>
                             {exp.vendor && <p className="text-xs text-gray-400">{exp.vendor}</p>}
                           </td>
-                          <td className="py-3 px-3 text-gray-600 dark:text-gray-400">{exp.user.firstName} {exp.user.lastName}</td>
-                          <td className="py-3 px-3 text-gray-600 dark:text-gray-400">{exp.category}</td>
-                          <td className="py-3 px-3 text-right font-semibold text-gray-900 dark:text-white">{formatCurrency(exp.amount, exp.currency)}</td>
-                          <td className="py-3 px-3 text-gray-600 dark:text-gray-400">{new Date(exp.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
+                          <td className="py-3 px-3 text-[var(--muted)]">{exp.user.firstName} {exp.user.lastName}</td>
+                          <td className="py-3 px-3 text-[var(--muted)]">{exp.category}</td>
+                          <td className="py-3 px-3 text-right font-semibold text-[var(--foreground)]">{formatCurrency(exp.amount, exp.currency)}</td>
+                          <td className="py-3 px-3 text-[var(--muted)]">{new Date(exp.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
                           <td className="py-3 px-3">
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeColors[exp.status] || ""}`}>
                               <StatusIcon className="w-3 h-3" />
                               {exp.status}
                             </span>
                           </td>
-                          <td className="py-3 px-3 text-gray-600 dark:text-gray-400">
+                          <td className="py-3 px-3 text-[var(--muted)]">
                             {exp.approvedBy ? `${exp.approvedBy.firstName} ${exp.approvedBy.lastName}` : "\u2014"}
                             {exp.rejectionReason && (
                               <p className="text-xs text-red-400 truncate max-w-[150px]" title={exp.rejectionReason}>{exp.rejectionReason}</p>
@@ -817,14 +817,14 @@ export default function AnalyticsPage() {
                     <button
                       onClick={() => setAuditPage(Math.max(1, auditPage - 1))}
                       disabled={auditPage === 1}
-                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 disabled:opacity-50"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-800 text-[var(--muted)] disabled:opacity-50"
                     >
                       Previous
                     </button>
                     <button
                       onClick={() => setAuditPage(auditPage + 1)}
                       disabled={auditPage >= Math.ceil(auditTotal / 20)}
-                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 disabled:opacity-50"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-800 text-[var(--muted)] disabled:opacity-50"
                     >
                       Next
                     </button>

@@ -19,7 +19,7 @@ export function Logo({ collapsed = false }: { collapsed?: boolean }) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h1 className="text-base font-bold text-gray-900 dark:text-white leading-tight tracking-tight">
+          <h1 className="text-base font-bold text-[var(--foreground)] leading-tight tracking-tight">
             GASCO
           </h1>
           <p className="text-[10px] font-medium text-gray-400 tracking-[0.15em] uppercase -mt-0.5">
