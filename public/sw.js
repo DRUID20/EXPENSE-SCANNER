@@ -1,9 +1,16 @@
-const CACHE_NAME = "expense-tracker-1773129273";
+const CACHE_NAME = "expense-tracker-__BUILD_ID__";
 const OFFLINE_URL = "/offline.html";
 
 const PRECACHE_URLS = [
   "/",
   "/dashboard",
+  "/dashboard/expenses",
+  "/dashboard/expenses/new",
+  "/dashboard/scan",
+  "/dashboard/approvals",
+  "/dashboard/analytics",
+  "/dashboard/team",
+  "/dashboard/settings",
   "/login",
   "/offline.html",
 ];
@@ -12,7 +19,19 @@ const PRECACHE_URLS = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_URLS);
+      // Use addAll for critical pages, but don't fail install if some are unavailable
+      return cache.addAll(PRECACHE_URLS).catch(() => {
+        // Fallback: cache what we can individually
+        return Promise.allSettled(
+          PRECACHE_URLS.map((url) =>
+            fetch(url)
+              .then((res) => {
+                if (res.ok) cache.put(url, res);
+              })
+              .catch(() => {})
+          )
+        );
+      });
     })
   );
   self.skipWaiting();
@@ -24,7 +43,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== CACHE_NAME)
+          .filter((name) => name !== CACHE_NAME && name !== "offline-expenses")
           .map((name) => caches.delete(name))
       );
     })
@@ -74,7 +93,15 @@ self.addEventListener("fetch", (event) => {
               cache.put(request, response.clone());
             }
             return response;
-          }).catch(() => cached);
+          }).catch(() => {
+            // Offline: return cached API data if available
+            if (cached) return cached;
+            // Return empty but valid JSON so the app doesn't crash
+            return new Response(JSON.stringify({ error: "offline" }), {
+              status: 503,
+              headers: { "Content-Type": "application/json" },
+            });
+          });
 
           // Return cached response immediately if available, otherwise wait for network
           return cached || networkFetch;
@@ -84,40 +111,99 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets: cache-first
+  // Static assets (JS chunks, CSS, images, fonts): cache-first
   if (
-    url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|gif|ico|woff|woff2)$/)
+    url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|gif|ico|woff|woff2)$/) ||
+    url.pathname.startsWith("/_next/static/")
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached;
         return fetch(request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, clone);
-          });
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, clone);
+            });
+          }
           return response;
+        }).catch(() => {
+          // For missing static assets offline, return empty response
+          return new Response("", { status: 503 });
         });
       })
     );
     return;
   }
 
-  // HTML pages: network-first with offline fallback
+  // Next.js data requests (_next/data): stale-while-revalidate
+  if (url.pathname.startsWith("/_next/data/")) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.match(request).then((cached) => {
+          const networkFetch = fetch(request).then((response) => {
+            if (response.ok) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          }).catch(() => cached || new Response("{}", {
+            status: 503,
+            headers: { "Content-Type": "application/json" },
+          }));
+
+          return cached || networkFetch;
+        });
+      })
+    );
+    return;
+  }
+
+  // HTML page navigations: network-first, cache visited pages for offline use
+  if (request.mode === "navigate" || request.headers.get("accept")?.includes("text/html")) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, clone);
+            });
+          }
+          return response;
+        })
+        .catch(async () => {
+          // Try to serve cached version of this exact page
+          const cached = await caches.match(request);
+          if (cached) return cached;
+
+          // For dashboard sub-routes, try serving the cached /dashboard shell
+          // Next.js client-side routing will handle the actual route
+          if (url.pathname.startsWith("/dashboard")) {
+            const dashboardCached = await caches.match("/dashboard");
+            if (dashboardCached) return dashboardCached;
+          }
+
+          // Last resort: offline page
+          const offlinePage = await caches.match(OFFLINE_URL);
+          return offlinePage || new Response("Offline", { status: 503 });
+        })
+    );
+    return;
+  }
+
+  // Everything else: network-first with cache fallback
   event.respondWith(
     fetch(request)
       .then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, clone);
-        });
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, clone);
+          });
+        }
         return response;
       })
-      .catch(() => {
-        return caches.match(request).then((cached) => {
-          return cached || caches.match(OFFLINE_URL);
-        });
-      })
+      .catch(() => caches.match(request))
   );
 });
 
