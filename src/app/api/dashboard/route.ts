@@ -42,12 +42,9 @@ export async function GET(req: NextRequest) {
 
     const filteredWhere = dateFilter ? { ...where, date: dateFilter } : where;
 
-    const [totalExpenses, pendingCount, approvedCount, rejectedCount, draftCount, recentExpenses, allExpenses, pendingApprovals, thisMonthExpenses] =
+    const [, pendingCount, approvedCount, rejectedCount, draftCount, recentExpenses, allExpenses, pendingApprovals, thisMonthExpenses] =
       await Promise.all([
-        prisma.expense.aggregate({
-          where: filteredWhere,
-          _sum: { amountUGX: true, amount: true },
-        }),
+        Promise.resolve(null), // totalAmount is now computed from allExpenses below
         prisma.expense.count({ where: { ...filteredWhere, status: "PENDING" } }),
         prisma.expense.count({ where: { ...filteredWhere, status: "APPROVED" } }),
         prisma.expense.count({ where: { ...filteredWhere, status: "REJECTED" } }),
@@ -98,8 +95,11 @@ export async function GET(req: NextRequest) {
       0
     );
 
-    // Total amount in UGX (use amountUGX sum if available, fallback to amount sum)
-    const totalAmount = totalExpenses._sum.amountUGX ?? totalExpenses._sum.amount ?? 0;
+    // Total amount in UGX (properly convert each expense like category totals)
+    const totalAmount = allExpenses.reduce(
+      (sum, e) => sum + (e.amountUGX ?? convertToUGX(e.amount, e.currency)),
+      0
+    );
 
     return NextResponse.json({
       stats: {
