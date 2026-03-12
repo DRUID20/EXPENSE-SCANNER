@@ -21,8 +21,22 @@ import {
   Store,
   FileText,
   Receipt,
+  Pencil,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+
+const CATEGORIES = [
+  "Fuel & Gas",
+  "Equipment",
+  "Travel",
+  "Supplies",
+  "Meals",
+  "Transportation",
+  "Utilities",
+  "Maintenance",
+  "Office",
+  "Other",
+];
 
 function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
   return new Promise((resolve) => {
@@ -387,7 +401,7 @@ export default function ScanPage() {
             <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
               <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
               <p className="text-sm text-green-700 dark:text-green-400 font-medium">
-                Receipt scanned successfully! Review the extracted details below.
+                Receipt scanned successfully! Review and edit the details below before saving.
               </p>
             </div>
 
@@ -409,65 +423,112 @@ export default function ScanPage() {
                 </div>
               </div>
 
-              {/* Extracted Data */}
+              {/* Extracted Data — Editable */}
               <div className="lg:col-span-2 space-y-4">
                 {/* Main info */}
                 <div className="premium-card p-4 lg:p-6">
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-emerald-500" />
-                    Extracted Details
+                    <Pencil className="w-4 h-4 text-emerald-500" />
+                    Review &amp; Edit Details
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <InfoField
-                      icon={<Store className="w-4 h-4" />}
-                      label="Vendor"
-                      value={scanResult.vendor}
-                    />
-                    <InfoField
-                      icon={<FileText className="w-4 h-4" />}
-                      label="Title"
-                      value={scanResult.title}
-                    />
-                    <InfoField
-                      icon={<DollarSign className="w-4 h-4" />}
-                      label="Amount"
-                      value={
-                        scanResult.amount != null
-                          ? formatCurrency(scanResult.amount, scanResult.currency)
-                          : null
-                      }
-                      highlight
-                    />
-                    <InfoField
-                      icon={<Calendar className="w-4 h-4" />}
-                      label="Date"
-                      value={scanResult.date}
-                    />
-                    <InfoField
-                      icon={<Tag className="w-4 h-4" />}
-                      label="Category"
-                      value={scanResult.category}
-                    />
-                    <InfoField
-                      icon={<DollarSign className="w-4 h-4" />}
-                      label="Tax"
-                      value={
-                        scanResult.tax != null
-                          ? formatCurrency(scanResult.tax, scanResult.currency)
-                          : null
-                      }
-                    />
+                    <div>
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                        <Store className="w-3.5 h-3.5" /> Vendor
+                      </label>
+                      <input
+                        type="text"
+                        value={scanResult.vendor || ""}
+                        onChange={(e) => setScanResult({ ...scanResult, vendor: e.target.value || null })}
+                        placeholder="Vendor name"
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white placeholder-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                        <FileText className="w-3.5 h-3.5" /> Title
+                      </label>
+                      <input
+                        type="text"
+                        value={scanResult.title || ""}
+                        onChange={(e) => setScanResult({ ...scanResult, title: e.target.value || null })}
+                        placeholder="Expense title"
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white placeholder-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                        <DollarSign className="w-3.5 h-3.5" /> Amount <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={scanResult.amount ?? ""}
+                        onChange={(e) => setScanResult({ ...scanResult, amount: e.target.value ? parseFloat(e.target.value) : null })}
+                        placeholder="0.00"
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white placeholder-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                        <Calendar className="w-3.5 h-3.5" /> Date
+                      </label>
+                      <input
+                        type="date"
+                        value={scanResult.date || ""}
+                        onChange={(e) => setScanResult({ ...scanResult, date: e.target.value || null })}
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                        <Tag className="w-3.5 h-3.5" /> Category
+                      </label>
+                      <select
+                        value={scanResult.category || ""}
+                        onChange={(e) => setScanResult({ ...scanResult, category: e.target.value || null })}
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white appearance-none"
+                      >
+                        <option value="">Select category...</option>
+                        {CATEGORIES.map((cat) => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                        Currency
+                      </label>
+                      <select
+                        value={scanResult.currency || "UGX"}
+                        onChange={(e) => setScanResult({ ...scanResult, currency: e.target.value })}
+                        className="w-full h-10 px-3 rounded-xl input-premium text-sm text-gray-900 dark:text-white appearance-none"
+                      >
+                        <option value="UGX">UGX</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                        <option value="KES">KES</option>
+                        <option value="TZS">TZS</option>
+                      </select>
+                    </div>
                   </div>
 
-                  {scanResult.paymentMethod && (
-                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">Payment Method: </span>
-                      <span className="text-sm text-gray-900 dark:text-white font-medium">
-                        {scanResult.paymentMethod}
-                      </span>
-                    </div>
-                  )}
+                  {/* Notes */}
+                  <div className="mt-4">
+                    <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                      Notes
+                    </label>
+                    <textarea
+                      value={scanResult.notes || ""}
+                      onChange={(e) => setScanResult({ ...scanResult, notes: e.target.value || null })}
+                      placeholder="Additional notes..."
+                      rows={2}
+                      className="w-full px-3 py-2 rounded-xl input-premium text-sm text-gray-900 dark:text-white placeholder-gray-400 resize-none"
+                    />
+                  </div>
                 </div>
 
                 {/* Line Items */}
@@ -608,34 +669,3 @@ export default function ScanPage() {
   );
 }
 
-function InfoField({
-  icon,
-  label,
-  value,
-  highlight = false,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string | null;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="p-3 rounded-xl bg-gray-50/80 dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06]">
-      <div className="flex items-center gap-1.5 mb-1">
-        <span className="text-gray-400">{icon}</span>
-        <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">{label}</span>
-      </div>
-      <p
-        className={`text-sm font-semibold truncate ${
-          highlight
-            ? "text-emerald-500 text-lg"
-            : value
-            ? "text-gray-900 dark:text-white"
-            : "text-gray-400 italic"
-        }`}
-      >
-        {value || "Not detected"}
-      </p>
-    </div>
-  );
-}
