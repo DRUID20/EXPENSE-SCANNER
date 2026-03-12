@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { User, Shield, Loader2, CheckCircle2, Eye, EyeOff, Lock, Save, MapPin, Bell, BellOff, Palette, Check, Tag, Plus, X, Trash2 } from "lucide-react";
+import { User, Shield, Loader2, CheckCircle2, Eye, EyeOff, Lock, Save, MapPin, Bell, BellOff, Palette, Check, Tag, Plus, X, Trash2, RefreshCw, DollarSign } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useAppTheme, AppTheme } from "@/context/ThemeContext";
 import { getInitials } from "@/lib/utils";
@@ -75,6 +75,13 @@ export default function SettingsPage() {
   const [categoryAdding, setCategoryAdding] = useState(false);
   const [categoryError, setCategoryError] = useState("");
 
+  // Exchange rates state
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number> | null>(null);
+  const [ratesCachedAt, setRatesCachedAt] = useState<string | null>(null);
+  const [ratesIsFallback, setRatesIsFallback] = useState(false);
+  const [ratesLoading, setRatesLoading] = useState(false);
+  const [ratesRefreshing, setRatesRefreshing] = useState(false);
+
   const checkPushStatus = useCallback(async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
     setPushSupported(true);
@@ -103,9 +110,46 @@ export default function SettingsPage() {
     }
   }, []);
 
+  const fetchExchangeRates = useCallback(async () => {
+    setRatesLoading(true);
+    try {
+      const res = await fetch("/api/exchange-rates");
+      const data = await res.json();
+      if (res.ok) {
+        setExchangeRates(data.rates);
+        setRatesCachedAt(data.cachedAt);
+        setRatesIsFallback(data.isFallback);
+      }
+    } catch {
+      // silent
+    } finally {
+      setRatesLoading(false);
+    }
+  }, []);
+
+  const handleRefreshRates = async () => {
+    setRatesRefreshing(true);
+    try {
+      const res = await fetch("/api/exchange-rates", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setExchangeRates(data.rates);
+        setRatesCachedAt(data.updatedAt);
+        setRatesIsFallback(false);
+      }
+    } catch {
+      // silent
+    } finally {
+      setRatesRefreshing(false);
+    }
+  };
+
   useEffect(() => {
-    if (user?.role === "ADMIN") fetchCategories();
-  }, [user?.role, fetchCategories]);
+    if (user?.role === "ADMIN") {
+      fetchCategories();
+      fetchExchangeRates();
+    }
+  }, [user?.role, fetchCategories, fetchExchangeRates]);
 
   const handleAddCategory = async () => {
     const name = newCategoryName.trim();
@@ -463,6 +507,64 @@ export default function SettingsPage() {
             </div>
           </div>
         )}
+        {/* Exchange Rates (Admin only) */}
+        {user?.role === "ADMIN" && (
+          <div className="premium-card p-4 lg:p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5" style={{ color: "var(--accent)" }} />
+                <h3 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Exchange Rates</h3>
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleRefreshRates}
+                disabled={ratesRefreshing}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-60"
+                style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${ratesRefreshing ? "animate-spin" : ""}`} />
+                {ratesRefreshing ? "Updating..." : "Refresh Rates"}
+              </motion.button>
+            </div>
+            <p className="text-sm text-[var(--muted)] mb-1">
+              Live rates from ExchangeRate-API, cached for 24 hours. All amounts converted to UGX.
+            </p>
+            {ratesCachedAt && (
+              <p className="text-[11px] text-[var(--muted)] mb-4">
+                Last updated: {new Date(ratesCachedAt).toLocaleString()}
+                {ratesIsFallback && (
+                  <span className="ml-2 px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 text-[10px] font-medium">
+                    Using fallback rates
+                  </span>
+                )}
+              </p>
+            )}
+
+            {ratesLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-[var(--accent)]" />
+              </div>
+            ) : exchangeRates ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {Object.entries(exchangeRates)
+                  .filter(([code]) => code !== "UGX")
+                  .map(([code, rate]) => (
+                    <div
+                      key={code}
+                      className="flex items-center justify-between px-4 py-3 rounded-xl border transition-colors"
+                      style={{ borderColor: "var(--card-border)", background: "var(--subtle)" }}
+                    >
+                      <span className="text-sm font-bold" style={{ color: "var(--foreground)" }}>{code}</span>
+                      <span className="text-sm text-[var(--muted)]">
+                        {Number(rate).toLocaleString()} <span className="text-[11px]">UGX</span>
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            ) : null}
+          </div>
+        )}
+
         {/* Category Management (Admin only) */}
         {user?.role === "ADMIN" && (
           <div className="premium-card p-4 lg:p-6">
