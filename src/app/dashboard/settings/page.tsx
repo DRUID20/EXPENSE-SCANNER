@@ -2,9 +2,31 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { User, Shield, Loader2, CheckCircle2, Eye, EyeOff, Lock, Save, MapPin, Bell, BellOff } from "lucide-react";
+import { User, Shield, Loader2, CheckCircle2, Eye, EyeOff, Lock, Save, MapPin, Bell, BellOff, Palette, Check } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useAppTheme, AppTheme } from "@/context/ThemeContext";
 import { getInitials } from "@/lib/utils";
+
+const themes: { id: AppTheme; name: string; description: string; preview: { bg: string; sidebar: string; accent: string } }[] = [
+  {
+    id: "emerald-slate",
+    name: "Emerald Slate",
+    description: "Light theme with slate tones and emerald accents",
+    preview: { bg: "#f8fafc", sidebar: "#0f172a", accent: "#10b981" },
+  },
+  {
+    id: "midnight-glass",
+    name: "Midnight Glass",
+    description: "Dark glass theme with cyan highlights",
+    preview: { bg: "#020617", sidebar: "#0f172a", accent: "#06b6d4" },
+  },
+  {
+    id: "ivory-corporate",
+    name: "Ivory Corporate",
+    description: "Warm corporate look with branded green",
+    preview: { bg: "#fafaf9", sidebar: "#0f2d23", accent: "#18c37e" },
+  },
+];
 
 function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -153,34 +175,36 @@ export default function SettingsPage() {
     }
   };
 
+  const { theme, setTheme } = useAppTheme();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="max-w-4xl mx-auto"
     >
-      <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">Settings</h1>
-      <p className="text-[13px] text-gray-400 mb-6">Manage your account and preferences</p>
+      <h1 className="text-xl lg:text-2xl font-bold mb-1 tracking-tight" style={{ color: "var(--foreground)" }}>Settings</h1>
+      <p className="text-[13px] mb-6" style={{ color: "var(--muted)" }}>Manage your account and preferences</p>
 
       <div className="space-y-6">
         {/* Profile Card */}
         <div className="premium-card p-4 lg:p-6">
           <div className="flex items-center gap-2 mb-6">
-            <User className="w-5 h-5 text-emerald-500" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Profile</h3>
+            <User className="w-5 h-5" style={{ color: "var(--accent)" }} />
+            <h3 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Profile</h3>
           </div>
 
           <div className="flex items-center gap-6 mb-6">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-emerald-500/20">
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg" style={{ background: `linear-gradient(135deg, var(--accent), var(--accent-hover))`, boxShadow: `0 10px 15px -3px var(--nav-active-shadow)` }}>
               {user ? getInitials(user.firstName, user.lastName) : "??"}
             </div>
             <div>
-              <h4 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h4 className="text-xl font-bold" style={{ color: "var(--foreground)" }}>
                 {user?.firstName} {user?.lastName}
               </h4>
               <p className="text-gray-500 dark:text-gray-400">{user?.email}</p>
               <div className="flex items-center gap-2 mt-1">
-                <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold" style={{ background: "var(--accent-soft)", color: "var(--accent)" }}>
                   {user?.role === "ADMIN" ? "Administrator" : user?.role === "MANAGER" ? "Manager" : "Employee"}
                 </span>
                 {user?.branch && (
@@ -225,11 +249,59 @@ export default function SettingsPage() {
           </form>
         </div>
 
+        {/* Theme Picker */}
+        <div className="premium-card p-4 lg:p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Palette className="w-5 h-5" style={{ color: "var(--accent)" }} />
+            <h3 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Appearance</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {themes.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTheme(t.id)}
+                className={`relative rounded-xl border-2 p-3 transition-all text-left ${
+                  theme === t.id ? "" : "hover:scale-[1.02]"
+                }`}
+                style={{
+                  borderColor: theme === t.id ? "var(--accent)" : "var(--card-border)",
+                  background: "var(--subtle)",
+                  outline: theme === t.id ? "2px solid var(--accent)" : undefined,
+                  outlineOffset: theme === t.id ? "2px" : undefined,
+                }}
+              >
+                {theme === t.id && (
+                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "var(--accent)" }}>
+                    <Check className="w-3 h-3 text-white" />
+                  </div>
+                )}
+                {/* Mini preview */}
+                <div className="rounded-lg overflow-hidden mb-3 border" style={{ borderColor: "var(--card-border)" }}>
+                  <div className="flex h-20">
+                    <div className="w-8" style={{ background: t.preview.sidebar }} />
+                    <div className="flex-1 p-2" style={{ background: t.preview.bg }}>
+                      <div className="w-full h-2 rounded-full mb-1.5" style={{ background: t.preview.accent, opacity: 0.3 }} />
+                      <div className="w-3/4 h-1.5 rounded-full mb-1" style={{ background: t.preview.sidebar, opacity: 0.15 }} />
+                      <div className="w-1/2 h-1.5 rounded-full mb-2" style={{ background: t.preview.sidebar, opacity: 0.1 }} />
+                      <div className="flex gap-1">
+                        <div className="flex-1 h-6 rounded" style={{ background: t.preview.accent, opacity: 0.15 }} />
+                        <div className="flex-1 h-6 rounded" style={{ background: t.preview.accent, opacity: 0.1 }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>{t.name}</p>
+                <p className="text-[11px] mt-0.5" style={{ color: "var(--muted)" }}>{t.description}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Change Password */}
         <div className="premium-card p-4 lg:p-6">
           <div className="flex items-center gap-2 mb-6">
-            <Shield className="w-5 h-5 text-emerald-500" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Change Password</h3>
+            <Shield className="w-5 h-5" style={{ color: "var(--accent)" }} />
+            <h3 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Change Password</h3>
           </div>
 
           <form onSubmit={handlePasswordChange} className="space-y-4">
@@ -293,8 +365,8 @@ export default function SettingsPage() {
         {pushSupported && (
           <div className="premium-card p-4 lg:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Bell className="w-5 h-5 text-emerald-500" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Push Notifications</h3>
+              <Bell className="w-5 h-5" style={{ color: "var(--accent)" }} />
+              <h3 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Push Notifications</h3>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Get notified when expenses are submitted, approved, or rejected — even when the app is closed.

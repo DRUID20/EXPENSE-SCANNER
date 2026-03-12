@@ -65,14 +65,15 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
       <motion.aside
         animate={{ width: collapsed ? 76 : 264 }}
         transition={{ type: "spring", stiffness: 400, damping: 35 }}
-        className="hidden lg:flex fixed left-0 top-0 h-screen bg-white/80 dark:bg-[#072419]/80 backdrop-blur-xl border-r border-black/[0.06] dark:border-white/[0.06] z-40 flex-col"
+        className="hidden lg:flex fixed left-0 top-0 h-screen backdrop-blur-xl z-40 flex-col"
+        style={{ background: "var(--sidebar-bg)", borderRight: "1px solid var(--sidebar-border)" }}
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4">
           <Logo collapsed={collapsed} />
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="w-7 h-7 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center text-gray-400 hover:text-emerald-500 transition-colors"
+            className="w-7 h-7 rounded-lg bg-white/[0.06] flex items-center justify-center text-gray-400 hover:text-[var(--accent)] transition-colors"
           >
             {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
           </button>
@@ -88,11 +89,12 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 group relative",
                     isActive
-                      ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
-                      : "text-gray-500 dark:text-gray-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white"
+                      ? "text-white shadow-md"
+                      : "text-gray-400 hover:bg-white/[0.04] hover:text-white"
                   )}
+                  style={isActive ? { background: "var(--accent)", boxShadow: `0 4px 6px -1px var(--nav-active-shadow)` } : undefined}
                 >
-                  <item.icon className={cn("w-[18px] h-[18px] flex-shrink-0", isActive ? "text-white" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300")} />
+                  <item.icon className={cn("w-[18px] h-[18px] flex-shrink-0", isActive ? "text-white" : "text-gray-500 group-hover:text-gray-300")} />
                   <AnimatePresence>
                     {!collapsed && (
                       <motion.span
@@ -112,14 +114,14 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
         </nav>
 
         {/* User Profile */}
-        <div className="border-t border-black/[0.06] dark:border-white/[0.06] p-3">
+        <div className="border-t border-white/[0.06] p-3">
           <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0" style={{ background: `linear-gradient(135deg, var(--accent), var(--accent-hover))` }}>
               {user ? getInitials(user.firstName, user.lastName) : "??"}
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-semibold text-gray-900 dark:text-white truncate">
+                <p className="text-[13px] font-semibold text-white truncate">
                   {user?.firstName} {user?.lastName}
                 </p>
                 <p className="text-[11px] text-gray-400 truncate">
@@ -130,7 +132,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
             {!collapsed && (
               <button
                 onClick={logout}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 dark:text-gray-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-red-500 hover:bg-red-950/50 transition-colors"
                 title="Sign out"
               >
                 <LogOut className="w-4 h-4" />
@@ -157,14 +159,15 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 400, damping: 35 }}
-              className="lg:hidden fixed left-0 top-0 h-screen w-[280px] bg-white dark:bg-[#072419] z-50 flex flex-col shadow-2xl"
+              className="lg:hidden fixed left-0 top-0 h-screen w-[280px] z-50 flex flex-col shadow-2xl"
+              style={{ background: "var(--sidebar-bg)" }}
             >
               {/* Header */}
               <div className="h-16 flex items-center justify-between px-4">
                 <Logo collapsed={false} />
                 <button
                   onClick={onMobileClose}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.06] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -180,9 +183,10 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
                         className={cn(
                           "flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-150",
                           isActive
-                            ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
-                            : "text-gray-500 dark:text-gray-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white"
+                            ? "text-white shadow-md"
+                            : "text-gray-400 hover:bg-white/[0.04] hover:text-white"
                         )}
+                        style={isActive ? { background: "var(--accent)", boxShadow: `0 4px 6px -1px var(--nav-active-shadow)` } : undefined}
                       >
                         <item.icon className={cn("w-5 h-5 flex-shrink-0", isActive ? "text-white" : "text-gray-400")} />
                         <span>{item.name}</span>
@@ -193,20 +197,20 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
               </nav>
 
               {/* User Profile */}
-              <div className="border-t border-black/[0.06] dark:border-white/[0.06] p-4">
+              <div className="border-t border-white/[0.06] p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0" style={{ background: `linear-gradient(135deg, var(--accent), var(--accent-hover))` }}>
                     {user ? getInitials(user.firstName, user.lastName) : "??"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                    <p className="text-sm font-semibold text-white truncate">
                       {user?.firstName} {user?.lastName}
                     </p>
                     <p className="text-xs text-gray-400 truncate">{user?.email}</p>
                   </div>
                   <button
                     onClick={logout}
-                    className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors"
+                    className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-950/50 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
                   </button>
@@ -218,7 +222,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
       </AnimatePresence>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-[#072419]/90 backdrop-blur-xl border-t border-black/[0.06] dark:border-white/[0.06] pb-safe">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl pb-safe" style={{ background: "var(--mobile-bar-bg)", borderTop: "1px solid var(--card-border)" }}>
         <div className="flex items-center justify-around px-2 h-16">
           {filteredMobileNav.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -227,30 +231,25 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
             if (isPrimary) {
               return (
                 <Link key={item.name} href={item.href} className="flex flex-col items-center -mt-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: `linear-gradient(135deg, var(--accent), var(--accent-hover))`, boxShadow: `0 10px 15px -3px var(--nav-active-shadow)` }}>
                     <item.icon className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-[10px] font-semibold text-emerald-500 mt-0.5">{item.name}</span>
+                  <span className="text-[10px] font-semibold mt-0.5" style={{ color: "var(--accent)" }}>{item.name}</span>
                 </Link>
               );
             }
 
             return (
               <Link key={item.name} href={item.href} className="flex flex-col items-center gap-0.5 py-1.5 min-w-[3.5rem]">
-                <item.icon className={cn(
-                  "w-5 h-5 transition-colors",
-                  isActive ? "text-emerald-500" : "text-gray-400 dark:text-gray-500"
-                )} />
-                <span className={cn(
-                  "text-[10px] font-medium transition-colors",
-                  isActive ? "text-emerald-500" : "text-gray-400 dark:text-gray-500"
-                )}>
+                <item.icon className={cn("w-5 h-5 transition-colors", !isActive && "text-[var(--muted)]")} style={isActive ? { color: "var(--accent)" } : undefined} />
+                <span className={cn("text-[10px] font-medium transition-colors", !isActive && "text-[var(--muted)]")} style={isActive ? { color: "var(--accent)" } : undefined}>
                   {item.name}
                 </span>
                 {isActive && (
                   <motion.div
                     layoutId="bottomNavIndicator"
-                    className="absolute top-0 w-8 h-0.5 bg-emerald-500 rounded-full"
+                    className="absolute top-0 w-8 h-0.5 rounded-full"
+                    style={{ background: "var(--accent)" }}
                   />
                 )}
               </Link>

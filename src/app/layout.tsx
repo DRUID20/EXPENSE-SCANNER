@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { AppThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
@@ -32,12 +33,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" data-theme="midnight-glass" className="dark" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body className="antialiased bg-background text-foreground font-sans">
         <ThemeProvider>
+          <AppThemeProvider>
           <AuthProvider>
             <ToastProvider>
               <OfflineIndicator />
@@ -46,6 +48,7 @@ export default function RootLayout({
               <ServiceWorkerRegistration />
             </ToastProvider>
           </AuthProvider>
+          </AppThemeProvider>
         </ThemeProvider>
       </body>
     </html>

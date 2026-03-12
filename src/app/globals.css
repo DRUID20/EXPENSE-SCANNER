@@ -7,16 +7,79 @@
   --font-mono: "SF Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
-:root, .dark {
-  --background: #061B09;
-  --foreground: #E7ECE9;
-  --card: #072419;
+/* Default / Midnight Glass (dark) */
+:root, [data-theme="midnight-glass"] {
+  --background: #020617;
+  --foreground: #ffffff;
+  --card: rgba(15, 23, 42, 0.8);
   --card-border: rgba(255, 255, 255, 0.06);
-  --subtle: #0A2E25;
-  --muted: #8B9C8F;
-  --accent: #03D47C;
-  --accent-soft: rgba(3, 212, 124, 0.1);
+  --subtle: #1e293b;
+  --muted: #94a3b8;
+  --accent: #06b6d4;
+  --accent-hover: #0891b2;
+  --accent-soft: rgba(6, 182, 212, 0.1);
+  --accent-glow: rgba(6, 182, 212, 0.25);
+  --sidebar-bg: rgba(2, 6, 23, 0.9);
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --nav-active-shadow: rgba(6, 182, 212, 0.2);
+  --glass-bg: rgba(15, 23, 42, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.04);
+  --mobile-bar-bg: rgba(2, 6, 23, 0.9);
+  --scrollbar-thumb: rgba(148, 163, 184, 0.08);
+  --scrollbar-hover: rgba(148, 163, 184, 0.15);
+  --gradient-from: #06b6d4;
+  --gradient-to: #0891b2;
   color-scheme: dark;
+}
+
+/* Emerald Slate (light) */
+[data-theme="emerald-slate"] {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.06);
+  --subtle: #f1f5f9;
+  --muted: #64748b;
+  --accent: #10b981;
+  --accent-hover: #059669;
+  --accent-soft: rgba(16, 185, 129, 0.1);
+  --accent-glow: rgba(16, 185, 129, 0.25);
+  --sidebar-bg: rgba(15, 23, 42, 0.95);
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --nav-active-shadow: rgba(16, 185, 129, 0.2);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --mobile-bar-bg: rgba(255, 255, 255, 0.9);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.08);
+  --scrollbar-hover: rgba(0, 0, 0, 0.15);
+  --gradient-from: #10b981;
+  --gradient-to: #059669;
+  color-scheme: light;
+}
+
+/* Ivory Corporate (light, branded) */
+[data-theme="ivory-corporate"] {
+  --background: #fafaf9;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.06);
+  --subtle: #f5f5f4;
+  --muted: #64748b;
+  --accent: #18c37e;
+  --accent-hover: #14a86b;
+  --accent-soft: rgba(24, 195, 126, 0.1);
+  --accent-glow: rgba(24, 195, 126, 0.25);
+  --sidebar-bg: rgba(15, 45, 35, 0.97);
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --nav-active-shadow: rgba(24, 195, 126, 0.2);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --mobile-bar-bg: rgba(255, 255, 255, 0.9);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.08);
+  --scrollbar-hover: rgba(0, 0, 0, 0.15);
+  --gradient-from: #18c37e;
+  --gradient-to: #14a86b;
+  color-scheme: light;
 }
 
 * {
@@ -48,33 +111,20 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 46, 34, 0.12);
+  background: var(--scrollbar-thumb);
   border-radius: 100px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 46, 34, 0.2);
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: rgba(231, 236, 233, 0.08);
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(231, 236, 233, 0.15);
+  background: var(--scrollbar-hover);
 }
 
 /* Premium glass morphism */
 .glass {
-  background: rgba(252, 251, 249, 0.72);
+  background: var(--glass-bg);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-
-.dark .glass {
-  background: rgba(7, 36, 25, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
 }
 
 /* Premium card */
@@ -83,36 +133,22 @@ body {
   border: 1px solid var(--card-border);
   border-radius: 1rem;
   box-shadow:
-    0 0 0 1px rgba(0, 46, 34, 0.02),
-    0 1px 2px rgba(0, 46, 34, 0.03),
-    0 4px 12px rgba(0, 46, 34, 0.04);
+    0 0 0 1px rgba(0, 0, 0, 0.02),
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.03);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dark .premium-card {
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.02),
-    0 1px 2px rgba(0, 0, 0, 0.2),
-    0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .premium-card:hover {
   box-shadow:
-    0 0 0 1px rgba(0, 46, 34, 0.03),
-    0 2px 4px rgba(0, 46, 34, 0.04),
-    0 8px 24px rgba(0, 46, 34, 0.06);
-}
-
-.dark .premium-card:hover {
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 2px 4px rgba(0, 0, 0, 0.25),
-    0 8px 24px rgba(0, 0, 0, 0.2);
+    0 0 0 1px rgba(0, 0, 0, 0.03),
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #03D47C, #00C271, #10b981);
+  background: linear-gradient(135deg, var(--gradient-from), var(--gradient-to));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -121,20 +157,20 @@ body {
 /* Premium glow */
 .glow-green {
   box-shadow:
-    0 0 0 1px rgba(3, 212, 124, 0.1),
-    0 2px 8px rgba(3, 212, 124, 0.15),
-    0 8px 24px rgba(3, 212, 124, 0.1);
+    0 0 0 1px var(--accent-soft),
+    0 2px 8px var(--accent-glow),
+    0 8px 24px var(--accent-soft);
 }
 
 /* Premium button */
 .btn-primary {
-  background: linear-gradient(135deg, #03D47C 0%, #00C271 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
   color: white;
   font-weight: 600;
   border-radius: 0.75rem;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.1),
-    0 2px 8px rgba(3, 212, 124, 0.25),
+    0 2px 8px var(--accent-glow),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transition: all 0.15s ease;
 }
@@ -142,7 +178,7 @@ body {
 .btn-primary:hover {
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.1),
-    0 4px 16px rgba(3, 212, 124, 0.35),
+    0 4px 16px var(--accent-glow),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transform: translateY(-0.5px);
 }
@@ -151,7 +187,7 @@ body {
   transform: translateY(0.5px);
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.1),
-    0 1px 4px rgba(3, 212, 124, 0.2),
+    0 1px 4px var(--accent-soft),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
@@ -176,7 +212,7 @@ body {
   background: linear-gradient(
     90deg,
     var(--subtle) 25%,
-    rgba(3, 212, 124, 0.05) 50%,
+    var(--accent-soft) 50%,
     var(--subtle) 75%
   );
   background-size: 200% 100%;

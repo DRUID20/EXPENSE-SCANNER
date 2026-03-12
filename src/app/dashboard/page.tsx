@@ -247,8 +247,8 @@ export default function DashboardPage() {
       title: isAdmin ? "Company Spending" : "Total Expenses",
       value: data ? formatCurrency(data.stats.totalAmount) : "UGX 0",
       icon: DollarSign,
-      gradient: "from-emerald-500 to-emerald-600",
-      shadow: "shadow-emerald-500/20",
+      gradient: "from-[var(--gradient-from)] to-[var(--gradient-to)]",
+      shadow: "shadow-sm",
     },
     {
       title: canApprove ? "Awaiting Approval" : "Pending Approval",
@@ -262,7 +262,7 @@ export default function DashboardPage() {
       title: "Approved",
       value: data ? String(data.stats.approvedCount) : "0",
       icon: CheckCircle2,
-      gradient: "from-green-500 to-emerald-500",
+      gradient: "from-green-500 to-green-600",
       shadow: "shadow-green-500/20",
     },
     {
@@ -290,7 +290,7 @@ export default function DashboardPage() {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+          <h1 className="text-xl lg:text-2xl font-bold text-[var(--foreground)] tracking-tight">
             {isAdmin ? "Admin Dashboard" : isManager ? "Manager Dashboard" : "Dashboard"}
           </h1>
           <p className="text-[13px] text-gray-400 mt-0.5">
@@ -317,7 +317,8 @@ export default function DashboardPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2 px-4 lg:px-5 py-2.5 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] text-gray-700 dark:text-gray-300 font-medium text-sm hover:border-emerald-300 dark:hover:border-emerald-500/30 transition-colors"
+              className="flex items-center gap-2 px-4 lg:px-5 py-2.5 rounded-xl border font-medium text-sm transition-colors"
+              style={{ background: "var(--card)", borderColor: "var(--card-border)", color: "var(--foreground)" }}
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Add Expense</span>
@@ -340,14 +341,14 @@ export default function DashboardPage() {
             <div className="flex items-start justify-between relative">
               <div>
                 <p className="text-[11px] lg:text-xs text-gray-400 font-medium uppercase tracking-wider">{stat.title}</p>
-                <p className="text-xl lg:text-3xl font-bold text-gray-900 dark:text-white mt-1.5 tracking-tight">{stat.value}</p>
+                <p className="text-xl lg:text-3xl font-bold text-[var(--foreground)] mt-1.5 tracking-tight">{stat.value}</p>
               </div>
               <div className="relative">
                 <div className={`w-9 h-9 lg:w-11 lg:h-11 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-sm`}>
                   <stat.icon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
                 </div>
                 {"alert" in stat && stat.alert && (
-                  <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 border-2 border-white dark:border-[#072419] animate-pulse" />
+                  <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 border-2 border-white border-[var(--background)] animate-pulse" />
                 )}
               </div>
             </div>
@@ -362,14 +363,14 @@ export default function DashboardPage() {
           className="premium-card p-4 lg:p-6 border-amber-200/50 dark:border-amber-500/10"
         >
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <h3 className="text-sm lg:text-base font-semibold text-[var(--foreground)] flex items-center gap-2">
               <ClipboardCheck className="w-4 h-4 text-amber-500" />
               Pending Approvals
               <span className="ml-0.5 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 text-[11px] font-semibold">
                 {data?.stats.pendingCount || pendingApprovals.length}
               </span>
             </h3>
-            <Link href="/dashboard/approvals" className="text-[13px] text-emerald-500 hover:text-emerald-600 font-medium flex items-center gap-1">
+            <Link href="/dashboard/approvals" className="text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)] font-medium flex items-center gap-1">
               Review all <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -377,19 +378,19 @@ export default function DashboardPage() {
             {pendingApprovals.map((expense) => (
               <Link key={expense.id} href={`/dashboard/expenses/${expense.id}`}>
                 <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-colors cursor-pointer group">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
                     {expense.user.firstName[0]}{expense.user.lastName[0]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold text-gray-900 dark:text-white truncate">{expense.title}</p>
+                    <p className="text-[13px] font-semibold text-[var(--foreground)] truncate">{expense.title}</p>
                     <p className="text-[11px] text-gray-400 truncate">
                       {expense.user.firstName} {expense.user.lastName} · {expense.category} · {formatDate(expense.date)}
                     </p>
                   </div>
-                  <p className="text-[13px] font-bold text-gray-900 dark:text-white flex-shrink-0">
+                  <p className="text-[13px] font-bold text-[var(--foreground)] flex-shrink-0">
                     {formatCurrency(expense.amount, expense.currency)}
                   </p>
-                  <Eye className="w-3.5 h-3.5 text-gray-300 group-hover:text-emerald-500 transition-colors flex-shrink-0 hidden sm:block" />
+                  <Eye className="w-3.5 h-3.5 text-gray-300 group-hover:text-[var(--accent)] transition-colors flex-shrink-0 hidden sm:block" />
                 </div>
               </Link>
             ))}
@@ -405,11 +406,11 @@ export default function DashboardPage() {
           className="lg:col-span-2 premium-card p-4 lg:p-6"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <Receipt className="w-4 h-4 text-emerald-500" />
+            <h3 className="text-sm lg:text-base font-semibold text-[var(--foreground)] flex items-center gap-2">
+              <Receipt className="w-4 h-4 text-[var(--accent)]" />
               Recent Expenses
             </h3>
-            <Link href="/dashboard/expenses" className="text-[13px] text-emerald-500 hover:text-emerald-600 font-medium">
+            <Link href="/dashboard/expenses" className="text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)] font-medium">
               View all
             </Link>
           </div>
@@ -419,7 +420,7 @@ export default function DashboardPage() {
               <div className="w-14 h-14 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] flex items-center justify-center mb-3">
                 <Receipt className="w-7 h-7 text-gray-300 dark:text-gray-600" />
               </div>
-              <h4 className="font-semibold text-gray-900 dark:text-white text-sm mb-1.5">No expenses yet</h4>
+              <h4 className="font-semibold text-[var(--foreground)] text-sm mb-1.5">No expenses yet</h4>
               <p className="text-[13px] text-gray-400 max-w-xs mb-4">
                 Start by scanning a receipt or adding your first expense.
               </p>
@@ -442,12 +443,12 @@ export default function DashboardPage() {
                 return (
                   <Link key={expense.id} href={`/dashboard/expenses/${expense.id}`}>
                     <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors cursor-pointer group">
-                      <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center flex-shrink-0">
-                        <Receipt className="w-4 h-4 text-emerald-500" />
+                      <div className="w-9 h-9 rounded-lg bg-[var(--accent-soft)] flex items-center justify-center flex-shrink-0">
+                        <Receipt className="w-4 h-4 text-[var(--accent)]" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <p className="text-[13px] font-semibold text-gray-900 dark:text-white truncate">
+                          <p className="text-[13px] font-semibold text-[var(--foreground)] truncate">
                             {expense.title}
                           </p>
                           <span className={`hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-medium ${sc.color}`}>
@@ -460,7 +461,7 @@ export default function DashboardPage() {
                           {canApprove && ` · ${expense.user.firstName} ${expense.user.lastName}`}
                         </p>
                       </div>
-                      <p className="text-[13px] font-bold text-gray-900 dark:text-white flex-shrink-0">
+                      <p className="text-[13px] font-bold text-[var(--foreground)] flex-shrink-0">
                         {formatCurrency(expense.amount, expense.currency)}
                       </p>
                     </div>
@@ -476,8 +477,8 @@ export default function DashboardPage() {
           variants={itemVariants}
           className="premium-card p-4 lg:p-6"
         >
-          <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-            <TrendingUp className="w-4 h-4 text-emerald-500" />
+          <h3 className="text-sm lg:text-base font-semibold text-[var(--foreground)] flex items-center gap-2 mb-4">
+            <TrendingUp className="w-4 h-4 text-[var(--accent)]" />
             By Category
           </h3>
 
@@ -494,13 +495,13 @@ export default function DashboardPage() {
 
                 return (
                   <div key={cat.category} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-500">
+                    <div className="w-8 h-8 rounded-lg bg-[var(--accent-soft)] flex items-center justify-center text-[var(--accent)]">
                       <CatIcon className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[13px] font-medium text-gray-900 dark:text-white">{cat.category}</span>
-                        <span className="text-[13px] font-semibold text-gray-900 dark:text-white">
+                        <span className="text-[13px] font-medium text-[var(--foreground)]">{cat.category}</span>
+                        <span className="text-[13px] font-semibold text-[var(--foreground)]">
                           {formatCurrency(cat.total)}
                         </span>
                       </div>
@@ -509,7 +510,7 @@ export default function DashboardPage() {
                           initial={{ width: 0 }}
                           animate={{ width: `${pct}%` }}
                           transition={{ duration: 0.8, delay: 0.3 }}
-                          className="h-full bg-emerald-500 rounded-full"
+                          className="h-full bg-[var(--accent)] rounded-full"
                         />
                       </div>
                     </div>
@@ -523,7 +524,7 @@ export default function DashboardPage() {
             <p className="text-[11px] text-gray-400 mb-2">
               {isAdmin ? "Company-wide spending" : isManager ? "Team spending" : "Your personal spending"}
             </p>
-            <Link href="/dashboard/analytics" className="text-[13px] text-emerald-500 hover:text-emerald-600 font-medium">
+            <Link href="/dashboard/analytics" className="text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)] font-medium">
               View Analytics
             </Link>
           </div>
@@ -537,11 +538,11 @@ export default function DashboardPage() {
           className="premium-card p-4 lg:p-6"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <Users className="w-4 h-4 text-emerald-500" />
+            <h3 className="text-sm lg:text-base font-semibold text-[var(--foreground)] flex items-center gap-2">
+              <Users className="w-4 h-4 text-[var(--accent)]" />
               Top Spenders
             </h3>
-            <Link href="/dashboard/analytics" className="text-[13px] text-emerald-500 hover:text-emerald-600 font-medium">
+            <Link href="/dashboard/analytics" className="text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)] font-medium">
               Full report
             </Link>
           </div>
@@ -552,20 +553,20 @@ export default function DashboardPage() {
                 className="flex items-center gap-3 p-3 rounded-xl bg-black/[0.02] dark:bg-white/[0.02]"
               >
                 <div className="relative">
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold">
+                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center text-white text-xs font-bold">
                     {emp.firstName[0]}{emp.lastName[0]}
                   </div>
                   {i < 3 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#072419] border border-black/[0.06] dark:border-white/[0.06] flex items-center justify-center text-[9px] font-bold text-emerald-500">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#072419] border border-black/[0.06] dark:border-white/[0.06] flex items-center justify-center text-[9px] font-bold text-[var(--accent)]">
                       {i + 1}
                     </span>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold text-gray-900 dark:text-white truncate">{emp.firstName} {emp.lastName}</p>
+                  <p className="text-[13px] font-semibold text-[var(--foreground)] truncate">{emp.firstName} {emp.lastName}</p>
                   <p className="text-[11px] text-gray-400">{emp.count} expenses</p>
                 </div>
-                <p className="text-[13px] font-bold text-emerald-500">{formatCurrency(emp.total)}</p>
+                <p className="text-[13px] font-bold text-[var(--accent)]">{formatCurrency(emp.total)}</p>
               </div>
             ))}
           </div>
@@ -574,16 +575,16 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <motion.div variants={itemVariants}>
-        <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white mb-3">Quick Actions</h3>
+        <h3 className="text-sm lg:text-base font-semibold text-[var(--foreground)] mb-3">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {[
-            { title: "Scan Receipt", desc: "AI-powered receipt extraction", icon: ScanLine, href: "/dashboard/scan", gradient: "from-emerald-500 to-emerald-600" },
+            { title: "Scan Receipt", desc: "AI-powered receipt extraction", icon: ScanLine, href: "/dashboard/scan", gradient: "from-[var(--gradient-from)] to-[var(--gradient-to)]" },
             { title: "Add Manually", desc: "Enter expense details", icon: Plus, href: "/dashboard/expenses/new", gradient: "from-blue-500 to-cyan-500" },
             ...(canApprove
               ? [{ title: "Review Approvals", desc: "Pending expense submissions", icon: ClipboardCheck, href: "/dashboard/approvals", gradient: "from-amber-500 to-yellow-500" }]
               : []),
             { title: "View Analytics", desc: "Spending trends & charts", icon: TrendingUp, href: "/dashboard/analytics", gradient: "from-purple-500 to-pink-500" },
-            { title: "Export Data", desc: "Download reports as CSV", icon: Download, href: "/dashboard/analytics", gradient: "from-green-500 to-emerald-500" },
+            { title: "Export Data", desc: "Download reports as CSV", icon: Download, href: "/dashboard/analytics", gradient: "from-green-500 to-green-600" },
           ].slice(0, 3).map((action) => (
             <Link key={action.title} href={action.href}>
               <motion.div
@@ -593,7 +594,7 @@ export default function DashboardPage() {
                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-sm mb-3`}>
                   <action.icon className="w-5 h-5 text-white" />
                 </div>
-                <h4 className="text-[13px] font-semibold text-gray-900 dark:text-white group-hover:text-emerald-500 transition-colors">
+                <h4 className="text-[13px] font-semibold text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors">
                   {action.title}
                 </h4>
                 <p className="text-[11px] text-gray-400 mt-0.5 hidden sm:block">{action.desc}</p>
