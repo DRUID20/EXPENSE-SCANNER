@@ -152,6 +152,12 @@ export async function POST(req: NextRequest) {
     }
 
     const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0 || !isFinite(parsedAmount)) {
+      return NextResponse.json(
+        { error: "Amount must be a positive number" },
+        { status: 400 }
+      );
+    }
 
     // Fetch policies and user limit in parallel
     const [policies, currentUser] = await Promise.all([

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
@@ -165,8 +165,20 @@ async function seedData() {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    // Only allow setup in development or with a valid setup secret
+    const { searchParams } = new URL(req.url);
+    const secret = searchParams.get("secret");
+    const setupSecret = process.env.SETUP_SECRET;
+
+    if (process.env.NODE_ENV === "production" && (!setupSecret || secret !== setupSecret)) {
+      return NextResponse.json(
+        { error: "Setup endpoint is disabled in production. Set SETUP_SECRET env var and pass ?secret=<value> to use." },
+        { status: 403 }
+      );
+    }
+
     // Step 1: Create tables
     await createTables();
 

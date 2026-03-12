@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getSession } from "@/lib/auth";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const anthropic = new Anthropic();
 
@@ -101,6 +102,15 @@ export async function POST(req: NextRequest) {
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Rate limit: 20 scans per 15 minutes per user
+    const limit = rateLimit(`scan:${session.userId}`, 20, 15 * 60 * 1000);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: `Too many scan requests. Try again in ${limit.resetInSeconds} seconds.` },
+        { status: 429 }
+      );
     }
 
     const formData = await req.formData();

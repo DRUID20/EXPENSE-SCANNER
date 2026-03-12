@@ -3,7 +3,14 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { prisma } from "./db";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret";
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET environment variable is required");
+  }
+  return secret;
+}
+const JWT_SECRET = getJwtSecret();
 const TOKEN_NAME = "expense-tracker-token";
 
 export interface JWTPayload {

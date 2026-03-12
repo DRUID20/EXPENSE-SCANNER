@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import crypto from "crypto";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit: 5 reset requests per 15 minutes per IP
+    const ip = getClientIp(req);
+    const limit = rateLimit(`forgot-password:${ip}`, 5, 15 * 60 * 1000);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: `Too many requests. Try again in ${limit.resetInSeconds} seconds.` },
+        { status: 429 }
+      );
+    }
+
     const { email } = await req.json();
 
     if (!email) {

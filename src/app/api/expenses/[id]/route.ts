@@ -128,6 +128,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const { title, description, amount, currency, category, vendor, date, notes, status } = body;
 
+    if (amount !== undefined) {
+      const parsedAmount = parseFloat(amount);
+      if (isNaN(parsedAmount) || parsedAmount <= 0 || !isFinite(parsedAmount)) {
+        return NextResponse.json({ error: "Amount must be a positive number" }, { status: 400 });
+      }
+    }
+
     const updated = await prisma.expense.update({
       where: { id },
       data: {
