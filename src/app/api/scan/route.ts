@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
     const mediaType = file.type as "image/jpeg" | "image/png" | "image/webp" | "image/gif";
 
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 2048,
       tools: [extractReceiptTool],
       tool_choice: { type: "tool", name: "extract_receipt_data" },
