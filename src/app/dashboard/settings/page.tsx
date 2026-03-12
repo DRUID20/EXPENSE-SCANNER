@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { User, Shield, Loader2, CheckCircle2, Eye, EyeOff, Lock, Save, MapPin, Bell, BellOff, Palette, Check } from "lucide-react";
+import { User, Shield, Loader2, CheckCircle2, Eye, EyeOff, Lock, Save, MapPin, Bell, BellOff, Palette, Check, Tag, Plus, X, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useAppTheme, AppTheme } from "@/context/ThemeContext";
 import { getInitials } from "@/lib/utils";
@@ -39,6 +39,13 @@ function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   return outputArray.buffer as ArrayBuffer;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  isActive: boolean;
+}
+
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
   const [profileForm, setProfileForm] = useState({
@@ -61,6 +68,13 @@ export default function SettingsPage() {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
 
+  // Category management state
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [categoryAdding, setCategoryAdding] = useState(false);
+  const [categoryError, setCategoryError] = useState("");
+
   const checkPushStatus = useCallback(async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
     setPushSupported(true);
@@ -76,6 +90,56 @@ export default function SettingsPage() {
   useEffect(() => {
     checkPushStatus();
   }, [checkPushStatus]);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await fetch("/api/categories");
+      const data = await res.json();
+      if (res.ok) setCategories(data.categories || []);
+    } catch {
+      // silent
+    } finally {
+      setCategoriesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user?.role === "ADMIN") fetchCategories();
+  }, [user?.role, fetchCategories]);
+
+  const handleAddCategory = async () => {
+    const name = newCategoryName.trim();
+    if (!name) return;
+    setCategoryError("");
+    setCategoryAdding(true);
+    try {
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setNewCategoryName("");
+      fetchCategories();
+    } catch (err) {
+      setCategoryError(err instanceof Error ? err.message : "Failed to add category");
+    } finally {
+      setCategoryAdding(false);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    setCategoryError("");
+    try {
+      const res = await fetch(`/api/categories?id=${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      fetchCategories();
+    } catch (err) {
+      setCategoryError(err instanceof Error ? err.message : "Failed to delete category");
+    }
+  };
 
   const handlePushToggle = async () => {
     setPushLoading(true);
@@ -396,6 +460,76 @@ export default function SettingsPage() {
                   <CheckCircle2 className="w-4 h-4" /> Active
                 </span>
               )}
+            </div>
+          </div>
+        )}
+        {/* Category Management (Admin only) */}
+        {user?.role === "ADMIN" && (
+          <div className="premium-card p-4 lg:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Tag className="w-5 h-5" style={{ color: "var(--accent)" }} />
+              <h3 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Expense Categories</h3>
+            </div>
+            <p className="text-sm text-[var(--muted)] mb-4">
+              Manage expense categories available for all users. Default categories cannot be deleted.
+            </p>
+
+            {categoryError && (
+              <p className="text-sm text-red-500 mb-3">{categoryError}</p>
+            )}
+
+            {categoriesLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-[var(--accent)]" />
+              </div>
+            ) : (
+              <div className="space-y-2 mb-4">
+                {categories.map((cat) => (
+                  <div
+                    key={cat.id}
+                    className="flex items-center justify-between px-4 py-2.5 rounded-xl border transition-colors"
+                    style={{ borderColor: "var(--card-border)", background: "var(--subtle)" }}
+                  >
+                    <span className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
+                      {cat.name}
+                      {cat.isDefault && (
+                        <span className="ml-2 text-[11px] px-2 py-0.5 rounded-full" style={{ background: "var(--accent-soft)", color: "var(--accent)" }}>
+                          Default
+                        </span>
+                      )}
+                    </span>
+                    {!cat.isDefault && (
+                      <button
+                        onClick={() => handleDeleteCategory(cat.id)}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                        title="Delete category"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
+                placeholder="New category name..."
+                className="flex-1 h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400 text-sm"
+              />
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleAddCategory}
+                disabled={categoryAdding || !newCategoryName.trim()}
+                className="flex items-center gap-1.5 px-4 h-10 btn-primary text-sm rounded-xl disabled:opacity-60"
+              >
+                {categoryAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                Add
+              </motion.button>
             </div>
           </div>
         )}

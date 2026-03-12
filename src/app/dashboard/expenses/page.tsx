@@ -398,52 +398,56 @@ export default function ExpensesPage() {
         </div>
 
         {/* Date Range Filter */}
-        <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-black/[0.06] dark:border-white/[0.06]">
-          <Calendar className="w-4 h-4 text-gray-400" />
-          <span className="text-xs text-gray-400 font-medium">Date range:</span>
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-            className="input-premium h-8 px-2.5 text-xs rounded-lg"
-            placeholder="From"
-          />
-          <span className="text-xs text-gray-400">to</span>
-          <input
-            type="date"
-            value={dateTo}
-            onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-            className="input-premium h-8 px-2.5 text-xs rounded-lg"
-            placeholder="To"
-          />
-          {hasDateFilter && (
-            <button
-              onClick={clearDateFilter}
-              className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"
-            >
-              <X className="w-3 h-3" /> Clear
-            </button>
-          )}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 pt-3 border-t border-black/[0.06] dark:border-white/[0.06]">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="w-4 h-4 text-gray-400 hidden sm:block" />
+            <span className="text-xs text-gray-400 font-medium">Date:</span>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+              className="input-premium h-8 px-2 sm:px-2.5 text-xs rounded-lg w-[130px] sm:w-auto"
+              placeholder="From"
+            />
+            <span className="text-xs text-gray-400">to</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+              className="input-premium h-8 px-2 sm:px-2.5 text-xs rounded-lg w-[130px] sm:w-auto"
+              placeholder="To"
+            />
+            {hasDateFilter && (
+              <button
+                onClick={clearDateFilter}
+                className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"
+              >
+                <X className="w-3 h-3" /> Clear
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Sort bar */}
-        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-black/[0.06] dark:border-white/[0.06]">
-        <span className="text-xs text-gray-400 font-medium">Sort by:</span>
-        {([
-          ["date", "Date"],
-          ["amount", "Amount"],
-          ["title", "Title"],
-          ["createdAt", "Created"],
-        ] as [SortField, string][]).map(([field, label]) => (
-          <button
-            key={field}
-            onClick={() => handleSort(field)}
-            className={`flex items-center gap-1 text-xs font-medium transition-colors ${sortBy === field ? "text-emerald-500" : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"}`}
-          >
-            {label}
-            <SortIcon field={field} />
-          </button>
-        ))}
+        <div className="flex items-center gap-3 sm:gap-4 mt-3 pt-3 border-t border-black/[0.06] dark:border-white/[0.06] overflow-x-auto">
+          <span className="text-xs text-gray-400 font-medium flex-shrink-0">Sort:</span>
+          {([
+            ["date", "Date"],
+            ["amount", "Amount"],
+            ["title", "Title"],
+            ["createdAt", "Created"],
+          ] as [SortField, string][]).map(([field, label]) => (
+            <button
+              key={field}
+              onClick={() => handleSort(field)}
+              className={`flex items-center gap-1 text-xs font-medium transition-colors flex-shrink-0 ${sortBy === field ? "text-emerald-500" : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"}`}
+            >
+              {label}
+              <SortIcon field={field} />
+            </button>
+          ))}
         </div>
       </div>
 

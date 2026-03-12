@@ -37,6 +37,30 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // For POST requests to expenses API when offline, queue for sync
+  if (request.method === "POST" && url.pathname === "/api/expenses") {
+    event.respondWith(
+      fetch(request.clone()).catch(async () => {
+        const body = await request.clone().json();
+        const cache = await caches.open("offline-expenses");
+        const offlineId = `offline-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        await cache.put(
+          new Request(`/api/expenses?offlineId=${offlineId}`),
+          new Response(JSON.stringify(body))
+        );
+        // Request background sync
+        if (self.registration.sync) {
+          await self.registration.sync.register("sync-expenses");
+        }
+        return new Response(
+          JSON.stringify({ expense: { id: offlineId }, offline: true }),
+          { headers: { "Content-Type": "application/json" } }
+        );
+      })
+    );
+    return;
+  }
+
   // Skip non-GET requests
   if (request.method !== "GET") return;
 

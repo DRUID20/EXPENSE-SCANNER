@@ -99,15 +99,17 @@ export default function NewExpensePage() {
     }
 
     setSubmitting(true);
+    const payload = {
+      ...form,
+      status,
+      ...(receiptBase64 && { receiptUrl: receiptBase64 }),
+    };
+
     try {
       const res = await fetch("/api/expenses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          status,
-          ...(receiptBase64 && { receiptUrl: receiptBase64 }),
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -116,6 +118,25 @@ export default function NewExpensePage() {
       toast.success(status === "DRAFT" ? "Expense saved as draft" : "Expense submitted for approval");
       router.push("/dashboard/expenses");
     } catch (err) {
+      // If offline, save to cache for background sync
+      if (!navigator.onLine) {
+        try {
+          const cache = await caches.open("offline-expenses");
+          const offlineId = `offline-${Date.now()}`;
+          const fakeRequest = new Request(`/api/expenses?offlineId=${offlineId}`);
+          await cache.put(fakeRequest, new Response(JSON.stringify(payload)));
+          // Request background sync
+          if ("serviceWorker" in navigator && "SyncManager" in window) {
+            const reg = await navigator.serviceWorker.ready;
+            await (reg as ServiceWorkerRegistration & { sync: { register: (tag: string) => Promise<void> } }).sync.register("sync-expenses");
+          }
+          toast.success("Saved offline! Will sync when back online.");
+          router.push("/dashboard/expenses");
+          return;
+        } catch {
+          // Fall through to error
+        }
+      }
       setError(err instanceof Error ? err.message : "Failed to create expense");
     } finally {
       setSubmitting(false);

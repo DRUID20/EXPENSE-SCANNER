@@ -129,6 +129,16 @@ model PushSubscription {
   createdAt DateTime @default(now())
 }
 
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  icon      String?  // Optional icon name from lucide
+  isActive  Boolean  @default(true)
+  isDefault Boolean  @default(false) // Default categories can't be deleted
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Notification {
   id        String   @id @default(cuid())
   type      String   // EXPENSE_APPROVED, EXPENSE_REJECTED, EXPENSE_SUBMITTED, etc.

@@ -27,6 +27,7 @@ import {
   ClipboardCheck,
   Download,
   ArrowRight,
+  CalendarDays,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
@@ -166,12 +167,11 @@ function DashboardSkeleton() {
   );
 }
 
-const CACHE_KEY = "dashboard_cache";
 const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 
-function getCachedDashboard() {
+function getCachedDashboard(period: string) {
   try {
-    const raw = sessionStorage.getItem(CACHE_KEY);
+    const raw = sessionStorage.getItem(`dashboard_cache_${period}`);
     if (!raw) return null;
     const cached = JSON.parse(raw);
     if (Date.now() - cached.ts > CACHE_TTL) return null;
@@ -184,7 +184,8 @@ function getCachedDashboard() {
 export default function DashboardPage() {
   const { user } = useAuth();
   const toast = useToast();
-  const cached = typeof window !== "undefined" ? getCachedDashboard() : null;
+  const [period, setPeriod] = useState("all");
+  const cached = typeof window !== "undefined" ? getCachedDashboard("all") : null;
   const [data, setData] = useState<DashboardData | null>(cached?.data ?? null);
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(cached?.analytics ?? null);
   const [pendingApprovals, setPendingApprovals] = useState<DashboardData["recentExpenses"]>(cached?.pending ?? []);
@@ -194,10 +195,22 @@ export default function DashboardPage() {
   const canApprove = isAdmin;
 
   useEffect(() => {
+    const periodCache = typeof window !== "undefined" ? getCachedDashboard(period) : null;
+    if (periodCache) {
+      setData(periodCache.data);
+      setAnalytics(periodCache.analytics);
+      setPendingApprovals(periodCache.pending ?? []);
+      setLoading(false);
+      return;
+    }
+
+    setData(null);
+    setLoading(true);
+
     async function fetchAll() {
       try {
         const [dashRes, analyticsRes, pendingRes] = await Promise.all([
-          fetch("/api/dashboard"),
+          fetch(`/api/dashboard?period=${period}`),
           canApprove ? fetch("/api/analytics?months=2") : Promise.resolve(null),
           canApprove ? fetch("/api/expenses?status=PENDING&limit=5") : Promise.resolve(null),
         ]);
@@ -224,7 +237,7 @@ export default function DashboardPage() {
 
         // Cache for instant load on return
         try {
-          sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+          sessionStorage.setItem(`dashboard_cache_${period}`, JSON.stringify({
             ts: Date.now(),
             data: dashRes.ok ? dashData : null,
             analytics: aData,
@@ -239,7 +252,7 @@ export default function DashboardPage() {
       }
     }
     fetchAll();
-  }, [canApprove, toast]);
+  }, [canApprove, toast, period]);
 
   const stats = [
     {
@@ -297,6 +310,27 @@ export default function DashboardPage() {
               ? "Company-wide expense overview"
               : "Overview of your expense activity"}
           </p>
+        </div>
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/[0.04] dark:bg-white/[0.04]">
+          {[
+            { id: "week", label: "Week" },
+            { id: "month", label: "Month" },
+            { id: "quarter", label: "Quarter" },
+            { id: "year", label: "Year" },
+            { id: "all", label: "All" },
+          ].map((p) => (
+            <button
+              key={p.id}
+              onClick={() => setPeriod(p.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                period === p.id
+                  ? "bg-white dark:bg-white/10 shadow-sm text-[var(--foreground)]"
+                  : "text-[var(--muted)] hover:text-[var(--foreground)]"
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
         </div>
         <div className="flex gap-2">
           <Link href="/dashboard/scan">

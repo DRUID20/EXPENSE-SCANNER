@@ -196,6 +196,18 @@ export default function ExpenseDetailPage() {
 
         {/* Action buttons */}
         <div className="flex gap-2">
+          {canEdit && (
+            <Link href={`/dashboard/expenses/${expense.id}/edit`}>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] text-[var(--muted)] text-sm font-medium hover:border-emerald-300 transition-colors"
+              >
+                <FileEdit className="w-4 h-4" />
+                Edit
+              </motion.button>
+            </Link>
+          )}
           {canSubmit && (
             <motion.button
               whileHover={{ scale: 1.02 }}

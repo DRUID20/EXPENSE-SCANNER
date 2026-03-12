@@ -120,10 +120,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No receipt image provided" }, { status: 400 });
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: "Invalid file type. Please upload a JPEG, PNG, WebP, or GIF image." },
+        { error: "Invalid file type. Please upload a JPEG, PNG, WebP, GIF, or PDF file." },
         { status: 400 }
       );
     }
@@ -137,8 +137,36 @@ export async function POST(req: NextRequest) {
 
     const bytes = await file.arrayBuffer();
     const base64 = Buffer.from(bytes).toString("base64");
+    const isPdf = file.type === "application/pdf";
 
-    const mediaType = file.type as "image/jpeg" | "image/png" | "image/webp" | "image/gif";
+    // Build message content based on file type
+    const contentBlocks: Anthropic.MessageCreateParams["messages"][0]["content"] = [];
+
+    if (isPdf) {
+      contentBlocks.push({
+        type: "document",
+        source: {
+          type: "base64",
+          media_type: "application/pdf",
+          data: base64,
+        },
+      } as unknown as Anthropic.ContentBlockParam);
+    } else {
+      const mediaType = file.type as "image/jpeg" | "image/png" | "image/webp" | "image/gif";
+      contentBlocks.push({
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: mediaType,
+          data: base64,
+        },
+      });
+    }
+
+    contentBlocks.push({
+      type: "text",
+      text: SCAN_PROMPT,
+    });
 
     const response = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
@@ -148,20 +176,7 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "user",
-          content: [
-            {
-              type: "image",
-              source: {
-                type: "base64",
-                media_type: mediaType,
-                data: base64,
-              },
-            },
-            {
-              type: "text",
-              text: SCAN_PROMPT,
-            },
-          ],
+          content: contentBlocks,
         },
       ],
     });
@@ -176,7 +191,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       data: extractedData,
-      imageBase64: `data:${file.type};base64,${base64}`,
+      imageBase64: isPdf ? null : `data:${file.type};base64,${base64}`,
+      isPdf,
     });
   } catch (error) {
     console.error("Scan error:", error);
