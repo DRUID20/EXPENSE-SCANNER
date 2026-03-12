@@ -271,8 +271,6 @@ export default function AnalyticsPage() {
           <p className="text-[13px] text-gray-400 mt-0.5">
             {user?.role === "ADMIN"
               ? "Company-wide spending insights"
-              : user?.role === "MANAGER"
-              ? "Team spending insights"
               : "Your personal spending insights"}
           </p>
         </div>

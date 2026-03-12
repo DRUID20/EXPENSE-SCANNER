@@ -270,22 +270,19 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // If submitted, notify managers
+    // If submitted, notify admins
     if (status === "PENDING") {
-      const managers = await prisma.user.findMany({
+      const admins = await prisma.user.findMany({
         where: {
           isActive: true,
+          role: "ADMIN",
           id: { not: session.userId },
-          OR: [
-            { role: "ADMIN" },
-            { role: "MANAGER", branchId: currentUser?.branchId },
-          ],
         },
         select: { id: true },
       });
-      if (managers.length > 0) {
+      if (admins.length > 0) {
         await prisma.notification.createMany({
-          data: managers.map((m) => ({
+          data: admins.map((m) => ({
             type: "EXPENSE_SUBMITTED",
             title: "New Expense Submitted",
             message: `${session.firstName} ${session.lastName} submitted "${title}" for UGX ${parsedAmount.toLocaleString()}`,
@@ -294,9 +291,9 @@ export async function POST(req: NextRequest) {
           })),
         });
 
-        // Send push notifications to managers
+        // Send push notifications to admins
         sendPushToUsers(
-          managers.map((m) => m.id),
+          admins.map((m) => m.id),
           {
             title: "New Expense Submitted",
             message: `${session.firstName} ${session.lastName} submitted "${title}" for UGX ${parsedAmount.toLocaleString()}`,

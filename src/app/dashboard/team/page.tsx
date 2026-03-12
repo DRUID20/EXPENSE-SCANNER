@@ -72,15 +72,13 @@ interface AuditEntry {
   createdAt: string;
 }
 
-const ROLES = ["EMPLOYEE", "MANAGER", "ADMIN"];
+const ROLES = ["EMPLOYEE", "ADMIN"];
 const roleIcons: Record<string, React.ElementType> = {
   ADMIN: ShieldCheck,
-  MANAGER: Shield,
   EMPLOYEE: UserCircle,
 };
 const roleColors: Record<string, string> = {
   ADMIN: "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400",
-  MANAGER: "bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400",
   EMPLOYEE: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
 };
 
@@ -642,7 +640,7 @@ export default function TeamPage() {
                 </div>
                 <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                   <input type="checkbox" checked={policyForm.requireApproval} onChange={(e) => setPolicyForm({ ...policyForm, requireApproval: e.target.checked })} className="w-4 h-4 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500" />
-                  Require manager approval
+                  Require admin approval
                 </label>
                 <button onClick={handleCreatePolicy} disabled={saving} className="w-full h-10 btn-primary text-sm disabled:opacity-50 flex items-center justify-center gap-2">
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}

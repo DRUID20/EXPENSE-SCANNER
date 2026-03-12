@@ -205,7 +205,7 @@ export default function SettingsPage() {
               <p className="text-gray-500 dark:text-gray-400">{user?.email}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold" style={{ background: "var(--accent-soft)", color: "var(--accent)" }}>
-                  {user?.role === "ADMIN" ? "Administrator" : user?.role === "MANAGER" ? "Manager" : "Employee"}
+                  {user?.role === "ADMIN" ? "Administrator" : "Employee"}
                 </span>
                 {user?.branch && (
                   <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 text-xs font-semibold">

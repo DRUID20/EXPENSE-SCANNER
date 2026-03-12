@@ -40,15 +40,15 @@ export async function POST(req: NextRequest) {
           data: { status: "PENDING" },
         });
 
-        // Create notifications for managers
-        const managers = await prisma.user.findMany({
-          where: { role: { in: ["MANAGER", "ADMIN"] }, isActive: true },
+        // Create notifications for admins
+        const admins = await prisma.user.findMany({
+          where: { role: "ADMIN", isActive: true },
           select: { id: true },
         });
 
-        if (managers.length > 0) {
+        if (admins.length > 0) {
           await prisma.notification.createMany({
-            data: managers.map((m) => ({
+            data: admins.map((m) => ({
               type: "EXPENSE_SUBMITTED",
               title: "Expenses Submitted for Review",
               message: `${drafts.length} expense(s) submitted for approval`,
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
 
       case "approve": {
         if (session.role === "EMPLOYEE") {
-          return NextResponse.json({ error: "Only managers/admins can approve" }, { status: 403 });
+          return NextResponse.json({ error: "Only admins can approve" }, { status: 403 });
         }
 
         const pending = expenses.filter((e) => e.status === "PENDING");
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
 
       case "reject": {
         if (session.role === "EMPLOYEE") {
-          return NextResponse.json({ error: "Only managers/admins can reject" }, { status: 403 });
+          return NextResponse.json({ error: "Only admins can reject" }, { status: 403 });
         }
 
         const pendingToReject = expenses.filter((e) => e.status === "PENDING");

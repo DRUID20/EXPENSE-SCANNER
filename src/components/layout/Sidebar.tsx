@@ -22,23 +22,23 @@ import { useAuth } from "@/context/AuthContext";
 import { cn, getInitials } from "@/lib/utils";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "MANAGER", "EMPLOYEE"] },
-  { name: "Scan Receipt", href: "/dashboard/scan", icon: ScanLine, roles: ["ADMIN", "MANAGER", "EMPLOYEE"] },
-  { name: "My Expenses", href: "/dashboard/expenses", icon: Receipt, roles: ["ADMIN", "MANAGER", "EMPLOYEE"] },
-  { name: "Approvals", href: "/dashboard/approvals", icon: ClipboardCheck, roles: ["ADMIN", "MANAGER"] },
-  { name: "Analytics", href: "/dashboard/analytics", icon: TrendingUp, roles: ["ADMIN", "MANAGER"] },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "EMPLOYEE"] },
+  { name: "Scan Receipt", href: "/dashboard/scan", icon: ScanLine, roles: ["ADMIN", "EMPLOYEE"] },
+  { name: "My Expenses", href: "/dashboard/expenses", icon: Receipt, roles: ["ADMIN", "EMPLOYEE"] },
+  { name: "Approvals", href: "/dashboard/approvals", icon: ClipboardCheck, roles: ["ADMIN"] },
+  { name: "Analytics", href: "/dashboard/analytics", icon: TrendingUp, roles: ["ADMIN"] },
   { name: "Team", href: "/dashboard/team", icon: Users, roles: ["ADMIN"] },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["ADMIN", "MANAGER", "EMPLOYEE"] },
+  { name: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["ADMIN", "EMPLOYEE"] },
 ];
 
 // Bottom navigation for mobile (max 5 items)
 const mobileNav = [
-  { name: "Home", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "MANAGER", "EMPLOYEE"] },
-  { name: "Expenses", href: "/dashboard/expenses", icon: Receipt, roles: ["ADMIN", "MANAGER", "EMPLOYEE"] },
-  { name: "Scan", href: "/dashboard/scan", icon: ScanLine, roles: ["ADMIN", "MANAGER", "EMPLOYEE"], primary: true },
-  { name: "Approvals", href: "/dashboard/approvals", icon: ClipboardCheck, roles: ["ADMIN", "MANAGER"] },
-  { name: "Analytics", href: "/dashboard/analytics", icon: TrendingUp, roles: ["ADMIN", "MANAGER"] },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["ADMIN", "MANAGER", "EMPLOYEE"] },
+  { name: "Home", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "EMPLOYEE"] },
+  { name: "Expenses", href: "/dashboard/expenses", icon: Receipt, roles: ["ADMIN", "EMPLOYEE"] },
+  { name: "Scan", href: "/dashboard/scan", icon: ScanLine, roles: ["ADMIN", "EMPLOYEE"], primary: true },
+  { name: "Approvals", href: "/dashboard/approvals", icon: ClipboardCheck, roles: ["ADMIN"] },
+  { name: "Analytics", href: "/dashboard/analytics", icon: TrendingUp, roles: ["ADMIN"] },
+  { name: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["ADMIN", "EMPLOYEE"] },
 ];
 
 export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; onMobileClose?: () => void }) {
@@ -125,7 +125,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
                   {user?.firstName} {user?.lastName}
                 </p>
                 <p className="text-[11px] text-gray-400 truncate">
-                  {user?.role === "ADMIN" ? "Administrator" : user?.role === "MANAGER" ? "Manager" : "Employee"}
+                  {user?.role === "ADMIN" ? "Administrator" : "Employee"}
                 </p>
               </div>
             )}

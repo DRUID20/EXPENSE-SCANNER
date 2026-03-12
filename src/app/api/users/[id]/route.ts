@@ -20,6 +20,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const { role, isActive, spendingLimit, branchId } = body;
 
+    // Ensure employees always have a branch
+    const effectiveRole = role !== undefined ? role : user.role;
+    const effectiveBranchId = branchId !== undefined ? branchId : user.branchId;
+    if (effectiveRole === "EMPLOYEE" && !effectiveBranchId) {
+      return NextResponse.json({ error: "Employees must be assigned to a branch" }, { status: 400 });
+    }
+
     const updated = await prisma.user.update({
       where: { id },
       data: {

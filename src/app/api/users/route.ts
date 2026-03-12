@@ -48,6 +48,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email, name, and password are required" }, { status: 400 });
     }
 
+    const userRole = role || "EMPLOYEE";
+    if (userRole === "EMPLOYEE" && !branchId) {
+      return NextResponse.json({ error: "Employees must be assigned to a branch" }, { status: 400 });
+    }
+
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       return NextResponse.json({ error: "User with this email already exists" }, { status: 409 });

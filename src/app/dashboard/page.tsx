@@ -191,8 +191,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(!cached);
 
   const isAdmin = user?.role === "ADMIN";
-  const isManager = user?.role === "MANAGER";
-  const canApprove = isAdmin || isManager;
+  const canApprove = isAdmin;
 
   useEffect(() => {
     async function fetchAll() {
@@ -291,14 +290,12 @@ export default function DashboardPage() {
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-xl lg:text-2xl font-bold text-[var(--foreground)] tracking-tight">
-            {isAdmin ? "Admin Dashboard" : isManager ? "Manager Dashboard" : "Dashboard"}
+            {isAdmin ? "Admin Dashboard" : "Dashboard"}
           </h1>
           <p className="text-[13px] text-gray-400 mt-0.5">
             {isAdmin
               ? "Company-wide expense overview"
-              : isManager
-                ? "Team expenses and pending approvals"
-                : "Overview of your expense activity"}
+              : "Overview of your expense activity"}
           </p>
         </div>
         <div className="flex gap-2">
@@ -522,7 +519,7 @@ export default function DashboardPage() {
 
           <div className="mt-5 pt-4 border-t border-black/[0.04] dark:border-white/[0.04] text-center">
             <p className="text-[11px] text-gray-400 mb-2">
-              {isAdmin ? "Company-wide spending" : isManager ? "Team spending" : "Your personal spending"}
+              {isAdmin ? "Company-wide spending" : "Your personal spending"}
             </p>
             <Link href="/dashboard/analytics" className="text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)] font-medium">
               View Analytics

@@ -55,15 +55,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: "Expense not found" }, { status: 404 });
     }
 
-    // Only owner can edit DRAFT expenses; Admins/Managers can approve/reject
+    // Only owner can edit DRAFT expenses; Admins can approve/reject
     if (session.role === "EMPLOYEE" && expense.userId !== session.userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Handle approval/rejection by managers/admins
+    // Handle approval/rejection by admins
     if (body.status === "APPROVED" || body.status === "REJECTED") {
-      if (session.role === "EMPLOYEE") {
-        return NextResponse.json({ error: "Only managers and admins can approve expenses" }, { status: 403 });
+      if (session.role !== "ADMIN") {
+        return NextResponse.json({ error: "Only admins can approve expenses" }, { status: 403 });
       }
 
       const updateData: Record<string, unknown> = {

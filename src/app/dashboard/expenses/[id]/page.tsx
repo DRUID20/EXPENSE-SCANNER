@@ -148,7 +148,7 @@ export default function ExpenseDetailPage() {
   const status = statusConfig[expense.status] || statusConfig.DRAFT;
   const StatusIcon = status.icon;
   const isOwner = user?.id === expense.user.id;
-  const canApprove = (user?.role === "ADMIN" || user?.role === "MANAGER") && expense.status === "PENDING";
+  const canApprove = user?.role === "ADMIN" && expense.status === "PENDING";
   const canEdit = isOwner && expense.status === "DRAFT";
   const canSubmit = isOwner && expense.status === "DRAFT";
   const canDelete = isOwner && expense.status === "DRAFT";

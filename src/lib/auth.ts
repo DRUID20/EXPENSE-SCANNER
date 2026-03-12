@@ -51,16 +51,13 @@ export async function getSession(): Promise<JWTPayload | null> {
 
 /**
  * Build the expense where clause based on user role, without extra DB queries.
- * EMPLOYEE: only their expenses. MANAGER: their branch. ADMIN: all.
+ * EMPLOYEE: only their expenses. ADMIN: all.
  */
 export function buildExpenseWhere(session: JWTPayload): Record<string, unknown> {
-  if (session.role === "EMPLOYEE") {
-    return { userId: session.userId };
+  if (session.role === "ADMIN") {
+    return {};
   }
-  if (session.role === "MANAGER" && session.branchId) {
-    return { user: { branchId: session.branchId } };
-  }
-  return {};
+  return { userId: session.userId };
 }
 
 export async function getCurrentUser() {
