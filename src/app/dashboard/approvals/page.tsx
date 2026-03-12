@@ -329,7 +329,7 @@ export default function ApprovalsPage() {
                         : ""
                     }`}
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">
                       {/* Checkbox for pending items */}
                       {expense.status === "PENDING" && (
                         <button
@@ -352,7 +352,7 @@ export default function ApprovalsPage() {
                         <h4 className="font-semibold text-gray-900 dark:text-white truncate">
                           {expense.title}
                         </h4>
-                        <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500 dark:text-gray-400">
                           <span className="flex items-center gap-1">
                             <span className="w-5 h-5 rounded-md bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-[10px] font-bold">
                               {expense.user.firstName[0]}{expense.user.lastName[0]}
@@ -364,14 +364,13 @@ export default function ApprovalsPage() {
                         </div>
                       </div>
 
-                      <div className="text-right flex-shrink-0 mr-2">
-                        <p className="text-lg font-bold text-gray-900 dark:text-white">
+                      <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end mt-2 sm:mt-0">
+                        <p className="text-lg font-bold text-gray-900 dark:text-white flex-shrink-0">
                           {formatCurrency(expense.amount, expense.currency)}
                         </p>
-                      </div>
 
                       {expense.status === "PENDING" ? (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -408,7 +407,7 @@ export default function ApprovalsPage() {
                           </Link>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           {expense.status === "APPROVED" && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400">
                               <CheckCircle2 className="w-3 h-3" />
@@ -432,6 +431,7 @@ export default function ApprovalsPage() {
                           </Link>
                         </div>
                       )}
+                      </div>
                     </div>
                   </motion.div>
                 );
