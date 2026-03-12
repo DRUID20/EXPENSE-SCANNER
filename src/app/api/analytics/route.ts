@@ -42,49 +42,23 @@ export async function GET(req: NextRequest) {
 
     // Parallel queries for analytics - all in one batch including user names
     const [
-      totalStats,
       categoryBreakdown,
       allExpensesInRange,
-      statusCounts,
-      topSpenders,
       recentActivity,
-      // Pre-fetch all users if we need top spenders (avoids sequential N+1)
       allSpenderUsers,
       vendorExpenses,
     ] = await Promise.all([
-      prisma.expense.aggregate({
-        where: dateWhere,
-        _sum: { amountUGX: true, amount: true },
-        _avg: { amountUGX: true, amount: true },
-        _count: true,
-      }),
       // Fetch expenses with currency for proper category breakdown
       prisma.expense.findMany({
         where: dateWhere,
         select: { category: true, amount: true, currency: true, amountUGX: true },
       }),
-      // Fetch only needed fields for monthly aggregation
+      // Fetch fields for monthly aggregation, totals, status breakdown, and top spenders
       prisma.expense.findMany({
         where: dateWhere,
-        select: { amount: true, currency: true, amountUGX: true, date: true, status: true },
+        select: { amount: true, currency: true, amountUGX: true, date: true, status: true, userId: true },
         orderBy: { date: "asc" },
       }),
-      prisma.expense.groupBy({
-        by: ["status"],
-        where: dateWhere,
-        _count: true,
-        _sum: { amountUGX: true, amount: true },
-      }),
-      needTopSpenders
-        ? prisma.expense.groupBy({
-            by: ["userId"],
-            where: dateWhere,
-            _sum: { amountUGX: true, amount: true },
-            _count: true,
-            orderBy: { _sum: { amountUGX: "desc" } },
-            take: 10,
-          })
-        : Promise.resolve([]),
       prisma.expense.findMany({
         where: dateWhere,
         orderBy: { updatedAt: "desc" },
@@ -138,17 +112,27 @@ export async function GET(req: NextRequest) {
       .sort((a, b) => b.total - a.total)
       .map((v) => ({ ...v, avgAmount: v.count > 0 ? v.total / v.count : 0 }));
 
-    // Resolve top spenders with pre-fetched user names
+    // Resolve top spenders by aggregating from allExpensesInRange for accurate multi-currency totals
     let topSpendersWithNames: Array<{ userId: string; firstName: string; lastName: string; total: number; count: number }> = [];
-    if (Array.isArray(topSpenders) && topSpenders.length > 0) {
+    if (needTopSpenders && allExpensesInRange.length > 0) {
       const userMap = Object.fromEntries(allSpenderUsers.map((u) => [u.id, u]));
-      topSpendersWithNames = topSpenders.map((s) => ({
-        userId: s.userId,
-        firstName: userMap[s.userId]?.firstName || "Unknown",
-        lastName: userMap[s.userId]?.lastName || "",
-        total: s._sum.amountUGX || s._sum.amount || 0,
-        count: s._count,
-      }));
+      const spenderMap: Record<string, { total: number; count: number }> = {};
+      for (const e of allExpensesInRange) {
+        const ugx = e.amountUGX ?? convertToUGX(e.amount, e.currency);
+        if (!spenderMap[e.userId]) spenderMap[e.userId] = { total: 0, count: 0 };
+        spenderMap[e.userId].total += ugx;
+        spenderMap[e.userId].count += 1;
+      }
+      topSpendersWithNames = Object.entries(spenderMap)
+        .sort(([, a], [, b]) => b.total - a.total)
+        .slice(0, 10)
+        .map(([userId, data]) => ({
+          userId,
+          firstName: userMap[userId]?.firstName || "Unknown",
+          lastName: userMap[userId]?.lastName || "",
+          total: data.total,
+          count: data.count,
+        }));
     }
 
     // Aggregate category breakdown in UGX from fetched expenses
@@ -163,18 +147,35 @@ export async function GET(req: NextRequest) {
       .map(([category, data]) => ({ category, total: data.total, count: data.count }))
       .sort((a, b) => b.total - a.total);
 
+    // Compute total and average from allExpensesInRange for accurate multi-currency handling
+    const totalAmount = allExpensesInRange.reduce(
+      (sum, e) => sum + (e.amountUGX ?? convertToUGX(e.amount, e.currency)),
+      0
+    );
+    const totalCount = allExpensesInRange.length;
+    const avgAmount = totalCount > 0 ? totalAmount / totalCount : 0;
+
+    // Compute status breakdown from allExpensesInRange for accurate totals
+    const statusMap: Record<string, { count: number; total: number }> = {};
+    for (const e of allExpensesInRange) {
+      const ugx = e.amountUGX ?? convertToUGX(e.amount, e.currency);
+      if (!statusMap[e.status]) statusMap[e.status] = { count: 0, total: 0 };
+      statusMap[e.status].count += 1;
+      statusMap[e.status].total += ugx;
+    }
+
     return NextResponse.json({
       summary: {
-        totalAmount: totalStats._sum.amountUGX || totalStats._sum.amount || 0,
-        avgAmount: totalStats._avg.amountUGX || totalStats._avg.amount || 0,
-        totalCount: totalStats._count,
+        totalAmount,
+        avgAmount,
+        totalCount,
       },
       categoryBreakdown: categoryBreakdownUGX,
       monthlyTrend,
-      statusBreakdown: statusCounts.map((s) => ({
-        status: s.status,
-        count: s._count,
-        total: s._sum.amountUGX || s._sum.amount || 0,
+      statusBreakdown: Object.entries(statusMap).map(([status, data]) => ({
+        status,
+        count: data.count,
+        total: data.total,
       })),
       topSpenders: topSpendersWithNames,
       vendorBreakdown,

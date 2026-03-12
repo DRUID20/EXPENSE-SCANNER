@@ -75,6 +75,7 @@ export default function ExpenseDetailPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [showRejectForm, setShowRejectForm] = useState(false);
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
   useEffect(() => {
     async function fetchExpense() {
@@ -122,8 +123,12 @@ export default function ExpenseDetailPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this expense?")) return;
+  const handleDeleteClick = () => {
+    setShowDeleteWarning(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setShowDeleteWarning(false);
     setActionLoading(true);
     try {
       const res = await fetch(`/api/expenses/${params.id}`, { method: "DELETE" });
@@ -153,7 +158,8 @@ export default function ExpenseDetailPage() {
   const canApprove = user?.role === "ADMIN" && expense.status === "PENDING";
   const canEdit = isOwner && expense.status === "DRAFT";
   const canSubmit = isOwner && expense.status === "DRAFT";
-  const canDelete = isOwner && expense.status === "DRAFT";
+  const isAdmin = user?.role === "ADMIN";
+  const canDelete = (isOwner && expense.status === "DRAFT") || isAdmin;
 
   let parsedReceiptData = null;
   if (expense.receiptData) {
@@ -224,7 +230,7 @@ export default function ExpenseDetailPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={handleDelete}
+              onClick={handleDeleteClick}
               disabled={actionLoading}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-white/[0.04] border border-red-200/50 dark:border-red-800/30 text-red-500 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors disabled:opacity-60"
             >
@@ -461,6 +467,68 @@ export default function ExpenseDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Warning Modal */}
+      {showDeleteWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowDeleteWarning(false)}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-2xl p-6"
+          >
+            {expense.status !== "DRAFT" ? (
+              <>
+                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-red-100 dark:bg-red-950/50 mx-auto mb-4">
+                  <Trash2 className="w-7 h-7 text-red-500" />
+                </div>
+                <h3 className="text-lg font-bold text-[var(--foreground)] text-center mb-2">
+                  Delete {expense.status.toLowerCase()} expense?
+                </h3>
+                <div className="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 p-4 mb-4">
+                  <p className="text-sm text-red-600 dark:text-red-400 font-medium mb-1">
+                    Warning: This expense has been {expense.status.toLowerCase()}
+                  </p>
+                  <p className="text-xs text-red-500 dark:text-red-400/80">
+                    Deleting &quot;{expense.title}&quot; ({formatCurrency(expense.amount, expense.currency)}) is permanent and cannot be undone. This will affect reporting and audit records.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 mx-auto mb-4">
+                  <Trash2 className="w-7 h-7 text-gray-500" />
+                </div>
+                <h3 className="text-lg font-bold text-[var(--foreground)] text-center mb-2">
+                  Delete draft expense?
+                </h3>
+                <p className="text-sm text-[var(--muted)] text-center mb-4">
+                  &quot;{expense.title}&quot; ({formatCurrency(expense.amount, expense.currency)}) will be permanently deleted.
+                </p>
+              </>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteWarning(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-[var(--foreground)] text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={handleDeleteConfirm}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 }
