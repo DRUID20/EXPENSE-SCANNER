@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import crypto from "crypto";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { sendPasswordResetEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -47,13 +48,26 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // In production, you'd send this via email. For now, return the token.
-    // The admin can share the reset link with the user.
+    // Build the full reset URL
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.headers.get("origin") || "http://localhost:3000";
+    const resetUrl = `${baseUrl}/reset-password?token=${token}`;
+
+    // Send the reset email
+    const emailResult = await sendPasswordResetEmail(user.email, resetUrl, user.firstName);
+
+    if (!emailResult.success) {
+      console.warn("Email not sent:", emailResult.error, "— returning token for admin fallback");
+      return NextResponse.json({
+        message: "If an account with that email exists, a reset token has been generated.",
+        resetToken: token,
+        resetUrl: `/reset-password?token=${token}`,
+        emailSent: false,
+      });
+    }
+
     return NextResponse.json({
-      message: "If an account with that email exists, a reset token has been generated.",
-      // Include reset token so admin can share the link
-      resetToken: token,
-      resetUrl: `/reset-password?token=${token}`,
+      message: "If an account with that email exists, a password reset link has been sent.",
+      emailSent: true,
     });
   } catch (error) {
     console.error("Forgot password error:", error);
