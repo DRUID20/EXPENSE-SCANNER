@@ -139,12 +139,12 @@ async function seedData() {
   const hashedPassword = await bcrypt.hash("admin123", 12);
 
   await prisma.user.upsert({
-    where: { email: "admin@gasco.energy" },
+    where: { email: "Omar@gascoenergy.co.ug" },
     update: {},
     create: {
-      email: "admin@gasco.energy",
+      email: "Omar@gascoenergy.co.ug",
       password: hashedPassword,
-      firstName: "Super",
+      firstName: "Omar",
       lastName: "Admin",
       role: "ADMIN",
       department: "Operations",
@@ -187,7 +187,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Database initialized and seeded! Login with admin@gasco.energy / admin123",
+      message: "Database initialized and seeded! Login with Omar@gascoenergy.co.ug / admin123",
     });
   } catch (error) {
     console.error("Setup error:", error);

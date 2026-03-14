@@ -29,19 +29,19 @@ async function main() {
   const hashedPassword = await bcrypt.hash("admin123", 12);
 
   await prisma.user.upsert({
-    where: { email: "admin@gasco.energy" },
+    where: { email: "Omar@gascoenergy.co.ug" },
     update: {},
     create: {
-      email: "admin@gasco.energy",
+      email: "Omar@gascoenergy.co.ug",
       password: hashedPassword,
-      firstName: "Super",
+      firstName: "Omar",
       lastName: "Admin",
       role: "ADMIN",
       department: "Operations",
       branchId: hqBranch!.id,
     },
   });
-  console.log("Created default Super User: admin@gasco.energy / admin123");
+  console.log("Created default Super User: Omar@gascoenergy.co.ug / admin123");
 
   console.log("Seeding complete!");
 }

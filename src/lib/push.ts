@@ -6,7 +6,7 @@ const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || "";
 
 if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
   webPush.setVapidDetails(
-    "mailto:admin@gasco.energy",
+    "mailto:Omar@gascoenergy.co.ug",
     VAPID_PUBLIC_KEY,
     VAPID_PRIVATE_KEY
   );
