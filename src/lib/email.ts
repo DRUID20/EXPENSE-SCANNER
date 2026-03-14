@@ -1,22 +1,29 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend | null = null;
 
-const FROM_EMAIL = process.env.EMAIL_FROM || "Gasco ExpenseTracker <noreply@gasco.ug>";
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Gasco Energy ExpenseTracker";
+function getResend(): Resend | null {
+  if (!process.env.RESEND_API_KEY) return null;
+  if (!resend) resend = new Resend(process.env.RESEND_API_KEY);
+  return resend;
+}
 
 export async function sendPasswordResetEmail(
   to: string,
   resetUrl: string,
   firstName: string
 ) {
-  if (!process.env.RESEND_API_KEY) {
+  const client = getResend();
+  if (!client) {
     console.warn("RESEND_API_KEY not set — skipping email send");
     return { success: false, error: "Email not configured" };
   }
 
+  const FROM_EMAIL = process.env.EMAIL_FROM || "Gasco ExpenseTracker <noreply@gasco.ug>";
+  const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Gasco Energy ExpenseTracker";
+
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to,
       subject: `Reset your ${APP_NAME} password`,
