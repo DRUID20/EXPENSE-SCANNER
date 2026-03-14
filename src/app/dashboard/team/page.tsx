@@ -194,6 +194,22 @@ export default function TeamPage() {
     }
   };
 
+  const handleDeleteUser = async (user: UserItem) => {
+    if (!confirm(`Permanently delete ${user.firstName} ${user.lastName} (${user.email})? This cannot be undone.`)) return;
+    try {
+      const res = await fetch(`/api/users/${user.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok) {
+        fetchUsers();
+        fetchAudit();
+      } else {
+        alert(data.error || "Failed to delete user");
+      }
+    } catch {
+      alert("Failed to delete user");
+    }
+  };
+
   const handleCreatePolicy = async () => {
     if (!policyForm.name || !policyForm.maxAmount) {
       alert("Name and max amount are required");
@@ -418,6 +434,11 @@ export default function TeamPage() {
                       <button onClick={() => handleUpdateUser(u.id, { isActive: !u.isActive })} className={`p-1 rounded-lg transition-colors ${u.isActive ? "text-green-500 hover:bg-green-50 dark:hover:bg-green-950" : "text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"}`} title={u.isActive ? "Deactivate" : "Activate"}>
                         {u.isActive ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
                       </button>
+                      {u._count.expenses === 0 && (
+                        <button onClick={() => handleDeleteUser(u)} className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors" title="Delete user (no expenses)">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      )}
                     </div>
                   </div>
                   {/* Mobile controls - stacked below user info */}
@@ -441,6 +462,11 @@ export default function TeamPage() {
                     <button onClick={() => handleUpdateUser(u.id, { isActive: !u.isActive })} className={`p-1 rounded-lg transition-colors ${u.isActive ? "text-green-500 hover:bg-green-50 dark:hover:bg-green-950" : "text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"}`} title={u.isActive ? "Deactivate" : "Activate"}>
                       {u.isActive ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
                     </button>
+                    {u._count.expenses === 0 && (
+                      <button onClick={() => handleDeleteUser(u)} className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors" title="Delete user (no expenses)">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               );

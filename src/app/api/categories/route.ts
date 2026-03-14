@@ -2,12 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
-// Default categories to seed if none exist
+// Default categories
 const DEFAULT_CATEGORIES = [
   "Fuel & Gas", "Equipment", "Office Supplies", "Meals",
   "Transport & Accommodation", "Utilities", "Repair & Maintenance",
   "Vehicle Repairs & Maintenance", "Generator Expenses", "Other",
 ];
+
+// Renames from old category names to new ones
+const CATEGORY_RENAMES: Record<string, string> = {
+  "Maintenance": "Repair & Maintenance",
+  "Transportation": "Transport & Accommodation",
+};
+
+// Old categories to remove (merged into others)
+const CATEGORIES_TO_REMOVE = ["Travel", "Supplies", "Office"];
 
 async function ensureDefaultCategories() {
   const count = await prisma.category.count();
@@ -16,6 +25,38 @@ async function ensureDefaultCategories() {
       data: DEFAULT_CATEGORIES.map((name) => ({ name, isDefault: true, isActive: true })),
       skipDuplicates: true,
     });
+    return;
+  }
+
+  // Migrate: rename old categories to new names
+  for (const [oldName, newName] of Object.entries(CATEGORY_RENAMES)) {
+    const existing = await prisma.category.findUnique({ where: { name: oldName } });
+    const newExists = await prisma.category.findUnique({ where: { name: newName } });
+    if (existing && !newExists) {
+      await prisma.category.update({ where: { id: existing.id }, data: { name: newName } });
+    } else if (existing && newExists) {
+      // New name already exists, just deactivate the old one
+      await prisma.category.update({ where: { id: existing.id }, data: { isActive: false } });
+    }
+  }
+
+  // Deactivate removed categories
+  for (const name of CATEGORIES_TO_REMOVE) {
+    const existing = await prisma.category.findUnique({ where: { name } });
+    if (existing && existing.isActive) {
+      await prisma.category.update({ where: { id: existing.id }, data: { isActive: false } });
+    }
+  }
+
+  // Add any new default categories that don't exist yet
+  for (const name of DEFAULT_CATEGORIES) {
+    const existing = await prisma.category.findUnique({ where: { name } });
+    if (!existing) {
+      await prisma.category.create({ data: { name, isDefault: true, isActive: true } });
+    } else if (!existing.isActive) {
+      // Reactivate if it was deactivated
+      await prisma.category.update({ where: { id: existing.id }, data: { isActive: true, isDefault: true } });
+    }
   }
 }
 
