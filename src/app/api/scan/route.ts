@@ -174,8 +174,8 @@ export async function POST(req: NextRequest) {
     });
 
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 4096,
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 2048,
       tools: [extractReceiptTool],
       tool_choice: { type: "tool", name: "extract_receipt_data" },
       messages: [
