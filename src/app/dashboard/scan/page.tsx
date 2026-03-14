@@ -120,6 +120,7 @@ export default function ScanPage() {
   const [error, setError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [batchMode, setBatchMode] = useState(false);
   const [batchFiles, setBatchFiles] = useState<File[]>([]);
   const [batchResults, setBatchResults] = useState<Array<{
@@ -202,6 +203,18 @@ export default function ScanPage() {
 
   const handleCreateExpense = async (submitStatus: "DRAFT" | "PENDING") => {
     if (!scanResult) return;
+    setSubmitError("");
+
+    // Client-side validation
+    if (!scanResult.amount || scanResult.amount <= 0) {
+      setSubmitError("Please enter a valid amount before submitting.");
+      return;
+    }
+    if (!scanResult.category) {
+      setSubmitError("Please select a category before submitting.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -211,9 +224,9 @@ export default function ScanPage() {
         body: JSON.stringify({
           title: scanResult.title || "Scanned Expense",
           description: scanResult.description || scanResult.notes || "",
-          amount: scanResult.amount || 0,
+          amount: scanResult.amount,
           currency: scanResult.currency || "UGX",
-          category: scanResult.category || "Other",
+          category: scanResult.category,
           vendor: scanResult.vendor,
           date: scanResult.date || new Date().toISOString().split("T")[0],
           notes: scanResult.notes,
@@ -233,7 +246,7 @@ export default function ScanPage() {
 
       router.push("/dashboard/expenses");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create expense");
+      setSubmitError(err instanceof Error ? err.message : "Failed to create expense");
     } finally {
       setSubmitting(false);
     }
@@ -321,6 +334,7 @@ export default function ScanPage() {
     setScanResult(null);
     setImageBase64(null);
     setError("");
+    setSubmitError("");
     setBatchMode(false);
     setBatchFiles([]);
     setBatchResults([]);
@@ -1005,6 +1019,14 @@ export default function ScanPage() {
                         </span>
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {/* Submit Error */}
+                {submitError && (
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
+                    <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                    <p className="text-sm text-red-700 dark:text-red-400 font-medium">{submitError}</p>
                   </div>
                 )}
 
