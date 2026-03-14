@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession, hashPassword } from "@/lib/auth";
+import { sendWelcomeEmail } from "@/lib/email";
 
 // GET all users (admin only)
 export async function GET() {
@@ -92,6 +93,10 @@ export async function POST(req: NextRequest) {
         userId: session.userId,
       },
     });
+
+    // Send welcome email with credentials (don't block response if it fails)
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.headers.get("origin") || "http://localhost:3000";
+    sendWelcomeEmail(email, firstName, password, `${baseUrl}/login`).catch(() => {});
 
     return NextResponse.json({ user }, { status: 201 });
   } catch (error) {
