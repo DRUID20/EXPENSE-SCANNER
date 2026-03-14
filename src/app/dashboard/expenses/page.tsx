@@ -55,8 +55,9 @@ interface Expense {
 
 const STATUS_FILTERS = ["ALL", "DRAFT", "PENDING", "APPROVED", "REJECTED"];
 const CATEGORY_FILTERS = [
-  "ALL", "Fuel & Gas", "Equipment", "Travel", "Supplies", "Meals",
-  "Transportation", "Utilities", "Maintenance", "Office", "Other",
+  "ALL", "Fuel & Gas", "Equipment", "Office Supplies", "Meals",
+  "Transport & Accommodation", "Utilities", "Repair & Maintenance",
+  "Vehicle Repairs & Maintenance", "Generator Expenses", "Other",
 ];
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {

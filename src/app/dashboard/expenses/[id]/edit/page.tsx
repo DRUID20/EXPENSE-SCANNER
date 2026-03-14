@@ -23,13 +23,13 @@ import { useToast } from "@/context/ToastContext";
 const CATEGORIES = [
   "Fuel & Gas",
   "Equipment",
-  "Travel",
-  "Supplies",
+  "Office Supplies",
   "Meals",
-  "Transportation",
+  "Transport & Accommodation",
   "Utilities",
-  "Maintenance",
-  "Office",
+  "Repair & Maintenance",
+  "Vehicle Repairs & Maintenance",
+  "Generator Expenses",
   "Other",
 ];
 

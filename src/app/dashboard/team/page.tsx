@@ -631,7 +631,7 @@ export default function TeamPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <select value={policyForm.category} onChange={(e) => setPolicyForm({ ...policyForm, category: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-[var(--muted)]">
                     <option value="">All Categories</option>
-                    {["Fuel & Gas", "Equipment", "Travel", "Supplies", "Meals", "Transportation", "Utilities", "Maintenance", "Office", "Other"].map((c) => <option key={c} value={c}>{c}</option>)}
+                    {["Fuel & Gas", "Equipment", "Office Supplies", "Meals", "Transport & Accommodation", "Utilities", "Repair & Maintenance", "Vehicle Repairs & Maintenance", "Generator Expenses", "Other"].map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                   <select value={policyForm.role} onChange={(e) => setPolicyForm({ ...policyForm, role: e.target.value })} className="h-10 px-4 rounded-xl input-premium text-[var(--muted)]">
                     <option value="">All Roles</option>

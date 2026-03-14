@@ -4,8 +4,9 @@ import { getSession } from "@/lib/auth";
 
 // Default categories to seed if none exist
 const DEFAULT_CATEGORIES = [
-  "Fuel & Gas", "Equipment", "Travel", "Supplies", "Meals",
-  "Transportation", "Utilities", "Maintenance", "Office", "Other",
+  "Fuel & Gas", "Equipment", "Office Supplies", "Meals",
+  "Transport & Accommodation", "Utilities", "Repair & Maintenance",
+  "Vehicle Repairs & Maintenance", "Generator Expenses", "Other",
 ];
 
 async function ensureDefaultCategories() {
