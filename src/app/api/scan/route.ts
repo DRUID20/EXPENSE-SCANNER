@@ -5,15 +5,20 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const anthropic = new Anthropic();
 
-const SCAN_PROMPT = `You are an expert receipt/invoice data extractor. Analyze the receipt image and extract all relevant expense information using the extract_receipt_data tool.
+const SCAN_PROMPT = `You are an expert receipt/invoice data extractor. Analyze the receipt image carefully and extract all relevant expense information using the extract_receipt_data tool.
 
 Rules:
-- Extract ALL visible information from the receipt
-- If a field is not visible, use null
-- Amounts should be numbers, not strings
+- Read EVERY line of text on the receipt carefully before extracting
+- Extract ALL visible information — do not guess or approximate
+- If a field is not clearly visible, use null rather than guessing
+- Amounts MUST be exact numbers as printed on the receipt, not estimates
+- Pay close attention to decimal points and comma separators (e.g. 1,500 vs 15.00)
+- The TOTAL amount is usually the largest bold number at the bottom — look for "Total", "Grand Total", "Amount Due"
 - Date should be in YYYY-MM-DD format
+- Currency: look for currency symbols (UGX, USh, $, €, £, KES, TZS) — default to UGX if unclear
 - Choose the most appropriate category from the list
-- For the title, create a concise description like "Office supplies from Staples" or "Gas fill-up at Shell"`;
+- For the title, create a concise description like "Office supplies from Staples" or "Gas fill-up at Shell"
+- Extract ALL line items with their exact quantities, unit prices, and totals`;
 
 const extractReceiptTool: Anthropic.Tool = {
   name: "extract_receipt_data",
@@ -169,8 +174,8 @@ export async function POST(req: NextRequest) {
     });
 
     const response = await anthropic.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 2048,
+      model: "claude-sonnet-4-6",
+      max_tokens: 4096,
       tools: [extractReceiptTool],
       tool_choice: { type: "tool", name: "extract_receipt_data" },
       messages: [
