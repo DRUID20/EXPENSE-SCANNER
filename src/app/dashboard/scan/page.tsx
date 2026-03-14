@@ -23,6 +23,8 @@ import {
   Receipt,
   Pencil,
   Files,
+  Trash2,
+  Plus,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
@@ -87,6 +89,7 @@ function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<File
 interface ScanResult {
   vendor: string | null;
   title: string | null;
+  description: string | null;
   amount: number | null;
   currency: string;
   date: string | null;
@@ -207,12 +210,13 @@ export default function ScanPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: scanResult.title || "Scanned Expense",
-          description: scanResult.notes,
+          description: scanResult.description || scanResult.notes || "",
           amount: scanResult.amount || 0,
           currency: scanResult.currency || "UGX",
           category: scanResult.category || "Other",
           vendor: scanResult.vendor,
           date: scanResult.date || new Date().toISOString().split("T")[0],
+          notes: scanResult.notes,
           receiptUrl: imageBase64,
           receiptData: scanResult,
           status: submitStatus,
@@ -290,12 +294,13 @@ export default function ScanPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: sr.title || 'Scanned Expense',
-            description: sr.notes,
+            description: sr.description || sr.notes || '',
             amount: sr.amount || 0,
             currency: sr.currency || 'UGX',
             category: sr.category || 'Other',
             vendor: sr.vendor,
             date: sr.date || new Date().toISOString().split('T')[0],
+            notes: sr.notes,
             receiptUrl: item.imageBase64,
             receiptData: sr,
             status: submitStatus,
@@ -850,6 +855,20 @@ export default function ScanPage() {
                     </div>
                   </div>
 
+                  {/* Description */}
+                  <div className="mt-4">
+                    <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted)] mb-1.5">
+                      <FileText className="w-3.5 h-3.5" /> Description
+                    </label>
+                    <textarea
+                      value={scanResult.description || ""}
+                      onChange={(e) => setScanResult({ ...scanResult, description: e.target.value || null })}
+                      placeholder="Expense description..."
+                      rows={2}
+                      className="w-full px-3 py-2 rounded-xl input-premium text-sm text-[var(--foreground)] placeholder-gray-400 resize-none"
+                    />
+                  </div>
+
                   {/* Notes */}
                   <div className="mt-4">
                     <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted)] mb-1.5">
@@ -865,63 +884,126 @@ export default function ScanPage() {
                   </div>
                 </div>
 
-                {/* Line Items */}
+                {/* Line Items — Editable */}
                 {scanResult.lineItems && scanResult.lineItems.length > 0 && (
                   <div className="premium-card p-4 lg:p-6">
-                    <h4 className="font-semibold text-[var(--foreground)] mb-4">
-                      Line Items
-                    </h4>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-gray-100 dark:border-gray-800">
-                            <th className="text-left py-2 text-[var(--muted)] font-medium">Item</th>
-                            <th className="text-right py-2 text-[var(--muted)] font-medium">Qty</th>
-                            <th className="text-right py-2 text-[var(--muted)] font-medium">Price</th>
-                            <th className="text-right py-2 text-[var(--muted)] font-medium">Total</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {scanResult.lineItems.map((item, i) => (
-                            <tr key={i} className="border-b border-gray-50 dark:border-gray-800/50">
-                              <td className="py-2.5 text-[var(--foreground)]">{item.description}</td>
-                              <td className="py-2.5 text-right text-[var(--muted)]">{item.quantity}</td>
-                              <td className="py-2.5 text-right text-[var(--muted)]">
-                                {formatCurrency(item.unitPrice, scanResult.currency)}
-                              </td>
-                              <td className="py-2.5 text-right font-medium text-[var(--foreground)]">
-                                {formatCurrency(item.total, scanResult.currency)}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot>
-                          {scanResult.subtotal != null && (
-                            <tr className="border-t border-gray-200 dark:border-gray-700">
-                              <td colSpan={3} className="py-2 text-right text-gray-500 font-medium">Subtotal</td>
-                              <td className="py-2 text-right font-medium text-[var(--foreground)]">
-                                {formatCurrency(scanResult.subtotal, scanResult.currency)}
-                              </td>
-                            </tr>
-                          )}
-                          {scanResult.tax != null && (
-                            <tr>
-                              <td colSpan={3} className="py-2 text-right text-gray-500 font-medium">Tax</td>
-                              <td className="py-2 text-right font-medium text-[var(--foreground)]">
-                                {formatCurrency(scanResult.tax, scanResult.currency)}
-                              </td>
-                            </tr>
-                          )}
-                          {scanResult.amount != null && (
-                            <tr className="border-t border-gray-200 dark:border-gray-700">
-                              <td colSpan={3} className="py-2 text-right text-[var(--foreground)] font-bold">Total</td>
-                              <td className="py-2 text-right font-bold text-emerald-500 text-lg">
-                                {formatCurrency(scanResult.amount, scanResult.currency)}
-                              </td>
-                            </tr>
-                          )}
-                        </tfoot>
-                      </table>
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-[var(--foreground)]">
+                        Line Items
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const items = [...(scanResult.lineItems || []), { description: "", quantity: 1, unitPrice: 0, total: 0 }];
+                          setScanResult({ ...scanResult, lineItems: items });
+                        }}
+                        className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Add Item
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      {scanResult.lineItems.map((item, i) => (
+                        <div key={i} className="flex items-start gap-2 p-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800">
+                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-4 gap-2">
+                            <div className="sm:col-span-2">
+                              <label className="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-1 block">Item</label>
+                              <input
+                                type="text"
+                                value={item.description}
+                                onChange={(e) => {
+                                  const items = [...scanResult.lineItems!];
+                                  items[i] = { ...items[i], description: e.target.value };
+                                  setScanResult({ ...scanResult, lineItems: items });
+                                }}
+                                className="w-full h-8 px-2 rounded-lg input-premium text-sm text-[var(--foreground)]"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-1 block">Qty</label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="1"
+                                value={item.quantity}
+                                onChange={(e) => {
+                                  const items = [...scanResult.lineItems!];
+                                  const qty = parseFloat(e.target.value) || 0;
+                                  items[i] = { ...items[i], quantity: qty, total: qty * items[i].unitPrice };
+                                  setScanResult({ ...scanResult, lineItems: items });
+                                }}
+                                className="w-full h-8 px-2 rounded-lg input-premium text-sm text-[var(--foreground)] text-right"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] uppercase tracking-wider text-[var(--muted)] mb-1 block">Unit Price</label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={item.unitPrice}
+                                onChange={(e) => {
+                                  const items = [...scanResult.lineItems!];
+                                  const price = parseFloat(e.target.value) || 0;
+                                  items[i] = { ...items[i], unitPrice: price, total: items[i].quantity * price };
+                                  setScanResult({ ...scanResult, lineItems: items });
+                                }}
+                                className="w-full h-8 px-2 rounded-lg input-premium text-sm text-[var(--foreground)] text-right"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-1 pt-4">
+                            <span className="text-xs font-medium text-[var(--foreground)]">
+                              {formatCurrency(item.total, scanResult.currency)}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const items = scanResult.lineItems!.filter((_, idx) => idx !== i);
+                                setScanResult({ ...scanResult, lineItems: items.length > 0 ? items : null });
+                              }}
+                              className="text-red-400 hover:text-red-500 transition-colors p-0.5"
+                              title="Remove item"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Subtotal, Tax, Total — Editable */}
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-[var(--muted)] font-medium">Subtotal</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={scanResult.subtotal ?? ""}
+                          onChange={(e) => setScanResult({ ...scanResult, subtotal: e.target.value ? parseFloat(e.target.value) : null })}
+                          placeholder="0.00"
+                          className="w-32 h-8 px-2 rounded-lg input-premium text-sm text-[var(--foreground)] text-right"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-[var(--muted)] font-medium">Tax</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={scanResult.tax ?? ""}
+                          onChange={(e) => setScanResult({ ...scanResult, tax: e.target.value ? parseFloat(e.target.value) : null })}
+                          placeholder="0.00"
+                          className="w-32 h-8 px-2 rounded-lg input-premium text-sm text-[var(--foreground)] text-right"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <span className="text-sm text-[var(--foreground)] font-bold">Total</span>
+                        <span className="font-bold text-emerald-500 text-lg">
+                          {formatCurrency(scanResult.amount ?? 0, scanResult.currency)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
