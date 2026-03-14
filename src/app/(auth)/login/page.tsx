@@ -211,7 +211,7 @@ export default function LoginPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@gascoenergy.com"
+                    placeholder="you@gascoenergy.co.ug"
                     required
                     className="w-full h-11 pl-10 pr-4 rounded-xl bg-gray-50 dark:bg-[#0c3520] border border-gray-200 dark:border-emerald-700/40 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all outline-none"
                   />

@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@gascoenergy.com"
+                    placeholder="you@gascoenergy.co.ug"
                     required
                     className="w-full h-11 pl-10 pr-4 rounded-xl input-premium text-gray-900 dark:text-white placeholder-gray-400"
                   />
