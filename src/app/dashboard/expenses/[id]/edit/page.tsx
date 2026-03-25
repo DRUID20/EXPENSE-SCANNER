@@ -81,7 +81,7 @@ export default function EditExpensePage() {
           notes: e.notes || "",
         });
         if (e.receiptPath || e.receiptUrl) {
-          setReceiptPreview(e.receiptPath || e.receiptUrl);
+          setReceiptPreview(`/api/receipts/${e.id}`);
         }
       } catch {
         toast.error("Failed to load expense");

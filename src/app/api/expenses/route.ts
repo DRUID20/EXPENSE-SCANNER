@@ -8,7 +8,7 @@ import { sendPushToUsers } from "@/lib/push";
 import { convertToUGX, getExchangeRate } from "@/lib/currency";
 import { formatCurrency } from "@/lib/utils";
 
-const RECEIPTS_DIR = path.join(process.cwd(), "public", "receipts");
+const RECEIPTS_DIR = path.join(process.cwd(), "private", "receipts");
 
 function sanitizeCategory(category: string): string {
   return category.replace(/[^a-zA-Z0-9&\s-]/g, "").replace(/\s+/g, "-").toLowerCase();

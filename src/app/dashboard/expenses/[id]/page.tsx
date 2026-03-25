@@ -436,7 +436,7 @@ export default function ExpenseDetailPage() {
                   Receipt
                 </h4>
                 <a
-                  href={expense.receiptPath || expense.receiptUrl || ""}
+                  href={`/api/receipts/${expense.id}`}
                   download={`receipt-${expense.id}.jpg`}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
                 >
@@ -445,10 +445,10 @@ export default function ExpenseDetailPage() {
                 </a>
               </div>
               <img
-                src={expense.receiptPath || expense.receiptUrl || ""}
+                src={`/api/receipts/${expense.id}`}
                 alt="Receipt"
                 className="w-full rounded-xl shadow-sm cursor-pointer"
-                onClick={() => window.open(expense.receiptPath || expense.receiptUrl || "", "_blank")}
+                onClick={() => window.open(`/api/receipts/${expense.id}`, "_blank")}
               />
             </div>
           )}

@@ -4,7 +4,7 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { existsSync } from "fs";
 
-const RECEIPTS_DIR = path.join(process.cwd(), "public", "receipts");
+const RECEIPTS_DIR = path.join(process.cwd(), "private", "receipts");
 
 function sanitizeCategory(category: string): string {
   return category.replace(/[^a-zA-Z0-9&\s-]/g, "").replace(/\s+/g, "-").toLowerCase();

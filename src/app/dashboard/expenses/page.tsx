@@ -25,6 +25,7 @@ import {
   Calendar,
   X,
   FileArchive,
+  FileText,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -267,6 +268,16 @@ export default function ExpensesPage() {
     }
   };
 
+  const handleExportPdf = () => {
+    const params = new URLSearchParams();
+    params.set("format", "pdf");
+    if (statusFilter !== "ALL") params.set("status", statusFilter);
+    if (categoryFilter !== "ALL") params.set("category", categoryFilter);
+    if (dateFrom) params.set("dateFrom", dateFrom);
+    if (dateTo) params.set("dateTo", dateTo);
+    window.open(`/api/export?${params}`, "_blank");
+  };
+
   const handleDownloadReceipts = async () => {
     try {
       const params = new URLSearchParams();
@@ -335,6 +346,16 @@ export default function ExpensesPage() {
           >
             <Download className="w-4 h-4" />
             <span className="hidden sm:inline">Export CSV</span>
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleExportPdf}
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl premium-card text-sm text-[var(--muted)] font-medium hover:border-emerald-300 transition-colors"
+            title="Export as PDF report"
+          >
+            <FileText className="w-4 h-4" />
+            <span className="hidden sm:inline">PDF Report</span>
           </motion.button>
           <Link href="/dashboard/scan">
             <motion.button

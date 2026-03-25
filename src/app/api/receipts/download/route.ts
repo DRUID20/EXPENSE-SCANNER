@@ -127,16 +127,16 @@ export async function GET(req: NextRequest) {
     }
 
     const files: { name: string; data: Buffer }[] = [];
-    const publicDir = path.join(process.cwd(), "public");
+    const privateDir = path.join(process.cwd(), "private", "receipts");
 
     for (const expense of expenses) {
       try {
         let data: Buffer | null = null;
         let ext = ".jpg";
 
-        // Try reading from disk first
+        // Try reading from private disk storage
         if (expense.receiptPath) {
-          const filePath = path.join(publicDir, expense.receiptPath);
+          const filePath = path.join(privateDir, path.basename(path.dirname(expense.receiptPath)), path.basename(expense.receiptPath));
           if (existsSync(filePath)) {
             data = await readFile(filePath);
             ext = path.extname(expense.receiptPath);
