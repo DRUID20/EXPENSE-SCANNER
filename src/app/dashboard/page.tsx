@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import { usePolling } from "@/hooks/usePolling";
 import {
   DollarSign,
   TrendingUp,
@@ -193,65 +194,70 @@ export default function DashboardPage() {
   const isAdmin = user?.role === "ADMIN";
   const canApprove = isAdmin;
 
-  useEffect(() => {
-    const periodCache = typeof window !== "undefined" ? getCachedDashboard(period) : null;
-    if (periodCache) {
-      setData(periodCache.data);
-      setAnalytics(periodCache.analytics);
-      setPendingApprovals(periodCache.pending ?? []);
-      setLoading(false);
-      return;
-    }
-
-    setData(null);
-    setLoading(true);
-
-    async function fetchAll() {
-      try {
-        const [dashRes, analyticsRes, pendingRes] = await Promise.all([
-          fetch(`/api/dashboard?period=${period}`),
-          canApprove ? fetch("/api/analytics?months=2") : Promise.resolve(null),
-          canApprove ? fetch("/api/expenses?status=PENDING&limit=5") : Promise.resolve(null),
-        ]);
-
-        const dashData = await dashRes.json();
-        if (dashRes.ok) {
-          setData(dashData);
-        } else {
-          toast.error("Failed to load dashboard data");
-        }
-
-        let aData = null;
-        if (analyticsRes && analyticsRes.ok) {
-          aData = await analyticsRes.json();
-          setAnalytics(aData);
-        }
-
-        let pendingData: DashboardData["recentExpenses"] = [];
-        if (pendingRes && pendingRes.ok) {
-          const pData = await pendingRes.json();
-          pendingData = pData.expenses;
-          setPendingApprovals(pendingData);
-        }
-
-        // Cache for instant load on return
-        try {
-          sessionStorage.setItem(`dashboard_cache_${period}`, JSON.stringify({
-            ts: Date.now(),
-            data: dashRes.ok ? dashData : null,
-            analytics: aData,
-            pending: pendingData,
-          }));
-        } catch { /* quota exceeded is fine */ }
-      } catch (err) {
-        console.error("Dashboard fetch error:", err);
-        toast.error("Network error loading dashboard");
-      } finally {
+  const fetchDashboard = useCallback(async (silent = false) => {
+    if (!silent) {
+      const periodCache = typeof window !== "undefined" ? getCachedDashboard(period) : null;
+      if (periodCache) {
+        setData(periodCache.data);
+        setAnalytics(periodCache.analytics);
+        setPendingApprovals(periodCache.pending ?? []);
         setLoading(false);
+        return;
       }
+      setData(null);
+      setLoading(true);
     }
-    fetchAll();
+
+    try {
+      const [dashRes, analyticsRes, pendingRes] = await Promise.all([
+        fetch(`/api/dashboard?period=${period}`),
+        canApprove ? fetch("/api/analytics?months=2") : Promise.resolve(null),
+        canApprove ? fetch("/api/expenses?status=PENDING&limit=5") : Promise.resolve(null),
+      ]);
+
+      const dashData = await dashRes.json();
+      if (dashRes.ok) {
+        setData(dashData);
+      } else if (!silent) {
+        toast.error("Failed to load dashboard data");
+      }
+
+      let aData = null;
+      if (analyticsRes && analyticsRes.ok) {
+        aData = await analyticsRes.json();
+        setAnalytics(aData);
+      }
+
+      let pendingData: DashboardData["recentExpenses"] = [];
+      if (pendingRes && pendingRes.ok) {
+        const pData = await pendingRes.json();
+        pendingData = pData.expenses;
+        setPendingApprovals(pendingData);
+      }
+
+      // Cache for instant load on return
+      try {
+        sessionStorage.setItem(`dashboard_cache_${period}`, JSON.stringify({
+          ts: Date.now(),
+          data: dashRes.ok ? dashData : null,
+          analytics: aData,
+          pending: pendingData,
+        }));
+      } catch { /* quota exceeded is fine */ }
+    } catch (err) {
+      console.error("Dashboard fetch error:", err);
+      if (!silent) toast.error("Network error loading dashboard");
+    } finally {
+      if (!silent) setLoading(false);
+    }
   }, [canApprove, toast, period]);
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
+  // Poll every 15s for real-time sync across devices
+  usePolling(() => fetchDashboard(true), 15000);
 
   const stats = [
     {

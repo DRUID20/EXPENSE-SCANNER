@@ -29,6 +29,7 @@ import {
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { usePolling } from "@/hooks/usePolling";
 
 interface Expense {
   id: string;
@@ -123,8 +124,8 @@ export default function ExpensesPage() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [search]);
 
-  const fetchExpenses = useCallback(async () => {
-    setLoading(true);
+  const fetchExpenses = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const params = new URLSearchParams();
       if (debouncedSearch) params.set("search", debouncedSearch);
@@ -142,20 +143,23 @@ export default function ExpensesPage() {
         setExpenses(data.expenses);
         setTotal(data.pagination.total);
         setPages(data.pagination.pages);
-      } else {
+      } else if (!silent) {
         toast.error(data.error || "Failed to load expenses");
       }
     } catch (err) {
       console.error("Failed to fetch expenses:", err);
-      toast.error("Network error loading expenses");
+      if (!silent) toast.error("Network error loading expenses");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [debouncedSearch, statusFilter, categoryFilter, dateFrom, dateTo, sortBy, sortOrder, page, toast]);
 
   useEffect(() => {
     fetchExpenses();
   }, [fetchExpenses]);
+
+  // Poll every 15s for real-time sync across devices
+  usePolling(() => fetchExpenses(true), 15000);
 
   useEffect(() => {
     setSelected(new Set());

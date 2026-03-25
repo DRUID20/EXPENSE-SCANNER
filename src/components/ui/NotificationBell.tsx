@@ -160,31 +160,40 @@ export function NotificationBell() {
 
   const markAllRead = async () => {
     try {
+      // Optimistically update UI
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+      prevUnreadRef.current = 0;
+
       await fetch("/api/notifications", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ markAll: true }),
       });
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-      setUnreadCount(0);
-      prevUnreadRef.current = 0;
+      // Re-fetch to stay in sync with server
+      fetchNotifications();
     } catch {
       // Silently fail
     }
   };
 
-  const handleNotificationClick = (n: Notification) => {
+  const handleNotificationClick = async (n: Notification) => {
     if (!n.isRead) {
-      fetch("/api/notifications", {
+      // Optimistically update UI immediately
+      setNotifications((prev) =>
+        prev.map((item) => (item.id === n.id ? { ...item, isRead: true } : item))
+      );
+      const newCount = Math.max(0, unreadCount - 1);
+      setUnreadCount(newCount);
+      prevUnreadRef.current = newCount;
+
+      // Persist to server, then re-fetch to stay in sync
+      await fetch("/api/notifications", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids: [n.id] }),
       });
-      setNotifications((prev) =>
-        prev.map((item) => (item.id === n.id ? { ...item, isRead: true } : item))
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-      prevUnreadRef.current = Math.max(0, prevUnreadRef.current - 1);
+      fetchNotifications();
     }
     if (n.linkUrl) {
       window.location.href = n.linkUrl;

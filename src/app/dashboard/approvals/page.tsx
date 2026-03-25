@@ -21,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { usePolling } from "@/hooks/usePolling";
 
 interface Expense {
   id: string;
@@ -58,8 +59,8 @@ export default function ApprovalsPage() {
   const [rejectTarget, setRejectTarget] = useState<{ type: "single"; id: string } | { type: "bulk" } | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
-  const fetchExpenses = useCallback(async () => {
-    setLoading(true);
+  const fetchExpenses = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const params = new URLSearchParams();
       if (filter !== "ALL") params.set("status", filter);
@@ -77,13 +78,16 @@ export default function ApprovalsPage() {
     } catch (err) {
       console.error("Failed to fetch:", err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [filter, search, page]);
 
   useEffect(() => {
     fetchExpenses();
   }, [fetchExpenses]);
+
+  // Poll every 15s for real-time sync across devices
+  usePolling(() => fetchExpenses(true), 15000);
 
   useEffect(() => {
     setPage(1);

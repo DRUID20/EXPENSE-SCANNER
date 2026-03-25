@@ -25,6 +25,7 @@ import {
 import Link from "next/link";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { usePolling } from "@/hooks/usePolling";
 
 interface Expense {
   id: string;
@@ -77,24 +78,29 @@ export default function ExpenseDetailPage() {
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
-  useEffect(() => {
-    async function fetchExpense() {
-      try {
-        const res = await fetch(`/api/expenses/${params.id}`);
-        const data = await res.json();
-        if (res.ok) {
-          setExpense(data.expense);
-        } else {
-          router.push("/dashboard/expenses");
-        }
-      } catch {
+  const fetchExpense = async (silent = false) => {
+    try {
+      const res = await fetch(`/api/expenses/${params.id}`);
+      const data = await res.json();
+      if (res.ok) {
+        setExpense(data.expense);
+      } else if (!silent) {
         router.push("/dashboard/expenses");
-      } finally {
-        setLoading(false);
       }
+    } catch {
+      if (!silent) router.push("/dashboard/expenses");
+    } finally {
+      if (!silent) setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchExpense();
-  }, [params.id, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id]);
+
+  // Poll every 15s for real-time status sync across devices
+  usePolling(() => fetchExpense(true), 15000);
 
   const handleStatusUpdate = async (newStatus: string) => {
     setActionLoading(true);
