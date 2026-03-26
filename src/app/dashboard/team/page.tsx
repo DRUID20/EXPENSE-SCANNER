@@ -23,6 +23,8 @@ import {
   Copy,
   CheckCircle2,
   Pencil,
+  TrendingUp,
+  Target,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -61,6 +63,20 @@ interface Policy {
   createdAt: string;
 }
 
+interface BudgetItem {
+  id: string;
+  name: string;
+  amount: number;
+  spent: number;
+  percentage: number;
+  period: string;
+  branchId: string | null;
+  branchName: string | null;
+  category: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
 interface AuditEntry {
   id: string;
   action: string;
@@ -82,21 +98,30 @@ const roleColors: Record<string, string> = {
   EMPLOYEE: "bg-gray-100 dark:bg-gray-800 text-[var(--muted)]",
 };
 
-type Tab = "users" | "branches" | "policies" | "audit";
+type Tab = "users" | "branches" | "policies" | "budgets" | "audit";
+
+const CATEGORIES = [
+  "Fuel & Gas", "Equipment", "Office Supplies", "Meals",
+  "Transport & Accommodation", "Utilities", "Repair & Maintenance",
+  "Vehicle Repairs & Maintenance", "Generator Expenses", "Other",
+];
 
 export default function TeamPage() {
   const [tab, setTab] = useState<Tab>("users");
   const [users, setUsers] = useState<UserItem[]>([]);
   const [branches, setBranches] = useState<BranchItem[]>([]);
   const [policies, setPolicies] = useState<Policy[]>([]);
+  const [budgets, setBudgets] = useState<BudgetItem[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInvite, setShowInvite] = useState(false);
   const [showPolicy, setShowPolicy] = useState(false);
   const [showBranch, setShowBranch] = useState(false);
+  const [showBudget, setShowBudget] = useState(false);
   const [inviteForm, setInviteForm] = useState({ email: "", firstName: "", lastName: "", role: "EMPLOYEE", password: "", spendingLimit: "", branchId: "" });
   const [policyForm, setPolicyForm] = useState({ name: "", maxAmount: "", category: "", role: "", requireApproval: true });
   const [branchForm, setBranchForm] = useState({ name: "", code: "", location: "" });
+  const [budgetForm, setBudgetForm] = useState({ name: "", amount: "", period: "MONTHLY", branchId: "", category: "" });
   const [editingBranch, setEditingBranch] = useState<BranchItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -131,6 +156,16 @@ export default function TeamPage() {
     }
   }, []);
 
+  const fetchBudgets = useCallback(async () => {
+    try {
+      const res = await fetch("/api/budgets");
+      const data = await res.json();
+      if (res.ok) setBudgets(data.budgets);
+    } catch (err) {
+      console.error("Failed to fetch budgets:", err);
+    }
+  }, []);
+
   const fetchAudit = useCallback(async () => {
     try {
       const res = await fetch("/api/audit");
@@ -143,8 +178,8 @@ export default function TeamPage() {
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([fetchUsers(), fetchBranches(), fetchPolicies(), fetchAudit()]).finally(() => setLoading(false));
-  }, [fetchUsers, fetchBranches, fetchPolicies, fetchAudit]);
+    Promise.all([fetchUsers(), fetchBranches(), fetchPolicies(), fetchBudgets(), fetchAudit()]).finally(() => setLoading(false));
+  }, [fetchUsers, fetchBranches, fetchPolicies, fetchBudgets, fetchAudit]);
 
   const handleInvite = async () => {
     if (!inviteForm.email || !inviteForm.firstName || !inviteForm.lastName || !inviteForm.password) {
@@ -329,6 +364,47 @@ export default function TeamPage() {
     }
   };
 
+  const handleCreateBudget = async () => {
+    if (!budgetForm.name || !budgetForm.amount) {
+      alert("Name and amount are required");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch("/api/budgets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(budgetForm),
+      });
+      if (res.ok) {
+        setShowBudget(false);
+        setBudgetForm({ name: "", amount: "", period: "MONTHLY", branchId: "", category: "" });
+        fetchBudgets();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to create budget");
+      }
+    } catch {
+      alert("Failed to create budget");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteBudget = async (id: string) => {
+    if (!confirm("Delete this budget?")) return;
+    try {
+      await fetch("/api/budgets", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      fetchBudgets();
+    } catch (err) {
+      console.error("Failed to delete budget:", err);
+    }
+  };
+
   const copyCredentials = (user: UserItem) => {
     const text = `Email: ${user.email}\nPlease contact admin for your password.`;
     navigator.clipboard.writeText(text);
@@ -367,6 +443,11 @@ export default function TeamPage() {
             <Plus className="w-4 h-4" /> Add Policy
           </motion.button>
         )}
+        {tab === "budgets" && (
+          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setShowBudget(true)} className="flex items-center gap-2 px-5 py-2.5 btn-primary text-sm">
+            <Plus className="w-4 h-4" /> Add Budget
+          </motion.button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -375,6 +456,7 @@ export default function TeamPage() {
           { id: "users" as Tab, label: "Users", icon: Users },
           { id: "branches" as Tab, label: "Branches", icon: Building2 },
           { id: "policies" as Tab, label: "Policies", icon: Shield },
+          { id: "budgets" as Tab, label: "Budgets", icon: Target },
           { id: "audit" as Tab, label: "Audit Log", icon: ScrollText },
         ]).map((t) => (
           <button
@@ -552,6 +634,68 @@ export default function TeamPage() {
         </div>
       )}
 
+      {/* Budgets Tab */}
+      {tab === "budgets" && (
+        <div className="space-y-3">
+          {budgets.length === 0 ? (
+            <div className="premium-card p-10 text-center">
+              <Target className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+              <p className="text-sm text-[var(--muted)]">No budgets set. Create one to track spending limits.</p>
+            </div>
+          ) : (
+            budgets.map((b, i) => {
+              const isOver = b.percentage >= 100;
+              const isWarning = b.percentage >= 80 && b.percentage < 100;
+              const barColor = isOver ? "bg-red-500" : isWarning ? "bg-amber-500" : "bg-emerald-500";
+              const textColor = isOver ? "text-red-500" : isWarning ? "text-amber-500" : "text-emerald-500";
+              return (
+                <motion.div
+                  key={b.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.03 }}
+                  className="premium-card p-4 lg:p-5"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <TrendingUp className={`w-4 h-4 ${textColor}`} />
+                        <h4 className="font-semibold text-[var(--foreground)] truncate">{b.name}</h4>
+                        <span className={`text-xs font-bold ${textColor}`}>{b.percentage}%</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-[var(--muted)] mb-3">
+                        <span className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800">{b.period.charAt(0) + b.period.slice(1).toLowerCase()}</span>
+                        {b.branchName && <span>{b.branchName}</span>}
+                        {b.category && <span>{b.category}</span>}
+                      </div>
+                      <div className="w-full h-3 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden mb-2">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min(100, b.percentage)}%` }}
+                          transition={{ duration: 0.8, ease: "easeOut" }}
+                          className={`h-full rounded-full ${barColor}`}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-[var(--muted)]">
+                        <span>{formatCurrency(b.spent)} spent</span>
+                        <span>of {formatCurrency(b.amount)} budget</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteBudget(b.id)}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors flex-shrink-0"
+                      title="Delete budget"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
+        </div>
+      )}
+
       {/* Audit Log Tab */}
       {tab === "audit" && (
         <div className="space-y-2">
@@ -671,6 +815,41 @@ export default function TeamPage() {
                 <button onClick={handleCreatePolicy} disabled={saving} className="w-full h-10 btn-primary text-sm disabled:opacity-50 flex items-center justify-center gap-2">
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
                   {saving ? "Creating..." : "Create Policy"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Create Budget Modal */}
+      <AnimatePresence>
+        {showBudget && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowBudget(false)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-md premium-card p-5 lg:p-6 shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-[var(--foreground)]">Create Budget</h3>
+                <button onClick={() => setShowBudget(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+              </div>
+              <div className="space-y-4">
+                <input placeholder="Budget Name *" value={budgetForm.name} onChange={(e) => setBudgetForm({ ...budgetForm, name: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
+                <input type="number" placeholder="Amount (UGX) *" value={budgetForm.amount} onChange={(e) => setBudgetForm({ ...budgetForm, amount: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--foreground)] placeholder-gray-400" />
+                <select value={budgetForm.period} onChange={(e) => setBudgetForm({ ...budgetForm, period: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--muted)]">
+                  <option value="MONTHLY">Monthly</option>
+                  <option value="QUARTERLY">Quarterly</option>
+                  <option value="YEARLY">Yearly</option>
+                </select>
+                <select value={budgetForm.branchId} onChange={(e) => setBudgetForm({ ...budgetForm, branchId: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--muted)]">
+                  <option value="">All Branches</option>
+                  {branches.filter(b => b.isActive).map((b) => <option key={b.id} value={b.id}>{b.name} ({b.location})</option>)}
+                </select>
+                <select value={budgetForm.category} onChange={(e) => setBudgetForm({ ...budgetForm, category: e.target.value })} className="w-full h-10 px-4 rounded-xl input-premium text-[var(--muted)]">
+                  <option value="">All Categories</option>
+                  {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <button onClick={handleCreateBudget} disabled={saving} className="w-full h-10 btn-primary text-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Target className="w-4 h-4" />}
+                  {saving ? "Creating..." : "Create Budget"}
                 </button>
               </div>
             </motion.div>
