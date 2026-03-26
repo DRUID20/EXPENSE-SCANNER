@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (category && category !== "ALL") {
-      where.category = category;
+      where.category = { equals: category, mode: "insensitive" };
     }
 
     if (search) {
@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
 
     // Spending policy enforcement (policies are always in UGX)
     for (const policy of policies) {
-      const categoryMatch = !policy.category || policy.category === category;
+      const categoryMatch = !policy.category || policy.category.toLowerCase() === category?.toLowerCase();
       const roleMatch = !policy.role || policy.role === session.role;
 
       if (categoryMatch && roleMatch && amountInUGX > policy.maxAmount) {
@@ -247,7 +247,7 @@ export async function POST(req: NextRequest) {
         amountUGX: amountInUGX,
         exchangeRate: exchangeRate,
         category,
-        vendor: vendor || null,
+        vendor: vendor ? vendor.trim().replace(/\b\w/g, (c: string) => c.toUpperCase()) : null,
         date: new Date(date),
         receiptUrl: receiptUrl || null,
         receiptData: receiptData ? JSON.stringify(receiptData) : null,

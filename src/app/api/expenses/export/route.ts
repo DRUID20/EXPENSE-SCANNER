@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
       where.status = status;
     }
     if (category && category !== "ALL") {
-      where.category = category;
+      where.category = { equals: category, mode: "insensitive" };
     }
     if (from || to) {
       where.date = {};

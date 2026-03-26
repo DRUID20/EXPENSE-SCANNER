@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       where.userId = session.userId;
     }
     if (status && status !== "ALL") where.status = status;
-    if (category && category !== "ALL") where.category = category;
+    if (category && category !== "ALL") where.category = { equals: category, mode: "insensitive" };
     if (dateFrom || dateTo) {
       where.date = {};
       if (dateFrom) (where.date as Record<string, unknown>).gte = new Date(dateFrom);

@@ -105,7 +105,7 @@ export async function GET(req: NextRequest) {
     };
 
     if (category && category !== "ALL") {
-      where.category = category;
+      where.category = { equals: category, mode: "insensitive" };
     }
 
     const expenses = await prisma.expense.findMany({

@@ -57,7 +57,7 @@ export async function GET() {
           where.user = { branchId: budget.branchId };
         }
         if (budget.category) {
-          where.category = budget.category;
+          where.category = { equals: budget.category, mode: "insensitive" };
         }
 
         const expenses = await prisma.expense.findMany({
