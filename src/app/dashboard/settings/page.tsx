@@ -90,11 +90,6 @@ export default function SettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      setProfileError("Image must be under 2MB");
-      return;
-    }
-
     setAvatarUploading(true);
     setProfileError("");
     try {
