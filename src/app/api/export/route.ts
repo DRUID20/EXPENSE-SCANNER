@@ -33,10 +33,10 @@ export async function GET(req: NextRequest) {
     const expenses = await prisma.expense.findMany({
       where,
       include: {
-        user: { select: { firstName: true, lastName: true, email: true } },
+        user: { select: { firstName: true, lastName: true, email: true, branch: { select: { name: true } } } },
         approvedBy: { select: { firstName: true, lastName: true } },
       },
-      orderBy: { date: "desc" },
+      orderBy: { date: "asc" },
     });
 
     if (format === "csv") {
@@ -87,16 +87,6 @@ export async function GET(req: NextRequest) {
         return new Intl.NumberFormat("en-US", { style: "currency", currency: curr, minimumFractionDigits: digits, maximumFractionDigits: digits }).format(amount);
       };
 
-      const statusBadge = (s: string) => {
-        const colors: Record<string, string> = {
-          APPROVED: "color:#16a34a;background:#f0fdf4;",
-          REJECTED: "color:#dc2626;background:#fef2f2;",
-          PENDING: "color:#d97706;background:#fffbeb;",
-          DRAFT: "color:#6b7280;background:#f3f4f6;",
-        };
-        return `<span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;${colors[s] || colors.DRAFT}">${s}</span>`;
-      };
-
       const filterLabel = [
         status && status !== "ALL" ? `Status: ${status}` : null,
         category && category !== "ALL" ? `Category: ${category}` : null,
@@ -107,16 +97,22 @@ export async function GET(req: NextRequest) {
       const reportDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
       const appName = process.env.NEXT_PUBLIC_APP_NAME || "Gasco Energy ExpenseTracker";
 
-      const tableRows = expenses.map((e, i) => `
+      let runningBalance = 0;
+      const tableRows = expenses.map((e, i) => {
+        const amountUGX = e.amountUGX ?? convertToUGX(e.amount, e.currency);
+        runningBalance += amountUGX;
+        return `
         <tr style="background:${i % 2 === 0 ? "#fff" : "#fafafa"};">
           <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">${new Date(e.date).toISOString().split("T")[0]}</td>
           <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(e.title)}</td>
           <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">${escapeHtml(e.category)}</td>
           <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">${escapeHtml(e.vendor || "—")}</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">${e.user.firstName} ${e.user.lastName}</td>
           <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;font-weight:600;">${formatAmt(e.amount, e.currency)}</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">${statusBadge(e.status)}</td>
-        </tr>`).join("");
+          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">${e.currency}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">${escapeHtml(e.user.branch?.name || "—")}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;font-weight:600;">${formatAmt(runningBalance)}</td>
+        </tr>`;
+      }).join("");
 
       const html = `<!DOCTYPE html>
 <html>
@@ -132,8 +128,9 @@ export async function GET(req: NextRequest) {
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a1a; margin: 0; padding: 24px; }
     table { width: 100%; border-collapse: collapse; }
     th { background: #f8fafc; padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; border-bottom: 2px solid #e2e8f0; }
-    th:nth-child(6) { text-align: right; }
-    th:nth-child(7) { text-align: center; }
+    th:nth-child(5) { text-align: right; }
+    th:nth-child(6) { text-align: center; }
+    th:nth-child(8) { text-align: right; }
   </style>
 </head>
 <body>
@@ -185,9 +182,10 @@ export async function GET(req: NextRequest) {
         <th>Title</th>
         <th>Category</th>
         <th>Vendor</th>
-        <th>Submitted By</th>
         <th style="text-align:right;">Amount</th>
-        <th style="text-align:center;">Status</th>
+        <th style="text-align:center;">Currency</th>
+        <th>Branch</th>
+        <th style="text-align:right;">Running Balance</th>
       </tr>
     </thead>
     <tbody>
@@ -195,9 +193,8 @@ export async function GET(req: NextRequest) {
     </tbody>
     <tfoot>
       <tr style="background:#f8fafc;">
-        <td colspan="5" style="padding:10px 12px;font-weight:700;font-size:13px;border-top:2px solid #e2e8f0;">Grand Total (UGX)</td>
+        <td colspan="7" style="padding:10px 12px;font-weight:700;font-size:13px;border-top:2px solid #e2e8f0;">Grand Total (UGX)</td>
         <td style="padding:10px 12px;font-weight:700;font-size:13px;text-align:right;border-top:2px solid #e2e8f0;">${formatAmt(totalAmount)}</td>
-        <td style="border-top:2px solid #e2e8f0;"></td>
       </tr>
     </tfoot>
   </table>
