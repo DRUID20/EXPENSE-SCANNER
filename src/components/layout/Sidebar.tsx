@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -119,11 +118,9 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
           <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
             <div className="relative flex-shrink-0">
               {user?.avatar ? (
-                <Image
+                <img
                   src={user.avatar}
                   alt={`${user.firstName} ${user.lastName}`}
-                  width={36}
-                  height={36}
                   className="w-9 h-9 rounded-xl object-cover ring-2 ring-white/10"
                 />
               ) : (
@@ -215,11 +212,9 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
                 <div className="flex items-center gap-3">
                   <div className="relative flex-shrink-0">
                     {user?.avatar ? (
-                      <Image
+                      <img
                         src={user.avatar}
                         alt={`${user.firstName} ${user.lastName}`}
-                        width={40}
-                        height={40}
                         className="w-10 h-10 rounded-xl object-cover ring-2 ring-white/10"
                       />
                     ) : (

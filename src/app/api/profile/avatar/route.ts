@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import { randomUUID } from "crypto";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -25,20 +22,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Only JPEG, PNG, and WebP images are allowed" }, { status: 400 });
     }
 
-    const ext = file.type.split("/")[1].replace("jpeg", "jpg");
-    const filename = `${session.userId}-${randomUUID().slice(0, 8)}.${ext}`;
-
-    const avatarDir = path.join(process.cwd(), "public", "avatars");
-    await mkdir(avatarDir, { recursive: true });
-
     const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(avatarDir, filename), buffer);
-
-    const avatarUrl = `/avatars/${filename}`;
+    const base64 = `data:${file.type};base64,${buffer.toString("base64")}`;
 
     const updated = await prisma.user.update({
       where: { id: session.userId },
-      data: { avatar: avatarUrl },
+      data: { avatar: base64 },
       select: {
         id: true,
         email: true,
@@ -52,7 +41,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ user: updated, avatarUrl });
+    return NextResponse.json({ user: updated, avatarUrl: base64 });
   } catch (error) {
     console.error("Avatar upload error:", error);
     return NextResponse.json({ error: "Failed to upload avatar" }, { status: 500 });

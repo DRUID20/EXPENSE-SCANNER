@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { User, Shield, Loader2, CheckCircle2, Eye, EyeOff, Lock, Save, MapPin, Bell, BellOff, Palette, Check, Tag, Plus, X, Trash2, RefreshCw, DollarSign, Camera } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useAppTheme, AppTheme } from "@/context/ThemeContext";
@@ -351,11 +350,9 @@ export default function SettingsPage() {
                 className="hidden"
               />
               {user?.avatar ? (
-                <Image
+                <img
                   src={user.avatar}
                   alt={`${user.firstName} ${user.lastName}`}
-                  width={80}
-                  height={80}
                   className="w-20 h-20 rounded-2xl object-cover ring-3 ring-[var(--accent)]/20 shadow-lg"
                 />
               ) : (
