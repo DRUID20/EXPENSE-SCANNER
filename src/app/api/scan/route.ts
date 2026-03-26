@@ -97,8 +97,12 @@ const extractReceiptTool: Anthropic.Tool = {
         type: ["string", "null"],
         description: "Any additional relevant information",
       },
+      confidence: {
+        type: "number",
+        description: "Confidence score from 0 to 100 indicating how clearly you could read the receipt. 90-100: crisp/clear text, all fields visible. 60-89: some fields unclear or partially obscured. Below 60: blurry, cut off, or very hard to read.",
+      },
     },
-    required: ["vendor", "title", "amount", "currency", "date", "category"],
+    required: ["vendor", "title", "amount", "currency", "date", "category", "confidence"],
   },
 };
 

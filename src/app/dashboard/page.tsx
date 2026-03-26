@@ -190,6 +190,10 @@ export default function DashboardPage() {
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(cached?.analytics ?? null);
   const [pendingApprovals, setPendingApprovals] = useState<DashboardData["recentExpenses"]>(cached?.pending ?? []);
   const [loading, setLoading] = useState(!cached);
+  const [budgets, setBudgets] = useState<Array<{
+    id: string; name: string; amount: number; spent: number; percentage: number;
+    period: string; branchName: string | null; category: string | null;
+  }>>([]);
 
   const isAdmin = user?.role === "ADMIN";
   const canApprove = isAdmin;
@@ -209,10 +213,11 @@ export default function DashboardPage() {
     }
 
     try {
-      const [dashRes, analyticsRes, pendingRes] = await Promise.all([
+      const [dashRes, analyticsRes, pendingRes, budgetRes] = await Promise.all([
         fetch(`/api/dashboard?period=${period}`),
         canApprove ? fetch("/api/analytics?months=2") : Promise.resolve(null),
         canApprove ? fetch("/api/expenses?status=PENDING&limit=5") : Promise.resolve(null),
+        canApprove ? fetch("/api/budgets") : Promise.resolve(null),
       ]);
 
       const dashData = await dashRes.json();
@@ -233,6 +238,11 @@ export default function DashboardPage() {
         const pData = await pendingRes.json();
         pendingData = pData.expenses;
         setPendingApprovals(pendingData);
+      }
+
+      if (budgetRes && budgetRes.ok) {
+        const bData = await budgetRes.json();
+        setBudgets(bData.budgets || []);
       }
 
       // Cache for instant load on return
@@ -430,6 +440,54 @@ export default function DashboardPage() {
                 </div>
               </Link>
             ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Budget Tracking */}
+      {canApprove && budgets.length > 0 && (
+        <motion.div variants={itemVariants} className="premium-card p-4 lg:p-6">
+          <h3 className="text-sm lg:text-base font-semibold text-[var(--foreground)] flex items-center gap-2 mb-4">
+            <TrendingUp className="w-4 h-4 text-[var(--accent)]" />
+            Budget Tracking
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {budgets.map((b) => {
+              const isOver = b.percentage >= 100;
+              const isWarning = b.percentage >= 80 && b.percentage < 100;
+              const barColor = isOver ? "bg-red-500" : isWarning ? "bg-amber-500" : "bg-emerald-500";
+              return (
+                <div key={b.id} className="p-4 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.04]">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-semibold text-[var(--foreground)] truncate">{b.name}</p>
+                    <span className={`text-xs font-bold ${isOver ? "text-red-500" : isWarning ? "text-amber-500" : "text-emerald-500"}`}>
+                      {b.percentage}%
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] text-[var(--muted)] mb-2">
+                    {b.branchName && <span>{b.branchName}</span>}
+                    {b.category && <span>{b.category}</span>}
+                    <span>{b.period.charAt(0) + b.period.slice(1).toLowerCase()}</span>
+                  </div>
+                  <div className="w-full h-2.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden mb-2">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, b.percentage)}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                      className={`h-full rounded-full ${barColor}`}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-[var(--muted)]">
+                      {formatCurrency(b.spent)} spent
+                    </span>
+                    <span className="text-[var(--muted)]">
+                      of {formatCurrency(b.amount)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </motion.div>
       )}

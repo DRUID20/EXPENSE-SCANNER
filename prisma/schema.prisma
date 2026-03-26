@@ -139,6 +139,31 @@ model Category {
   updatedAt DateTime @updatedAt
 }
 
+model Budget {
+  id        String   @id @default(cuid())
+  name      String
+  amount    Float    // Budget amount in UGX
+  period    String   // MONTHLY, QUARTERLY, YEARLY
+  branchId  String?  // null = company-wide
+  category  String?  // null = all categories
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([branchId])
+  @@index([period])
+}
+
+model TokenBlacklist {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([expiresAt])
+}
+
 model Notification {
   id        String   @id @default(cuid())
   type      String   // EXPENSE_APPROVED, EXPENSE_REJECTED, EXPENSE_SUBMITTED, etc.

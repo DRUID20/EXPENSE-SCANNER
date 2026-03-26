@@ -205,17 +205,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Duplicate expense detection
+    // Duplicate expense detection — check within a 7-day window
     const expenseDate = new Date(date);
-    const dayStart = new Date(expenseDate);
-    dayStart.setHours(0, 0, 0, 0);
-    const dayEnd = new Date(expenseDate);
-    dayEnd.setHours(23, 59, 59, 999);
+    const rangeStart = new Date(expenseDate);
+    rangeStart.setDate(rangeStart.getDate() - 3);
+    rangeStart.setHours(0, 0, 0, 0);
+    const rangeEnd = new Date(expenseDate);
+    rangeEnd.setDate(rangeEnd.getDate() + 3);
+    rangeEnd.setHours(23, 59, 59, 999);
 
     const duplicateCheck: Record<string, unknown> = {
       userId: session.userId,
       amount: parsedAmount,
-      date: { gte: dayStart, lte: dayEnd },
+      date: { gte: rangeStart, lte: rangeEnd },
     };
     if (vendor) {
       duplicateCheck.vendor = { equals: vendor, mode: "insensitive" };
@@ -223,14 +225,15 @@ export async function POST(req: NextRequest) {
 
     const duplicates = await prisma.expense.findMany({
       where: duplicateCheck,
-      select: { id: true, title: true, amount: true, vendor: true },
+      select: { id: true, title: true, amount: true, vendor: true, date: true },
       take: 1,
     });
 
     let duplicateWarning = null;
     if (duplicates.length > 0) {
+      const dupDate = new Date(duplicates[0].date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
       duplicateWarning = {
-        message: `Possible duplicate: "${duplicates[0].title}" with same amount${vendor ? " and vendor" : ""} on the same date already exists.`,
+        message: `Possible duplicate: "${duplicates[0].title}" with same amount${vendor ? " and vendor" : ""} on ${dupDate} already exists.`,
         existingId: duplicates[0].id,
       };
     }

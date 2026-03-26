@@ -105,6 +105,7 @@ interface ScanResult {
   paymentMethod: string | null;
   receiptNumber: string | null;
   notes: string | null;
+  confidence: number | null;
 }
 
 type ScanStage = "upload" | "scanning" | "result" | "error";
@@ -745,13 +746,35 @@ export default function ScanPage() {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-4 lg:space-y-6"
           >
-            {/* Success banner */}
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
-              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-              <p className="text-sm text-green-700 dark:text-green-400 font-medium">
-                Receipt scanned successfully! Review and edit the details below before saving.
-              </p>
-            </div>
+            {/* Confidence banner */}
+            {scanResult.confidence != null && scanResult.confidence < 70 ? (
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm text-amber-700 dark:text-amber-400 font-medium">
+                    Low confidence scan ({scanResult.confidence}%) — receipt may be blurry or partially obscured.
+                  </p>
+                  <p className="text-xs text-amber-600 dark:text-amber-500 mt-0.5">
+                    Please double-check all fields carefully before submitting.
+                  </p>
+                </div>
+                <div className="flex-shrink-0 w-12 h-12 rounded-full border-4 border-amber-300 dark:border-amber-700 flex items-center justify-center">
+                  <span className="text-sm font-bold text-amber-600 dark:text-amber-400">{scanResult.confidence}%</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
+                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <p className="text-sm text-green-700 dark:text-green-400 font-medium flex-1">
+                  Receipt scanned successfully! Review and edit the details below before saving.
+                </p>
+                {scanResult.confidence != null && (
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full border-4 border-green-300 dark:border-green-700 flex items-center justify-center">
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">{scanResult.confidence}%</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
               {/* Receipt Preview */}

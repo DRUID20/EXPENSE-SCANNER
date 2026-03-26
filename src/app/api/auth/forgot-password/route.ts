@@ -56,12 +56,11 @@ export async function POST(req: NextRequest) {
     const emailResult = await sendPasswordResetEmail(user.email, resetUrl, user.firstName);
 
     if (!emailResult.success) {
-      console.warn("Email not sent:", emailResult.error, "— returning token for admin fallback");
+      console.warn("Email not sent:", emailResult.error);
       return NextResponse.json({
         message: "If an account with that email exists, a reset token has been generated.",
-        resetToken: token,
-        resetUrl: `/reset-password?token=${token}`,
         emailSent: false,
+        warning: "Email delivery failed. Please contact your administrator.",
       });
     }
 
