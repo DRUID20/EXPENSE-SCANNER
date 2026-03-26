@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -116,8 +117,21 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
         {/* User Profile */}
         <div className="border-t border-white/[0.06] p-3">
           <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0" style={{ background: `linear-gradient(135deg, var(--accent), var(--accent-hover))` }}>
-              {user ? getInitials(user.firstName, user.lastName) : "??"}
+            <div className="relative flex-shrink-0">
+              {user?.avatar ? (
+                <Image
+                  src={user.avatar}
+                  alt={`${user.firstName} ${user.lastName}`}
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 rounded-xl object-cover ring-2 ring-white/10"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold shadow-sm" style={{ background: `linear-gradient(135deg, var(--accent), var(--accent-hover))` }}>
+                  {user ? getInitials(user.firstName, user.lastName) : "??"}
+                </div>
+              )}
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-[var(--sidebar-bg)]" />
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">
@@ -199,8 +213,21 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; o
               {/* User Profile */}
               <div className="border-t border-white/[0.06] p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0" style={{ background: `linear-gradient(135deg, var(--accent), var(--accent-hover))` }}>
-                    {user ? getInitials(user.firstName, user.lastName) : "??"}
+                  <div className="relative flex-shrink-0">
+                    {user?.avatar ? (
+                      <Image
+                        src={user.avatar}
+                        alt={`${user.firstName} ${user.lastName}`}
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 rounded-xl object-cover ring-2 ring-white/10"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm" style={{ background: `linear-gradient(135deg, var(--accent), var(--accent-hover))` }}>
+                        {user ? getInitials(user.firstName, user.lastName) : "??"}
+                      </div>
+                    )}
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-[var(--sidebar-bg)]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-white truncate">

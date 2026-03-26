@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Shield, Loader2, CheckCircle2, Eye, EyeOff, Lock, Save, MapPin, Bell, BellOff, Palette, Check, Tag, Plus, X, Trash2, RefreshCw, DollarSign } from "lucide-react";
+import Image from "next/image";
+import { User, Shield, Loader2, CheckCircle2, Eye, EyeOff, Lock, Save, MapPin, Bell, BellOff, Palette, Check, Tag, Plus, X, Trash2, RefreshCw, DollarSign, Camera } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useAppTheme, AppTheme } from "@/context/ThemeContext";
 import { getInitials } from "@/lib/utils";
@@ -81,6 +82,49 @@ export default function SettingsPage() {
   const [ratesIsFallback, setRatesIsFallback] = useState(false);
   const [ratesLoading, setRatesLoading] = useState(false);
   const [ratesRefreshing, setRatesRefreshing] = useState(false);
+
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setProfileError("Image must be under 2MB");
+      return;
+    }
+
+    setAvatarUploading(true);
+    setProfileError("");
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+      const res = await fetch("/api/profile/avatar", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setProfileMessage("Photo updated");
+      refreshUser();
+    } catch (err) {
+      setProfileError(err instanceof Error ? err.message : "Failed to upload photo");
+    } finally {
+      setAvatarUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleAvatarRemove = async () => {
+    setAvatarUploading(true);
+    try {
+      await fetch("/api/profile/avatar", { method: "DELETE" });
+      setProfileMessage("Photo removed");
+      refreshUser();
+    } catch {
+      setProfileError("Failed to remove photo");
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
 
   const checkPushStatus = useCallback(async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
@@ -303,8 +347,48 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex items-center gap-6 mb-6">
-            <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg" style={{ background: `linear-gradient(135deg, var(--accent), var(--accent-hover))`, boxShadow: `0 10px 15px -3px var(--nav-active-shadow)` }}>
-              {user ? getInitials(user.firstName, user.lastName) : "??"}
+            <div className="relative group">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleAvatarUpload}
+                className="hidden"
+              />
+              {user?.avatar ? (
+                <Image
+                  src={user.avatar}
+                  alt={`${user.firstName} ${user.lastName}`}
+                  width={80}
+                  height={80}
+                  className="w-20 h-20 rounded-2xl object-cover ring-3 ring-[var(--accent)]/20 shadow-lg"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg" style={{ background: `linear-gradient(135deg, var(--accent), var(--accent-hover))`, boxShadow: `0 10px 15px -3px var(--nav-active-shadow)` }}>
+                  {user ? getInitials(user.firstName, user.lastName) : "??"}
+                </div>
+              )}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarUploading}
+                className="absolute inset-0 rounded-2xl bg-black/0 group-hover:bg-black/50 flex items-center justify-center transition-all cursor-pointer"
+              >
+                {avatarUploading ? (
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                ) : (
+                  <Camera className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
+              </button>
+              {user?.avatar && (
+                <button
+                  onClick={handleAvatarRemove}
+                  disabled={avatarUploading}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm"
+                  title="Remove photo"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
             </div>
             <div>
               <h4 className="text-xl font-bold" style={{ color: "var(--foreground)" }}>
@@ -321,6 +405,7 @@ export default function SettingsPage() {
                   </span>
                 )}
               </div>
+              <p className="text-[11px] text-[var(--muted)] mt-1.5">Hover photo to change</p>
             </div>
           </div>
 
