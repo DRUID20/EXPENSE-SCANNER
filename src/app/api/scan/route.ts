@@ -200,7 +200,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       data: extractedData,
-      imageBase64: isPdf ? null : `data:${file.type};base64,${base64}`,
+      imageBase64: `data:${file.type};base64,${base64}`,
       isPdf,
     });
   } catch (error) {
