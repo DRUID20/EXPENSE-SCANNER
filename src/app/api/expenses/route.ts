@@ -16,11 +16,14 @@ function sanitizeCategory(category: string): string {
 
 async function saveReceiptImage(base64Data: string, category: string, expenseId: string): Promise<string | null> {
   try {
-    const matches = base64Data.match(/^data:image\/(jpeg|png|webp|gif);base64,(.+)$/);
+    // Support images and PDFs
+    const matches = base64Data.match(/^data:(image\/(jpeg|png|webp|gif)|application\/pdf);base64,(.+)$/);
     if (!matches) return null;
 
-    const ext = matches[1] === "jpeg" ? "jpg" : matches[1];
-    const buffer = Buffer.from(matches[2], "base64");
+    const isPdf = matches[1] === "application/pdf";
+    const ext = isPdf ? "pdf" : (matches[2] === "jpeg" ? "jpg" : matches[2]);
+    const base64Content = matches[3];
+    const buffer = Buffer.from(base64Content, "base64");
     const categoryDir = sanitizeCategory(category || "other");
     const dirPath = path.join(RECEIPTS_DIR, categoryDir);
 
@@ -262,8 +265,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Save receipt image permanently if base64 data provided
-    if (receiptUrl && receiptUrl.startsWith("data:image/")) {
+    // Save receipt file permanently if base64 data provided (images + PDFs)
+    if (receiptUrl && (receiptUrl.startsWith("data:image/") || receiptUrl.startsWith("data:application/pdf"))) {
       const savedPath = await saveReceiptImage(receiptUrl, category, expense.id);
       if (savedPath) {
         await prisma.expense.update({

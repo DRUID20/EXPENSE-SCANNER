@@ -427,31 +427,43 @@ export default function ExpenseDetailPage() {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Receipt Image */}
-          {(expense.receiptPath || expense.receiptUrl) && (
-            <div className="premium-card p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
-                  <Receipt className="w-4 h-4 text-emerald-500" />
-                  Receipt
-                </h4>
-                <a
-                  href={`/api/receipts/${expense.id}`}
-                  download={`receipt-${expense.id}.jpg`}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  Download
-                </a>
+          {/* Receipt */}
+          {(expense.receiptPath || expense.receiptUrl) && (() => {
+            const isPdf = expense.receiptPath?.endsWith(".pdf") || expense.receiptUrl?.startsWith("data:application/pdf");
+            const ext = isPdf ? "pdf" : "jpg";
+            return (
+              <div className="premium-card p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                    <Receipt className="w-4 h-4 text-emerald-500" />
+                    Receipt
+                  </h4>
+                  <a
+                    href={`/api/receipts/${expense.id}`}
+                    download={`receipt-${expense.id}.${ext}`}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Download
+                  </a>
+                </div>
+                {isPdf ? (
+                  <iframe
+                    src={`/api/receipts/${expense.id}`}
+                    className="w-full h-[500px] rounded-xl border border-black/[0.06] dark:border-white/[0.06]"
+                    title="Receipt PDF"
+                  />
+                ) : (
+                  <img
+                    src={`/api/receipts/${expense.id}`}
+                    alt="Receipt"
+                    className="w-full rounded-xl shadow-sm cursor-pointer"
+                    onClick={() => window.open(`/api/receipts/${expense.id}`, "_blank")}
+                  />
+                )}
               </div>
-              <img
-                src={`/api/receipts/${expense.id}`}
-                alt="Receipt"
-                className="w-full rounded-xl shadow-sm cursor-pointer"
-                onClick={() => window.open(`/api/receipts/${expense.id}`, "_blank")}
-              />
-            </div>
-          )}
+            );
+          })()}
 
           {/* Submitted by */}
           <div className="premium-card p-4">

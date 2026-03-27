@@ -13,6 +13,7 @@ const MIME_TYPES: Record<string, string> = {
   ".png": "image/png",
   ".webp": "image/webp",
   ".gif": "image/gif",
+  ".pdf": "application/pdf",
 };
 
 export async function GET(
@@ -66,12 +67,13 @@ export async function GET(
     }
 
     // Fallback: serve from base64 receiptUrl (legacy data)
-    if (expense.receiptUrl && expense.receiptUrl.startsWith("data:image/")) {
-      const matches = expense.receiptUrl.match(/^data:image\/(jpeg|png|webp|gif);base64,(.+)$/);
+    if (expense.receiptUrl && (expense.receiptUrl.startsWith("data:image/") || expense.receiptUrl.startsWith("data:application/pdf"))) {
+      const matches = expense.receiptUrl.match(/^data:(image\/(jpeg|png|webp|gif)|application\/pdf);base64,(.+)$/);
       if (matches) {
-        const contentType = `image/${matches[1]}`;
-        const buffer = Buffer.from(matches[2], "base64");
-        const ext = matches[1] === "jpeg" ? "jpg" : matches[1];
+        const contentType = matches[1];
+        const buffer = Buffer.from(matches[3], "base64");
+        const isPdf = contentType === "application/pdf";
+        const ext = isPdf ? "pdf" : (matches[2] === "jpeg" ? "jpg" : matches[2]);
 
         return new NextResponse(buffer, {
           headers: {

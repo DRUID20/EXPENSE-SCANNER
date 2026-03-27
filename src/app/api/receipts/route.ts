@@ -23,14 +23,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Image and expense ID are required" }, { status: 400 });
     }
 
-    // Parse base64 data URL
-    const matches = imageBase64.match(/^data:image\/(jpeg|png|webp|gif);base64,(.+)$/);
+    // Parse base64 data URL (images + PDFs)
+    const matches = imageBase64.match(/^data:(image\/(jpeg|png|webp|gif)|application\/pdf);base64,(.+)$/);
     if (!matches) {
-      return NextResponse.json({ error: "Invalid image data" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid file data" }, { status: 400 });
     }
 
-    const ext = matches[1] === "jpeg" ? "jpg" : matches[1];
-    const base64Data = matches[2];
+    const isPdf = matches[1] === "application/pdf";
+    const ext = isPdf ? "pdf" : (matches[2] === "jpeg" ? "jpg" : matches[2]);
+    const base64Data = matches[3];
     const buffer = Buffer.from(base64Data, "base64");
 
     // Create directory structure: /receipts/{category}/{expenseId}.{ext}

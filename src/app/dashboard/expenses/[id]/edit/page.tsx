@@ -266,7 +266,7 @@ export default function EditExpensePage() {
               <span className="text-sm font-medium">Click to attach receipt</span>
             </button>
           )}
-          <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleReceiptChange} className="hidden" />
+          <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={handleReceiptChange} className="hidden" />
         </div>
 
         <div>

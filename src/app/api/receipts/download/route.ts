@@ -143,12 +143,13 @@ export async function GET(req: NextRequest) {
           }
         }
 
-        // Fall back to base64 receiptUrl
+        // Fall back to base64 receiptUrl (images + PDFs)
         if (!data && expense.receiptUrl) {
-          const matches = expense.receiptUrl.match(/^data:image\/(jpeg|png|webp|gif);base64,(.+)$/);
+          const matches = expense.receiptUrl.match(/^data:(image\/(jpeg|png|webp|gif)|application\/pdf);base64,(.+)$/);
           if (matches) {
-            data = Buffer.from(matches[2], "base64");
-            ext = `.${matches[1] === "jpeg" ? "jpg" : matches[1]}`;
+            data = Buffer.from(matches[3], "base64");
+            const isPdf = matches[1] === "application/pdf";
+            ext = isPdf ? ".pdf" : `.${matches[2] === "jpeg" ? "jpg" : matches[2]}`;
           }
         }
 

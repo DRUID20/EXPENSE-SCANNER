@@ -617,11 +617,13 @@ export default function ExpensesPage() {
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className="text-base sm:text-lg font-bold text-[var(--foreground)]">
-                          {formatCurrency(expense.amount, expense.currency)}
+                          {expense.currency !== "UGX" && expense.amountUGX
+                            ? formatCurrency(expense.amountUGX)
+                            : formatCurrency(expense.amount, expense.currency)}
                         </p>
-                        {expense.currency !== "UGX" && expense.amountUGX && (
+                        {expense.currency !== "UGX" && (
                           <p className="text-[11px] text-[var(--muted)]">
-                            {formatCurrency(expense.amountUGX)}
+                            {formatCurrency(expense.amount, expense.currency)}
                           </p>
                         )}
                       </div>
