@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, CheckCheck, X, CheckCircle2, XCircle, FileText } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { usePolling } from "@/hooks/usePolling";
 
 interface Notification {
   id: string;
@@ -90,6 +91,8 @@ export function NotificationBell() {
   const prevUnreadRef = useRef<number>(0);
   const prevIdsRef = useRef<Set<string>>(new Set());
   const isFirstLoad = useRef(true);
+  // Track IDs that were optimistically marked as read to prevent re-fetch from reverting
+  const optimisticallyReadIds = useRef<Set<string>>(new Set());
 
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -104,16 +107,33 @@ export function NotificationBell() {
     return () => clearTimeout(timer);
   }, [toasts]);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch("/api/notifications");
       const data = await res.json();
       if (res.ok) {
-        const newNotifications: Notification[] = data.notifications;
-        const newUnread: number = data.unreadCount;
+        let newNotifications: Notification[] = data.notifications;
+
+        // Apply optimistic read state: if we marked something as read locally,
+        // keep it as read even if the server hasn't caught up yet
+        if (optimisticallyReadIds.current.size > 0) {
+          newNotifications = newNotifications.map((n) => {
+            if (optimisticallyReadIds.current.has(n.id)) {
+              // Check if server has caught up
+              if (n.isRead) {
+                optimisticallyReadIds.current.delete(n.id);
+              }
+              return { ...n, isRead: true };
+            }
+            return n;
+          });
+        }
+
+        // Recompute unread count respecting optimistic state
+        const actualUnreadCount = newNotifications.filter((n) => !n.isRead).length;
 
         // Detect genuinely new notifications (not on first load)
-        if (!isFirstLoad.current && newUnread > prevUnreadRef.current) {
+        if (!isFirstLoad.current && actualUnreadCount > prevUnreadRef.current) {
           const prevIds = prevIdsRef.current;
           const brandNew = newNotifications.filter(
             (n) => !n.isRead && !prevIds.has(n.id)
@@ -130,23 +150,23 @@ export function NotificationBell() {
         }
 
         isFirstLoad.current = false;
-        prevUnreadRef.current = newUnread;
+        prevUnreadRef.current = actualUnreadCount;
         prevIdsRef.current = new Set(newNotifications.map((n) => n.id));
         setNotifications(newNotifications);
-        setUnreadCount(newUnread);
+        setUnreadCount(actualUnreadCount);
       }
     } catch {
       // Silently fail
     }
-  };
+  }, []);
 
+  // Use visibility-aware polling instead of raw setInterval
   useEffect(() => {
     requestNotificationPermission();
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 15000); // Poll every 15s
-    return () => clearInterval(interval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchNotifications]);
+
+  usePolling(fetchNotifications, 15000);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -159,27 +179,32 @@ export function NotificationBell() {
   }, []);
 
   const markAllRead = async () => {
-    try {
-      // Optimistically update UI
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-      setUnreadCount(0);
-      prevUnreadRef.current = 0;
+    // Track all current unread IDs as optimistically read
+    const unreadIds = notifications.filter((n) => !n.isRead).map((n) => n.id);
+    unreadIds.forEach((id) => optimisticallyReadIds.current.add(id));
 
+    // Optimistic UI update
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setUnreadCount(0);
+    prevUnreadRef.current = 0;
+
+    try {
       await fetch("/api/notifications", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ markAll: true }),
       });
-      // Re-fetch to stay in sync with server
-      fetchNotifications();
     } catch {
-      // Silently fail
+      // Silently fail - next poll will correct state
     }
   };
 
   const handleNotificationClick = async (n: Notification) => {
     if (!n.isRead) {
-      // Optimistically update UI immediately
+      // Track as optimistically read
+      optimisticallyReadIds.current.add(n.id);
+
+      // Optimistic UI update
       setNotifications((prev) =>
         prev.map((item) => (item.id === n.id ? { ...item, isRead: true } : item))
       );
@@ -187,13 +212,13 @@ export function NotificationBell() {
       setUnreadCount(newCount);
       prevUnreadRef.current = newCount;
 
-      // Persist to server, then re-fetch to stay in sync
-      await fetch("/api/notifications", {
+      // Persist to server (don't re-fetch - optimistic state is sufficient,
+      // next poll cycle will sync naturally)
+      fetch("/api/notifications", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids: [n.id] }),
-      });
-      fetchNotifications();
+      }).catch(() => {});
     }
     if (n.linkUrl) {
       window.location.href = n.linkUrl;

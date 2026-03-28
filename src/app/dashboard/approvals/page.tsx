@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { usePolling } from "@/hooks/usePolling";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface Expense {
   id: string;
@@ -59,6 +60,8 @@ export default function ApprovalsPage() {
   const [rejectTarget, setRejectTarget] = useState<{ type: "single"; id: string } | { type: "bulk" } | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
+  const reducedMotion = useReducedMotion();
+
   const fetchExpenses = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
@@ -93,12 +96,30 @@ export default function ApprovalsPage() {
     setPage(1);
   }, [filter, search]);
 
+  // Clean up selected IDs that no longer exist in the expense list
   useEffect(() => {
-    setSelectedIds(new Set());
+    setSelectedIds((prev) => {
+      const expenseIds = new Set(expenses.map((e) => e.id));
+      const filtered = new Set([...prev].filter((id) => expenseIds.has(id)));
+      if (filtered.size === prev.size) return prev; // no change, avoid re-render
+      return filtered;
+    });
   }, [expenses]);
 
   const handleAction = async (id: string, status: "APPROVED" | "REJECTED", reason?: string) => {
     setActionLoading(id);
+
+    // Optimistic removal - remove from list immediately for instant feedback
+    const previousExpenses = expenses;
+    const previousTotal = total;
+    setExpenses((prev) => prev.filter((e) => e.id !== id));
+    setTotal((prev) => prev - 1);
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+
     try {
       const body: Record<string, string> = { status };
       if (status === "REJECTED" && reason) {
@@ -111,12 +132,16 @@ export default function ApprovalsPage() {
         body: JSON.stringify(body),
       });
 
-      if (res.ok) {
-        setExpenses((prev) => prev.filter((e) => e.id !== id));
-        setTotal((prev) => prev - 1);
+      if (!res.ok) {
+        // Revert on failure
+        setExpenses(previousExpenses);
+        setTotal(previousTotal);
       }
     } catch (err) {
       console.error("Action failed:", err);
+      // Revert on error
+      setExpenses(previousExpenses);
+      setTotal(previousTotal);
     } finally {
       setActionLoading(null);
     }
@@ -157,6 +182,15 @@ export default function ApprovalsPage() {
     if (ids.length === 0) return;
 
     setBulkLoading(true);
+
+    // Optimistic removal - remove selected items immediately
+    const previousExpenses = expenses;
+    const previousTotal = total;
+    const idsSet = new Set(ids);
+    setExpenses((prev) => prev.filter((e) => !idsSet.has(e.id)));
+    setTotal((prev) => prev - ids.length);
+    setSelectedIds(new Set());
+
     try {
       const body: Record<string, unknown> = { action, ids };
       if (reason) body.rejectionReason = reason;
@@ -167,12 +201,16 @@ export default function ApprovalsPage() {
         body: JSON.stringify(body),
       });
 
-      if (res.ok) {
-        setSelectedIds(new Set());
-        fetchExpenses();
+      if (!res.ok) {
+        // Revert on failure
+        setExpenses(previousExpenses);
+        setTotal(previousTotal);
       }
     } catch (err) {
       console.error("Bulk action failed:", err);
+      // Revert on error
+      setExpenses(previousExpenses);
+      setTotal(previousTotal);
     } finally {
       setBulkLoading(false);
     }
@@ -186,8 +224,9 @@ export default function ApprovalsPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={reducedMotion ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={reducedMotion ? { duration: 0.1 } : undefined}
       className="max-w-7xl mx-auto"
     >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
@@ -316,17 +355,17 @@ export default function ApprovalsPage() {
           )}
 
           <div className="space-y-3">
-            <AnimatePresence>
+            <AnimatePresence initial={false}>
               {expenses.map((expense, i) => {
                 const isSelected = selectedIds.has(expense.id);
 
                 return (
                   <motion.div
                     key={expense.id}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={reducedMotion ? false : { opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -100 }}
-                    transition={{ delay: i * 0.03 }}
+                    exit={reducedMotion ? { opacity: 0 } : { opacity: 0, x: -100 }}
+                    transition={reducedMotion ? { duration: 0.1 } : { delay: Math.min(i * 0.03, 0.15) }}
                     className={`premium-card p-3 lg:p-5 transition-colors ${
                       isSelected
                         ? "!border-emerald-300 dark:!border-emerald-700 !bg-emerald-50/50 dark:!bg-emerald-950/20"

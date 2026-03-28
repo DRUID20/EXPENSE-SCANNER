@@ -83,30 +83,30 @@ self.addEventListener("fetch", (event) => {
   // Skip non-GET requests
   if (request.method !== "GET") return;
 
-  // API requests: stale-while-revalidate (show cached instantly, update in background)
+  // API requests: network-first with cache fallback for offline support
+  // Network-first ensures cross-device sync is always fresh (approvals, notifications)
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(
-      caches.open(CACHE_NAME).then((cache) => {
-        return cache.match(request).then((cached) => {
-          const networkFetch = fetch(request).then((response) => {
-            if (response.ok) {
-              cache.put(request, response.clone());
-            }
-            return response;
-          }).catch(() => {
-            // Offline: return cached API data if available
-            if (cached) return cached;
-            // Return empty but valid JSON so the app doesn't crash
-            return new Response(JSON.stringify({ error: "offline" }), {
-              status: 503,
-              headers: { "Content-Type": "application/json" },
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, clone);
             });
+          }
+          return response;
+        })
+        .catch(async () => {
+          // Offline: return cached API data if available
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          // Return empty but valid JSON so the app doesn't crash
+          return new Response(JSON.stringify({ error: "offline" }), {
+            status: 503,
+            headers: { "Content-Type": "application/json" },
           });
-
-          // Return cached response immediately if available, otherwise wait for network
-          return cached || networkFetch;
-        });
-      })
+        })
     );
     return;
   }
