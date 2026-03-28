@@ -167,7 +167,7 @@ function DashboardSkeleton() {
   );
 }
 
-const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
+const CACHE_TTL = 30 * 1000; // 30 seconds
 
 function getCachedDashboard(period: string) {
   try {
@@ -266,8 +266,8 @@ export default function DashboardPage() {
     fetchDashboard();
   }, [fetchDashboard]);
 
-  // Poll every 15s for real-time sync across devices
-  usePolling(() => fetchDashboard(true), 15000);
+  // Poll every 5s for near real-time sync across devices
+  usePolling(() => fetchDashboard(true), 5000);
 
   const stats = [
     {

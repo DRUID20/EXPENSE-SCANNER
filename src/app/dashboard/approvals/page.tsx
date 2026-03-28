@@ -106,6 +106,18 @@ export default function ApprovalsPage() {
     });
   }, [expenses]);
 
+  // Invalidate dashboard cache so it picks up changes immediately
+  const invalidateDashboardCache = () => {
+    try {
+      const keys = Object.keys(sessionStorage);
+      for (const key of keys) {
+        if (key.startsWith("dashboard_cache_")) {
+          sessionStorage.removeItem(key);
+        }
+      }
+    } catch { /* ignore */ }
+  };
+
   const handleAction = async (id: string, status: "APPROVED" | "REJECTED", reason?: string) => {
     setActionLoading(id);
 
@@ -136,6 +148,9 @@ export default function ApprovalsPage() {
         // Revert on failure
         setExpenses(previousExpenses);
         setTotal(previousTotal);
+      } else {
+        // Clear dashboard cache so it refreshes with updated data
+        invalidateDashboardCache();
       }
     } catch (err) {
       console.error("Action failed:", err);
@@ -205,6 +220,9 @@ export default function ApprovalsPage() {
         // Revert on failure
         setExpenses(previousExpenses);
         setTotal(previousTotal);
+      } else {
+        // Clear dashboard cache so it refreshes with updated data
+        invalidateDashboardCache();
       }
     } catch (err) {
       console.error("Bulk action failed:", err);

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession, buildExpenseWhere } from "@/lib/auth";
-import { convertToUGX } from "@/lib/currency";
 
 export async function GET(req: NextRequest) {
   try {
@@ -42,64 +41,66 @@ export async function GET(req: NextRequest) {
 
     const filteredWhere = dateFilter ? { ...where, date: dateFilter } : where;
 
-    const [, pendingCount, approvedCount, rejectedCount, draftCount, recentExpenses, allExpenses, pendingApprovals, thisMonthExpenses] =
-      await Promise.all([
-        Promise.resolve(null), // totalAmount is now computed from allExpenses below
-        prisma.expense.count({ where: { ...filteredWhere, status: "PENDING" } }),
-        prisma.expense.count({ where: { ...filteredWhere, status: "APPROVED" } }),
-        prisma.expense.count({ where: { ...filteredWhere, status: "REJECTED" } }),
-        prisma.expense.count({ where: { ...filteredWhere, status: "DRAFT" } }),
-        prisma.expense.findMany({
-          where: filteredWhere,
-          orderBy: { createdAt: "desc" },
-          take: 5,
-          include: {
-            user: {
-              select: { firstName: true, lastName: true },
-            },
+    const [
+      pendingCount,
+      approvedCount,
+      rejectedCount,
+      draftCount,
+      recentExpenses,
+      categoryGrouped,
+      totalAggregate,
+      pendingApprovals,
+      thisMonthAggregate,
+    ] = await Promise.all([
+      prisma.expense.count({ where: { ...filteredWhere, status: "PENDING" } }),
+      prisma.expense.count({ where: { ...filteredWhere, status: "APPROVED" } }),
+      prisma.expense.count({ where: { ...filteredWhere, status: "REJECTED" } }),
+      prisma.expense.count({ where: { ...filteredWhere, status: "DRAFT" } }),
+      prisma.expense.findMany({
+        where: filteredWhere,
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: {
+          user: {
+            select: { firstName: true, lastName: true },
           },
-        }),
-        // Fetch for category totals with currency info for proper conversion
-        prisma.expense.findMany({
-          where: filteredWhere,
-          select: { category: true, amount: true, currency: true, amountUGX: true },
-        }),
-        session.role !== "EMPLOYEE"
-          ? prisma.expense.count({ where: { status: "PENDING" } })
-          : Promise.resolve(0),
-        prisma.expense.findMany({
-          where: {
-            ...filteredWhere,
-            date: {
-              gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-            },
+        },
+      }),
+      // Use groupBy for category aggregation instead of fetching all expenses
+      prisma.expense.groupBy({
+        by: ["category"],
+        where: filteredWhere,
+        _sum: { amountUGX: true },
+        orderBy: { _sum: { amountUGX: "desc" } },
+        take: 6,
+      }),
+      // Use aggregate for total amount instead of fetching all expenses
+      prisma.expense.aggregate({
+        where: filteredWhere,
+        _sum: { amountUGX: true },
+      }),
+      session.role !== "EMPLOYEE"
+        ? prisma.expense.count({ where: { status: "PENDING" } })
+        : Promise.resolve(0),
+      // Use aggregate for this month total
+      prisma.expense.aggregate({
+        where: {
+          ...filteredWhere,
+          date: {
+            gte: new Date(now.getFullYear(), now.getMonth(), 1),
           },
-          select: { amount: true, currency: true, amountUGX: true },
-        }),
-      ]);
+        },
+        _sum: { amountUGX: true },
+      }),
+    ]);
 
-    // Aggregate category totals in UGX
-    const categoryMap: Record<string, number> = {};
-    for (const e of allExpenses) {
-      const ugx = e.amountUGX ?? convertToUGX(e.amount, e.currency);
-      categoryMap[e.category] = (categoryMap[e.category] || 0) + ugx;
-    }
-    const categoryTotals = Object.entries(categoryMap)
-      .map(([category, total]) => ({ category, total }))
-      .sort((a, b) => b.total - a.total)
-      .slice(0, 6);
+    const categoryTotals = categoryGrouped.map((g) => ({
+      category: g.category,
+      total: g._sum.amountUGX ?? 0,
+    }));
 
-    // This month total in UGX
-    const thisMonthTotal = thisMonthExpenses.reduce(
-      (sum, e) => sum + (e.amountUGX ?? convertToUGX(e.amount, e.currency)),
-      0
-    );
-
-    // Total amount in UGX (properly convert each expense like category totals)
-    const totalAmount = allExpenses.reduce(
-      (sum, e) => sum + (e.amountUGX ?? convertToUGX(e.amount, e.currency)),
-      0
-    );
+    const thisMonthTotal = thisMonthAggregate._sum.amountUGX ?? 0;
+    const totalAmount = totalAggregate._sum.amountUGX ?? 0;
 
     return NextResponse.json({
       stats: {
